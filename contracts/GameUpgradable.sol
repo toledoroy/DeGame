@@ -30,7 +30,7 @@ import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
 /**
  * @title Game Contract
  * @dev Retains Group Members in Roles
- * @dev Version 3.0
+ * @dev Version 3.1
  * V1: Using Role NFTs
  * - Mints Member NFTs
  * - One for each
@@ -44,8 +44,8 @@ import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
  * - NFT Trackers - Assign Avatars instead of Accounts & Track the owner of the Avatar NFT
  * V3:
  * - Multi-Proxy Pattern
- * / DAO Votes [?]
  * V4:
+ * - [TODO] DAO Votes
  * - [TODO] Unique Rule IDs (GUID)
  */
 contract GameUpgradable is 
@@ -57,7 +57,6 @@ contract GameUpgradable is
         ProxyMulti,
         // VotesUpgradeable,
         ERC1155RolesTrackerUp {
-        // ERC1155RolesUpgradable {
 
     //--- Storage
     string public constant override symbol = "GAME";
@@ -256,7 +255,7 @@ contract GameUpgradable is
         string memory gameTypeFull = string(abi.encodePacked("GAME_", gameType));
         //Fetch Implementations
         implementationAddresses = repo().addressGetAllOf(address(_HUB), gameTypeFull); //Specific
-        require(implementationAddresses.length > 0, "NO_FALLBACK_CONTRACT");
+        require(implementationAddresses.length > 0, "NO_FALLBACK_CONTRACTS");
         return implementationAddresses;
     }
 
