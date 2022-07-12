@@ -67,13 +67,13 @@ describe("Protocol", function () {
     //Deploy
     this.ruleRepo = await deployContract("RuleRepo", []);
     //Set to Hub
-    hubContract.setAssoc("RULE_REPO", this.ruleRepo.address);
+    hubContract.assocSet("RULE_REPO", this.ruleRepo.address);
 
     //--- Deploy Soul Upgradable (UUPS)
     avatarContract = await deployUUPS("SoulUpgradable", [hubContract.address]);
 
     //Set Avatar Contract to Hub
-    hubContract.setAssoc("SBT", avatarContract.address);
+    hubContract.assocSet("SBT", avatarContract.address);
 
     //Deploy History
     // actionContract = await ethers.getContractFactory("ActionRepo").then(res => res.deploy(hubContract.address));
@@ -89,7 +89,7 @@ describe("Protocol", function () {
     );
 
     //Set Avatar Contract to Hub
-    hubContract.setAssoc("history", actionContract.address);
+    hubContract.assocSet("history", actionContract.address);
 
     //Populate Accounts
     [owner, admin, tester, tester2, tester3, tester4, tester5, authority, ...addrs] = await ethers.getSigners();

@@ -27,8 +27,8 @@ async function main() {
     //New Hub
     let hubContract = await ethers.getContractFactory("HubUpgradable").then(res => res.attach(contractAddr.hub));
     //Set Contract Associations
-    await hubContract.setAssoc("SBT", contractAddr.avatar);
-    await hubContract.setAssoc("history", contractAddr.history);
+    await hubContract.assocSet("SBT", contractAddr.avatar);
+    await hubContract.assocSet("history", contractAddr.history);
 
 }
 

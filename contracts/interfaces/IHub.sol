@@ -44,7 +44,7 @@ interface IHub {
     function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
 
     //Get Contract Association
-    function getAssoc(string memory key) external view returns(address);
+    function assocGet(string memory key) external view returns(address);
     
     //--- Events
 

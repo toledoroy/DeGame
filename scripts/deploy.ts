@@ -85,7 +85,7 @@ async function main() {
     await hubContract.deployed();
 
     //Set RuleRepo to Hub
-    hubContract.setAssoc("RULE_REPO", publicAddr.ruleRepo.address);
+    hubContract.assocSet("RULE_REPO", publicAddr.ruleRepo.address);
 
     //Set Address
     contractAddr.hub = hubContract.address;
@@ -94,9 +94,9 @@ async function main() {
 
     try{
       //Set as Avatars
-      if(!!contractAddr.avatar) await hubContract.setAssoc("SBT", contractAddr.avatar);
+      if(!!contractAddr.avatar) await hubContract.assocSet("SBT", contractAddr.avatar);
       //Set as History
-      if(!!contractAddr.history) await hubContract.setAssoc("history", contractAddr.history);
+      if(!!contractAddr.history) await hubContract.assocSet("history", contractAddr.history);
     }
     catch(error){
       console.error("Failed to Set Contracts to Hub", error);
@@ -130,7 +130,7 @@ async function main() {
     if(!!hubContract){  //If Deployed Together
       try{
         //Set to HUB
-        await hubContract.setAssoc("SBT", contractAddr.avatar);
+        await hubContract.assocSet("SBT", contractAddr.avatar);
         //Log
         console.log("Registered Avatar Contract to Hub");
       }
@@ -178,7 +178,7 @@ async function main() {
         console.log("Will Register History to Hub");
 
         //Set to HUB
-        await hubContract.setAssoc("history", contractAddr.history);
+        await hubContract.assocSet("history", contractAddr.history);
       }
       catch(error){
         console.error("Failed to Set History Contract to Hub", error);

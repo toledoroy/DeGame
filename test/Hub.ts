@@ -84,8 +84,8 @@ describe("Hub", function () {
           );
 
         //Set Avatar Contract to Hub
-        hubContract.setAssoc("SBT", avatarContract.address);
-        hubContract2.setAssoc("SBT", avatarContract.address);
+        hubContract.assocSet("SBT", avatarContract.address);
+        hubContract2.assocSet("SBT", avatarContract.address);
 
         //Deploy History
         // actionContract = await ethers.getContractFactory("ActionRepo").then(res => res.deploy(hubContract.address));
@@ -99,8 +99,8 @@ describe("Hub", function () {
           );
 
         //Set Avatar Contract to Hub
-        hubContract.setAssoc("history", actionContract.address);
-        hubContract2.setAssoc("history", actionContract.address);
+        hubContract.assocSet("history", actionContract.address);
+        hubContract2.assocSet("history", actionContract.address);
     });
 
     it("Should Be Secure", async function () {

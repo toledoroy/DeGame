@@ -67,7 +67,7 @@ describe("Deployment", function () {
     });
 
     it("Should Remember & Serve Config", async function () {
-        expect(await hubContract.getAssoc("config")).to.equal(configContract.address);
+        expect(await hubContract.assocGet("config")).to.equal(configContract.address);
     });
 
     it("Should Change Hub", async function () {
@@ -105,7 +105,7 @@ describe("Deployment", function () {
         await proxyAvatar.deployed();
         this.avatarContract = proxyAvatar;
         //Set Avatar Contract to Hub
-        hubContract.setAssoc("SBT", proxyAvatar.address);
+        hubContract.assocSet("SBT", proxyAvatar.address);
         // console.log("SoulUpgradable deployed to:", proxyAvatar.address);
     });
 
@@ -118,7 +118,7 @@ describe("Deployment", function () {
         //--- ActionRepo
         actionRepoContract = await ethers.getContractFactory("ActionRepo").then(res => res.deploy(hubContract.address));
         //Set Action Repo Contract to Hub
-        hubContract.setAssoc("history", actionRepoContract.address);
+        hubContract.assocSet("history", actionRepoContract.address);
         */
 
         //Deploy Avatar Upgradable
@@ -132,7 +132,7 @@ describe("Deployment", function () {
         });
         await proxyActionRepo.deployed();
         //Set Avatar Contract to Hub
-        hubContract.setAssoc("history", proxyActionRepo.address);
+        hubContract.assocSet("history", proxyActionRepo.address);
         // this.historyContract = proxyActionRepo;
         // console.log("ActionRepoTrackerUp deployed to:", proxyActionRepo.address);
     });

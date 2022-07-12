@@ -20,14 +20,14 @@ abstract contract Assoc is IAssoc {
     //--- Functions
 
     /// Get Contract Association
-    function getAssoc(string memory key) public view override returns(address) {
+    function assocGet(string memory key) public view override returns(address) {
         //Validate
         require(_assoc[key] != address(0) , string(abi.encodePacked("Assoc:Faild to Get Assoc: ", key)));
         return _assoc[key];
     }
 
     /// Set Association
-    function _setAssoc(string memory key, address contractAddr) internal {
+    function _assocSet(string memory key, address contractAddr) internal {
         _assoc[key] = contractAddr;
         //Association Changed Event
         emit Assoc(key, contractAddr);

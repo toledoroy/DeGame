@@ -139,13 +139,13 @@ contract HubUpgradable is
     //-- Assoc
 
     /// Get Contract Association
-    function getAssoc(string memory key) public view override returns(address) {
+    function assocGet(string memory key) public view override returns(address) {
         //Return address from the Repo
         return repo().addressGet(key);
     }
 
     /// Set Association
-    function setAssoc(string memory key, address contractAddr) external onlyOwner {
+    function assocSet(string memory key, address contractAddr) external onlyOwner {
         repo().addressSet(key, contractAddr);
     }
     

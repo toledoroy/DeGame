@@ -6,7 +6,7 @@ interface IAssoc {
     //--- Functions
 
     //Get Contract Association
-    function getAssoc(string memory key) external view returns(address);
+    function assocGet(string memory key) external view returns(address);
 
     //--- Events
 

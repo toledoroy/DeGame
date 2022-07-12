@@ -108,12 +108,12 @@ contract ReactionUpgradable is
 
     /* Maybe, When used more than once
     /// Set Association
-    function _setAssoc(string memory key, address contractAddr) internal {
+    function _assocSet(string memory key, address contractAddr) internal {
         repo().addressSet(key, contractAddr);
     }
 
     /// Get Contract Association
-    function getAssoc(string memory key) public view override returns(address) {
+    function assocGet(string memory key) public view override returns(address) {
         //Return address from the Repo
         return repo().addressGet(key);
     }
@@ -126,7 +126,7 @@ contract ReactionUpgradable is
         require(IERC165(container).supportsInterface(type(IGame).interfaceId), "Implmementation Does Not Support Game Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
         //Set to OpenRepo
         repo().addressSet("container", container);
-        // _setAssoc("container", container);
+        // _assocSet("container", container);
     }
     
     /// Get Container Address
@@ -214,7 +214,7 @@ contract ReactionUpgradable is
     function post(string calldata entRole, uint256 tokenId, string calldata uri_) external override {
         //Validate that User Controls The Token
         // require(_hasTokenControl(tokenId), "SOUL:NOT_YOURS");
-        // require(ISoul( IAssoc(address(_HUB)).getAssoc("SBT") ).hasTokenControl(tokenId), "SOUL:NOT_YOURS");
+        // require(ISoul( IAssoc(address(_HUB)).assocGet("SBT") ).hasTokenControl(tokenId), "SOUL:NOT_YOURS");
         require(ISoul( getSoulAddr() ).hasTokenControl(tokenId), "SOUL:NOT_YOURS");
         //Validate: Soul Assigned to the Role 
         // require(roleHas(tx.origin, entRole), "ROLE:NOT_ASSIGNED");    //Validate the Calling Account
@@ -336,8 +336,8 @@ contract ReactionUpgradable is
     /// Rule (Action) Confirmed (Currently Only Judging Avatars)
     function _ruleConfirmed(uint256 ruleId) internal {
         //Get Avatar Contract
-        // ISoul avatarContract = ISoul(_HUB.getAssoc("SBT"));
-        // ISoul avatarContract = ISoul(IAssoc(address(_HUB)).getAssoc("SBT"));
+        // ISoul avatarContract = ISoul(_HUB.assocGet("SBT"));
+        // ISoul avatarContract = ISoul(IAssoc(address(_HUB)).assocGet("SBT"));
         ISoul avatarContract = ISoul( getSoulAddr() );
         
 

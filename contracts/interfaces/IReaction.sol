@@ -46,7 +46,7 @@ interface IReaction {
     function setRoleURI(string memory role, string memory _tokenURI) external;
 
     //Get Contract Association
-    // function getAssoc(string memory key) external view returns(address);
+    // function assocGet(string memory key) external view returns(address);
 
     //--- Events
 
