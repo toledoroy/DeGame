@@ -1,11 +1,11 @@
 # The Playground Protocol 
 
 
-Using the magic of cryptographic technology to bring balance to the world and promote decentralized justice.
+Using the magic of cryptographic technology to create higher-level game structures out of composible smart contracts.
 
 ## Overview
 
-The Excalibur Protocol is an on-chain justice system, carefully designed to imitate the same innate human social structures that the traditional justice system is based on. 
+
 
 ## Technical info
 
