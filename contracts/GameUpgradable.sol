@@ -399,8 +399,8 @@ contract GameUpgradable is
         }
     }
     */
-
-     function _afterTokenTransferTracker(
+    /// Hook:Track Voting Power    //UNTESTED
+    function _afterTokenTransferTracker(
         address operator,
         uint256 fromToken,
         uint256 toToken,
