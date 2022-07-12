@@ -1,6 +1,5 @@
-# The Excalibur Protocol 
+# The Playground Protocol 
 
-![The Excalibur Protocol](doc/images/cover.png)
 
 Using the magic of cryptographic technology to bring balance to the world and promote decentralized justice.
 
