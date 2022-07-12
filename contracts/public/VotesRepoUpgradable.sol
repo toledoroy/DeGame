@@ -14,7 +14,7 @@ import "./interfaces/IVotesRepo.sol";
 /**
  * @dev Based on VotesUpgradeable  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/v4.7.0/contracts/governance/utils/VotesUpgradeable.sol
  * @title Votes Repository
- * @dev Retains Voting Power Data for other Contracts
+ * @dev Retains Voting Power History for other Contracts
  * Version 1.0.0
  *
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
