@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 // import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 // import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+// import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 // import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeabl
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "../interfaces/IERC1155Tracker.sol";
-import "../interfaces/ISoul.sol";
+// import "../interfaces/ISoul.sol";
 import "../libraries/AddressArray.sol";
 import "../libraries/UintArray.sol";
 import "../abstract/TrackerUpgradable.sol";
@@ -63,11 +63,6 @@ abstract contract ERC1155TrackerUpgradable is
     /// Unique Members Count (w/Token)
     function uniqueMembersCount(uint256 id) public view override returns (uint256) {
         return uniqueMembers(id).length;
-    }
-
-    /// Get Owner Account By Owner Token
-    function _getAccount(uint256 extTokenId) internal view returns (address) {
-        return IERC721(_targetContract).ownerOf(extTokenId);
     }
 
     /**

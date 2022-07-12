@@ -54,4 +54,9 @@ abstract contract TrackerUpgradable {
         return ownerToken;
     }
     
+    /// Get Owner Account By Owner Token
+    function _getAccount(uint256 extTokenId) internal view returns (address) {
+        return IERC721(_targetContract).ownerOf(extTokenId);
+    }
+
 }
