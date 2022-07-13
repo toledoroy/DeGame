@@ -59,6 +59,7 @@ contract HubUpgradable is
     mapping(address => bool) internal _games; // Mapping for Active Games   //[TBD]
     mapping(address => address) internal _reactions;      // Mapping for Reaction Contracts  [C] => [J]
 
+    
     //--- Functions
  
     /// ERC165 - Supported Interfaces
@@ -201,7 +202,7 @@ contract HubUpgradable is
         string calldata uri_,
         DataTypes.RuleRef[] memory addRules,
         DataTypes.InputRoleToken[] memory assignRoles
-    ) external override returns (address) {
+    ) public override returns (address) {
         //Validate Caller Permissions (A Game)
         require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
         //Deploy
