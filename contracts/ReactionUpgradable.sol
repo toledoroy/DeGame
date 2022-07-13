@@ -299,7 +299,6 @@ contract ReactionUpgradable is
     }   
 
     /// Reaction Stage: Place Verdict  --> Closed
-    // function stageVerdict(string calldata uri) public override {
     function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
         require(_msgSender() == getContainerAddr() 
             || roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
