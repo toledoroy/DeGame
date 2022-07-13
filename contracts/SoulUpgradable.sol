@@ -253,7 +253,7 @@ contract SoulUpgradable is
     /// Post
     function post(uint256 tokenId, string calldata uri_) external override {
         //Validate that User Controls The Token
-        require(hasTokenControl(tokenId), "SOUL:NOT_YOURS");
+        require(hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
         //Post Event
         emit Post(_msgSender(), tokenId, uri_);
     }
