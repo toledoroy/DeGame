@@ -31,13 +31,13 @@ abstract contract Opinions is IOpinions {
     }
 
     /// Add Opinion (Positive or Negative)
-    function _repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 score) internal {
+    function _repAdd(address contractAddr, uint256 tokenId, string memory domain, bool rating, uint8 score) internal {
         //Update Opinion
-        _repAdd(block.chainid, contractAddr, tokenId, domain, rating, score);
+        _repAddCrosschain(block.chainid, contractAddr, tokenId, domain, rating, score);
     }
 
     /// Add Opinion (Positive or Negative)
-    function _repAdd(uint256 chainId, address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 score) internal {
+    function _repAddCrosschain(uint256 chainId, address contractAddr, uint256 tokenId, string memory domain, bool rating, uint8 score) internal {
         //Update Opinion
         _rep[chainId][contractAddr][tokenId][domain][rating] += score;
         //Opinion Change Event
