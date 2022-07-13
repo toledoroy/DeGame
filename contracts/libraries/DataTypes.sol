@@ -107,10 +107,17 @@ library DataTypes {
         string role;
     }
 
-    //Decision (Verdict) Input
+    //Decision Input
     struct InputDecision {
         uint256 ruleId;
         bool decision;
+    }
+
+    //Post Input Struct
+    struct PostInput {
+        uint256 tokenId;
+        string entRole;
+        string uri;
     }
 
     //Role Name Input Struct
