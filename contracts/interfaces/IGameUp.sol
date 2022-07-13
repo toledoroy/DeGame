@@ -62,11 +62,18 @@ interface IGame {
     /// Set Metadata URI For Role
     function setRoleURI(string memory role, string memory _tokenURI) external;
 
-
     /// Add Reputation (Positive or Negative)
-    function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
+    // function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
 
+    /// Execute Rule's Effects (By Reaction Contreact)
+    function effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) external;
 
+    /// Automatic Reaction -- Direct Feedback, No Reaction Contract
+    function triggerReaction(
+        DataTypes.RuleRef[] calldata rules, 
+        uint256[] memory sbtIds,
+        string calldata decisionURI_
+    ) external;
 
     /* MOVED TO IRules
     //-- Rule Func.
@@ -81,9 +88,6 @@ interface IGame {
     function ruleConfirmationUpdate(uint256 id, DataTypes.Confirmation memory confirmation) external;
 
     */
-
-    
-
 
     //--- Events
 

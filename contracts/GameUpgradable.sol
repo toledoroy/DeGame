@@ -71,13 +71,6 @@ contract GameUpgradable is
     // Mapping for Reaction Contracts
     mapping(address => bool) internal _active;
 
-    //Post Input Struct
-    struct PostInput {
-        uint256 tokenId;
-        string entRole;
-        string uri;
-    }
-
     //--- Modifiers
 
     /// Check if GUID Exists
@@ -143,60 +136,59 @@ contract GameUpgradable is
 
     //** Reaction Functions
 
-    /// Make a new Reaction
-    /// @dev a wrapper function for creation, adding rules, assigning roles & posting
-    function reactionMake(
-        string calldata name_, 
-        string calldata uri_, 
-        DataTypes.RuleRef[] calldata addRules, 
-        DataTypes.InputRoleToken[] calldata assignRoles, 
-        PostInput[] calldata posts
-    ) public returns (address) {
-        //Validate Caller Permissions (Member of Game)
-        require(roleHas(_msgSender(), "member"), "Members Only");
-        //Assign Reaction ID
-        _reactionIds.increment(); //Start with 1
-        uint256 reactionId = _reactionIds.current();
-        //Create new Reaction
-        address reactionContract = _HUB.reactionMake(name_, uri_, addRules, assignRoles);
-        //Remember Address
-        _active[reactionContract] = true;
-        //New Reaction Created Event
-        emit ReactionCreated(reactionId, reactionContract);
-        //Posts
-        for (uint256 i = 0; i < posts.length; ++i) {
-            IReaction(reactionContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
+    /// Automatic Reaction -- Direct Feedback, No Reaction Contract
+    function triggerReaction(
+        DataTypes.RuleRef[] calldata rules, 
+        uint256[] memory sbtIds,
+        string calldata decisionURI_
+    ) external override {
+        //Validate Role
+        require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
+        //Process Decisions
+        for (uint256 i = 0; i < rules.length; ++i) {
+            address sbtContract = getSoulAddr();
+            for (uint256 s = 0; s < sbtIds.length; ++s) {
+                //Execute Effects
+                _effectsExecute(rules[i], sbtContract, sbtIds[s]);
+            }
         }
-        return reactionContract;
-    }
-    
-    /// Make a new Reaction & File it
-    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a reaction
-    function reactionMakeOpen(
-        string calldata name_, 
-        string calldata uri_, 
-        DataTypes.RuleRef[] calldata addRules, 
-        DataTypes.InputRoleToken[] calldata assignRoles, 
-        PostInput[] calldata posts
-    ) public returns (address) {
-        //Make Reaction
-        address reactionContract = reactionMake(name_, uri_, addRules, assignRoles, posts);
-        //File Reaction
-        IReaction(reactionContract).stageFile();
-        //Return
-        return reactionContract;
     }
 
-    /// Disable Reaction        //TODO: Also Support Enable
+    /// Execute Rule's Effects (By Reaction Contreact)
+    function effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) external override {
+        //Validate - Called by Child Reaction
+        require(reactionHas(_msgSender()), "NOT A VALID INCIDENT");
+        _effectsExecute(rule, targetContract, targetTokenId);
+    }
+
+    /// Execute Rule's Effects
+    function _effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) internal {
+        //Validate
+        require(rule.game == address(this) || rule.game == address(0) , "ROLE:EXTERNAL_RULE_UNSUPPORTED");
+        //Fetch Rule's Effects
+        DataTypes.Effect[] memory effects = effectsGet(rule.ruleId);
+        //Run Each Effect
+        for (uint256 j = 0; j < effects.length; ++j) {
+            DataTypes.Effect memory effect = effects[j];
+            //Register Rep in Game      //{name:'professional', value:5, direction:false}
+            _repAdd(targetContract, targetTokenId, effect.name, effect.direction, effect.value);
+            //Update Hub
+            _HUB.repAdd(targetContract, targetTokenId, effect.name, effect.direction, effect.value);
+        }
+    }
+
+    /// Disable Reaction        //TODO: Should Also Support Enable
     function reactionDisable(address reactionContract) public override onlyOwner {
         //Validate
-        require(_active[reactionContract], "Reaction Not Active");
-        _active[reactionContract] = false;
+        require(reactionHas(reactionContract), "Reaction Not Active");
+        // _active[reactionContract] = false;
+        repo().addressRemove("reaction", reactionContract);
     }
 
     /// Check if Reaction is Owned by This Contract (& Active)
     function reactionHas(address reactionContract) public view override returns (bool){
-        return _active[reactionContract];
+        // return _active[reactionContract];
+        return repo().addressHas("reaction", reactionContract);
     }
 
     /// Add Post 
@@ -205,9 +197,9 @@ contract GameUpgradable is
     /// @param uri_     post URI
     function post(string calldata entRole, uint256 tokenId, string calldata uri_) external override {
         //Validate that User Controls The Token
-        require(ISoul( repo().addressGetOf(address(_HUB), "SBT") ).hasTokenControl(tokenId), "SOUL:NOT_YOURS");
+        require(ISoul( repo().addressGetOf(address(_HUB), "SBT") ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
         //Validate: Soul Assigned to the Role 
-        require(roleHasByToken(tokenId, entRole), "ROLE:NOT_ASSIGNED");    //Validate the Calling Account
+        require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         // require(roleHasByToken(tokenId, entRole), string(abi.encodePacked("TOKEN: ", tokenId, " NOT_ASSIGNED_AS: ", entRole)) );    //Validate the Calling Account
         //Post Event
         _post(tx.origin, tokenId, entRole, uri_);
@@ -249,6 +241,9 @@ contract GameUpgradable is
     function _implementations() internal view virtual override returns (address[] memory){
         address[] memory implementationAddresses;
         string memory gameType = confGet("type");
+        
+        // console.log("[DEBUG] Find Implementations For", gameType);
+
         if(Utils.stringMatch(gameType, "")) return implementationAddresses;
         // require (!Utils.stringMatch(gameType, ""), "NO_GAME_TYPE");
         //UID
@@ -256,6 +251,9 @@ contract GameUpgradable is
         //Fetch Implementations
         implementationAddresses = repo().addressGetAllOf(address(_HUB), gameTypeFull); //Specific
         require(implementationAddresses.length > 0, "NO_FALLBACK_CONTRACTS");
+
+        // console.log("[DEBUG] Has Implementations For: ", gameTypeFull);
+
         return implementationAddresses;
     }
 
@@ -294,14 +292,14 @@ contract GameUpgradable is
     //** Custom Rating Functions
     
     /// Add Reputation (Positive or Negative)
-    function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external override {
-        //Validate - Called by Child Reaction
-        require(reactionHas(_msgSender()), "NOT A VALID INCIDENT");
-        //Run on Self
-        _repAdd(contractAddr, tokenId, domain, rating, amount);
-        //Update Hub
-        _HUB.repAdd(contractAddr, tokenId, domain, rating, amount);
-    }
+    // function repAdd(address targetContract, uint256 targetTokenId, string memory domain, bool rating, uint8 amount) external override {
+    //     //Validate - Called by Child Reaction
+    //     require(reactionHas(_msgSender()), "NOT A VALID INCIDENT");
+    //     //Run on Self
+    //     _repAdd(targetContract, targetTokenId, domain, rating, amount);
+    //     //Update Hub
+    //     _HUB.repAdd(targetContract, targetTokenId, domain, rating, amount);
+    // }
 
     //** Role Management
 
@@ -420,7 +418,7 @@ contract GameUpgradable is
             }
         }
         else{
-            console.log("No Votes Repo Configured", votesRepoAddr);
+            // console.log("No Votes Repo Configured", votesRepoAddr);
         }
 
     }

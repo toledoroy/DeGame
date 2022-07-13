@@ -135,10 +135,12 @@ contract ReactionUpgradable is
         return repo().addressGet("container");
     }
 
+    /* MOVED TO ProtocolEntity
     /// Get Soul Contract Address
     function getSoulAddr() internal view returns(address){
         return repo().addressGetOf(address(_HUB), "SBT");
     }
+    */
 
     /// Request to Join
     function nominate(uint256 soulToken, string memory uri_) external override {
@@ -213,12 +215,12 @@ contract ReactionUpgradable is
     /// @param uri_     post URI
     function post(string calldata entRole, uint256 tokenId, string calldata uri_) external override {
         //Validate that User Controls The Token
-        // require(_hasTokenControl(tokenId), "SOUL:NOT_YOURS");
-        // require(ISoul( IAssoc(address(_HUB)).assocGet("SBT") ).hasTokenControl(tokenId), "SOUL:NOT_YOURS");
-        require(ISoul( getSoulAddr() ).hasTokenControl(tokenId), "SOUL:NOT_YOURS");
+        // require(_hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
+        // require(ISoul( IAssoc(address(_HUB)).assocGet("SBT") ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
+        require(ISoul( getSoulAddr() ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
         //Validate: Soul Assigned to the Role 
-        // require(roleHas(tx.origin, entRole), "ROLE:NOT_ASSIGNED");    //Validate the Calling Account
-        require(roleHasByToken(tokenId, entRole), "ROLE:NOT_ASSIGNED");    //Validate the Calling Account
+        // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
+        require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         //Validate Stage
         require(stage < DataTypes.ReactionStage.Closed, "STAGE:CLOSED");
         //Post Event
@@ -289,7 +291,9 @@ contract ReactionUpgradable is
         //Validate Stage
         require(stage == DataTypes.ReactionStage.Open, "STAGE:OPEN_ONLY");
         //Validate Caller
-        require(roleHas(_msgSender(), "authority") || roleHas(_msgSender(), "admin") , "ROLE:AUTHORITY_OR_ADMIN");
+        require(_msgSender() == getContainerAddr() 
+            || roleHas(_msgSender(), "authority") 
+            || roleHas(_msgSender(), "admin") , "ROLE:AUTHORITY_OR_ADMIN");
         //Reaction is now Waiting for Verdict
         _setStage(DataTypes.ReactionStage.Verdict);
     }   
@@ -297,22 +301,39 @@ contract ReactionUpgradable is
     /// Reaction Stage: Place Verdict  --> Closed
     // function stageVerdict(string calldata uri) public override {
     function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
-        require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
+        require(_msgSender() == getContainerAddr() 
+            || roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
         require(stage == DataTypes.ReactionStage.Verdict, "STAGE:VERDICT_ONLY");
 
-        //Process Verdict
+        //Process Decision
         for (uint256 i = 0; i < verdict.length; ++i) {
             decision[verdict[i].ruleId] = verdict[i].decision;
             if(verdict[i].decision){
-                // Rule Confirmed
-                _ruleConfirmed(verdict[i].ruleId);
+                
+                //Rule Confirmation Procedure (OLD)
+                // _ruleConfirmed(verdict[i].ruleId);
+
+                //Fetch Reaction's Subject(s)
+                uint256[] memory subjects = uniqueRoleMembers("subject");
+                //Each Subject
+                for (uint256 s = 0; s < subjects.length; ++s) {
+                    //Get Subject's SBT ID 
+                    uint256 tokenId = subjects[s];
+                    
+                    //Execute Rule
+                    IGame(getContainerAddr()).effectsExecute(_rules[verdict[i].ruleId], getSoulAddr(), tokenId);
+
+                }
+                        
+                //Rule Confirmed Event
+                emit RuleConfirmed(verdict[i].ruleId);
             }
         }
 
         //Reaction is now Closed
         _setStage(DataTypes.ReactionStage.Closed);
         //Emit Verdict Event
-        emit Verdict(uri_, _msgSender());
+        emit Verdict(uri_, tx.origin);
     }
 
     /// Reaction Stage: Reject Reaction --> Cancelled
@@ -333,42 +354,42 @@ contract ReactionUpgradable is
         emit Stage(stage);
     }
 
+    /*
     /// Rule (Action) Confirmed (Currently Only Judging Avatars)
     function _ruleConfirmed(uint256 ruleId) internal {
-        //Get Avatar Contract
-        // ISoul avatarContract = ISoul(_HUB.assocGet("SBT"));
-        // ISoul avatarContract = ISoul(IAssoc(address(_HUB)).assocGet("SBT"));
-        ISoul avatarContract = ISoul( getSoulAddr() );
-        
 
         /* REMOVED for backward compatibility while in dev mode.
         //Validate Avatar Contract Interface
         require(IERC165(address(avatarContract)).supportsInterface(type(ISoul).interfaceId), "Invalid Avatar Contract");
-        */
+        * /
 
         //Fetch Reaction's Subject(s)
         uint256[] memory subjects = uniqueRoleMembers("subject");
+
         //Each Subject
         for (uint256 i = 0; i < subjects.length; ++i) {
-            //Get Subject's Token ID For 
-            // uint256 tokenId = avatarContract.tokenByAddress(subjects[i]);
+            //Get Subject's SBT ID 
             uint256 tokenId = subjects[i];
             if(tokenId > 0){
+                
+                //Get Effects
                 DataTypes.Effect[] memory effects = ruleGetEffects(ruleId);
+
                 //Run Each Effect
                 for (uint256 j = 0; j < effects.length; ++j) {
                     DataTypes.Effect memory effect = effects[j];
-                    bool direction = effect.direction;
+                    
                     //Register Rep in Game      //{name:'professional', value:5, direction:false}
-                    IGame(getContainerAddr()).repAdd(address(avatarContract), tokenId, effect.name, direction, effect.value);
+                    IGame(getContainerAddr()).repAdd(getSoulAddr(), tokenId, effect.name, effect.direction, effect.value);
+
                 }
             }
-
         }
         
         //Rule Confirmed Event
         emit RuleConfirmed(ruleId);
     }
+    */
 
     /// Get Token URI by Token ID
     function uri(uint256 token_id) public view returns (string memory) {
