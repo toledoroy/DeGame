@@ -1,7 +1,7 @@
 # The Playground Protocol 
 
 
-Using the magic of cryptographic technology to create higher-level game structures out of composible smart contracts.
+Using the magic of decentralized cryptography to create a higher-level game and reputation system out of composible smart contracts and NFT.
 
 ## Overview
 
