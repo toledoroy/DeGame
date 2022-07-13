@@ -33,7 +33,7 @@ library DataTypes {
         Verdict,        // Awaiting Decision (Authority, Jury, vote, etc’)
         Action,         // Remedy - Reward / Punishment / Compensation
         Appeal,
-        Enforcement,
+        Execution,
         Closed,
         Cancelled       // Denied / Withdrawn
     }
