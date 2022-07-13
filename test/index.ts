@@ -707,11 +707,11 @@ describe("Protocol", function () {
         // await this.gameContract.roleAssign(this.adminAddr, "member");
 
         //Simulate - Get New Reaction Address
-        let reactionAddr = await this.courtContract.connect(admin).callStatic.reactionMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
+        let reactionAddr = await this.courtContract.connect(admin).callStatic.caseMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
         // console.log("New Reaction Address: ", reactionAddr);
 
         //Create New Reaction
-        let tx = await this.courtContract.connect(admin).reactionMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
+        let tx = await this.courtContract.connect(admin).caseMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
         //Expect Valid Address
         expect(reactionAddr).to.be.properAddress;
         //Init Reaction Contract
@@ -756,9 +756,9 @@ describe("Protocol", function () {
           }
         ];
         //Simulate - Get New Reaction Address
-        let reactionAddr = await this.courtContract.connect(admin).callStatic.reactionMakeOpen(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
+        let reactionAddr = await this.courtContract.connect(admin).callStatic.caseMakeOpen(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
         //Create New Reaction
-        let tx = await this.courtContract.connect(admin).reactionMakeOpen(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
+        let tx = await this.courtContract.connect(admin).caseMakeOpen(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
         //Expect Valid Address
         expect(reactionAddr).to.be.properAddress;
         //Init Reaction Contract
@@ -806,31 +806,14 @@ describe("Protocol", function () {
           // }
         ];
 
-
-        let gameType = await gameContract.confGet("type");
-        console.log("Game Type:", gameType);
-
-        let gameCourtExt = await hubContract.assocGet("GAME_COURT");
-        console.log("gameCourtExt:", gameCourtExt);
-
-        let isAuthority1 = await gameContract.roleHas(this.authorityAddr, "authority");
-        let isAuthority2 = await gameContract.roleHas(this.tester4Addr, "authority");
-        console.log("isAuthority:", isAuthority1, isAuthority2);
-
         //Assign as a Member (Needs to be both a member and an authority)
         // await gameContract.connect(authority).join();
         await gameContract.connect(admin).roleAssign(this.authorityAddr, "member");
 
-        let isMember1 = await gameContract.roleHas(this.authorityAddr, "member");
-        let isMember2 = await gameContract.roleHas(this.tester4Addr, "member");
-        console.log("isMember:", isMember1, isMember2);
-
-        // expect(await gameCourtExt.roleHas(this.authorityAddr, "authority")).to.equal(true);
-
         //Simulate - Get New Reaction Address
-        let reactionAddr = await this.courtContract.connect(authority).callStatic.reactionMakeClosed(reactionName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
+        let reactionAddr = await this.courtContract.connect(authority).callStatic.caseMakeClosed(reactionName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
         //Create New Reaction
-        let tx = await this.courtContract.connect(authority).reactionMakeClosed(reactionName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
+        let tx = await this.courtContract.connect(authority).caseMakeClosed(reactionName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
         //Expect Valid Address
         expect(reactionAddr).to.be.properAddress;
         //Init Reaction Contract
@@ -843,9 +826,10 @@ describe("Protocol", function () {
         //Expect Post Event
         // await expect(tx).to.emit(reactionContract, 'Post').withArgs(this.authorityAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
 
-        //TODO: Expect Additional Closure Events
-
-        
+        //Expect State Change Events
+        await expect(tx).to.emit(reactionContract, "Stage").withArgs(1); //Open
+        await expect(tx).to.emit(reactionContract, "Stage").withArgs(2);  //Verdict
+        await expect(tx).to.emit(reactionContract, "Stage").withArgs(6);  //Closed
       });
       
       it("Should Update Reaction Contract URI", async function () {
@@ -953,7 +937,7 @@ describe("Protocol", function () {
         //File Reaction
         let tx = await this.reactionContract.connect(admin).stageFile();
         //Expect State Event
-        await expect(tx).to.emit(this.reactionContract, 'Stage').withArgs(1);
+        await expect(tx).to.emit(this.reactionContract, "Stage").withArgs(1);
       });
 
       it("Should Validate Authority with parent game", async function () {
@@ -986,7 +970,7 @@ describe("Protocol", function () {
         //File Reaction
         let tx = await this.reactionContract.connect(authority).stageWaitForVerdict();
         //Expect State Event
-        await expect(tx).to.emit(this.reactionContract, 'Stage').withArgs(2);
+        await expect(tx).to.emit(this.reactionContract, "Stage").withArgs(2);
       });
 
       it("Should Wait for authority", async function () {
@@ -1004,7 +988,7 @@ describe("Protocol", function () {
         //Expect Verdict Event
         await expect(tx).to.emit(this.reactionContract, 'Verdict').withArgs(test_uri, this.authorityAddr);
         //Expect State Event
-        await expect(tx).to.emit(this.reactionContract, 'Stage').withArgs(6);
+        await expect(tx).to.emit(this.reactionContract, "Stage").withArgs(6);
       });
 
       // it("[TODO] Can Change Rating", async function () {

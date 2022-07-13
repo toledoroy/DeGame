@@ -92,7 +92,7 @@ contract Game is
     //** Reaction Functions
 
     /// Make a new Reaction & File it
-    function reactionMakeOpen(
+    function caseMakeOpen(
         string calldata name_, 
         DataTypes.RuleRef[] calldata addRules, 
         DataTypes.InputRole[] calldata assignRoles, 

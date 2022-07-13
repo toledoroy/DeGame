@@ -11,7 +11,7 @@ interface ICourtExt {
     
     /// Make a new Reaction
     /// @dev a wrapper function for creation, adding rules, assigning roles & posting
-    function reactionMake(
+    function caseMake(
         string calldata name_, 
         string calldata uri_, 
         DataTypes.RuleRef[] calldata rules, 
@@ -21,7 +21,7 @@ interface ICourtExt {
 
     /// Make a new Reaction & File it
     /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a reaction
-    function reactionMakeOpen(
+    function caseMakeOpen(
         string calldata name_, 
         string calldata uri_, 
         DataTypes.RuleRef[] calldata rules, 
@@ -30,8 +30,8 @@ interface ICourtExt {
     ) external returns (address);
 
     /// Make a new Reaction, File it & Close it
-    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a reaction
-    function reactionMakeClosed(
+    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing & closing a reaction
+    function caseMakeClosed(
         string calldata name_, 
         string calldata uri_, 
         DataTypes.RuleRef[] calldata rules, 
