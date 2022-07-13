@@ -23,11 +23,10 @@ interface IHub {
     function gameMake(string calldata name_, string calldata uri_) external returns (address);
 
     /// Make a new Reaction
-    // function reactionMake(string calldata name_, DataTypes.RuleRef[] memory addRules, DataTypes.InputRole[] memory assignRoles) external returns (address);
     function reactionMake(
         string calldata name_, 
-        string calldata uri_, 
-        DataTypes.RuleRef[] memory addRules, 
+        string calldata uri_,
+        DataTypes.RuleRef[] memory addRules,
         DataTypes.InputRoleToken[] memory assignRoles
     ) external returns (address);
 
@@ -52,7 +51,7 @@ interface IHub {
     event UpdatedImplementation(string name, address implementation);
 
     /// New Contract Created
-    event ContractCreated(string name, address contractAddress);
+    event ContractCreated(string name, address indexed contractAddress);
 
     /// New Contract Created
     event HubChanged(address contractAddress);
