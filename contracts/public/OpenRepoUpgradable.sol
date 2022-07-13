@@ -17,7 +17,7 @@ import "../libraries/StringArray.sol";
 /**
  * @title Generic Data Repository
  * @dev Retains Data for Other Contracts
- * Version 2.1.1
+ * Version 2.2.0
  * - Save & Return Associations
  * - Owned by Requesting Address/Booleans/Strings
  * - Support Multiple Similar Items
@@ -77,7 +77,7 @@ contract OpenRepoUpgradable is
 
     //-- Addresses
 
-    /// Get Address By Origin Owner Node
+    /// Get First Address in Slot By Owner Node
     function addressGetOf(address originContract, string memory key) public view override returns(address) {
         //Handle Missing Values
         if(_addressesMulti[originContract][key].length == 0) return address(0);
@@ -88,6 +88,23 @@ contract OpenRepoUpgradable is
     /// Get First Address in Slot
     function addressGet(string memory key) external view override returns(address) {
         return addressGetOf(_msgSender(), key);
+    }
+    
+    /// Check if address is Regitered to Slot
+    function addressHasOf(address originContract, string memory key, address targetAddress) public view override returns(bool) {
+        //Extract Address Array
+        address[] memory addressArray = _addressesMulti[originContract][key];
+        for (uint256 i = 0; i < addressArray.length; ++i) {
+            //Item Found
+            if(addressArray[i] == targetAddress) return true;
+        }
+        //Nothing Foun
+        return false;
+    }
+
+    /// Check if address is Regitered to Slot
+    function addressHas(string memory key, address targetAddress) external view override returns(bool) {
+        return addressHasOf(_msgSender(), key, targetAddress);
     }
     
     /// Get First Address by Index

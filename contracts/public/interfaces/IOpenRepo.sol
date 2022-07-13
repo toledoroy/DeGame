@@ -13,6 +13,12 @@ interface IOpenRepo {
     /// Get Contract Association
     function addressGetOf(address originContract, string memory key) external view returns(address);
 
+    /// Check if address is Regitered
+    function addressHasOf(address originContract, string memory key, address targetAddress) external view returns(bool);
+
+    /// Check if address is Regitered to Slot
+    function addressHas(string memory key, address targetAddress) external view returns(bool);
+
     /// Get First Address in Index
     function addressGetIndexOf(address originContract, string memory key, uint256 index) external view returns(address);
 
