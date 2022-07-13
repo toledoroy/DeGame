@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "../public/interfaces/IOpenRepo.sol";
 import "../interfaces/IProtocolEntity.sol";
 import "../interfaces/IGameUp.sol";
-// import "../interfaces/IHub.sol";
+import "../interfaces/IHub.sol";
 
 /**
  * @title GameExtension
@@ -17,17 +17,17 @@ abstract contract GameExtension is Context {
     
     //--- Functions 
 
-    //Use Self (Main Game)
+    /// Use Self (Main Game)
     function game() internal view returns (IGame) {
         return IGame(address(this));
     }
 
-    //Get Data Repo Address (From Hub)
+    /// Get Data Repo Address (From Hub)
     function repoAddr() public view returns (address) {
         return IProtocolEntity(address(this)).repoAddr();
     }
 
-    //Get Assoc Repo
+    /// Get Assoc Repo
     function repo() internal view returns (IOpenRepo) {
         return IOpenRepo(repoAddr());
     }
@@ -36,5 +36,9 @@ abstract contract GameExtension is Context {
     function hubAddress() internal view returns (address) {
         return IProtocolEntity(address(this)).getHub();
     }
-        
+      
+    /// Get Hub
+    function hub() internal view returns (IHub) {
+        return IHub(hubAddress());
+    }  
 }
