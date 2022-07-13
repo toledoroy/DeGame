@@ -74,7 +74,12 @@ abstract contract ProtocolEntityUpgradable is
     function repo() internal view returns (IOpenRepo) {
         return IOpenRepo(repoAddr());
     }
-    
+
+    /// Get Soul Contract Address
+    function getSoulAddr() internal view returns(address){
+        return repo().addressGetOf(address(_HUB), "SBT");
+    }
+
     /// Generic Config Get Function
     // function confGet(string memory key) public view override returns(string memory) {
     //     return repo().stringGet(key);
