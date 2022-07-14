@@ -46,12 +46,13 @@ abstract contract TrackerUpgradable {
         // require(account != address(0), "ERC1155Tracker: address zero is not a valid account");       //Redundant 
         require(account != _targetContract, "ERC1155Tracker: source contract address is not a valid account");
         //Run function on destination contract
-        // return ISoul(_targetContract).tokenByAddress(account);
-        uint256 ownerToken = ISoul(_targetContract).tokenByAddress(account);
+        return ISoul(_targetContract).tokenByAddress(account);
+        
+        // uint256 ownerToken = ISoul(_targetContract).tokenByAddress(account);
         //Validate
         // require(ownerToken != 0, "ERC1155Tracker: account not found on source contract");
         //Return
-        return ownerToken;
+        // return ownerToken;
     }
     
     /// Get Owner Account By Owner Token
