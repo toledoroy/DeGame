@@ -10,7 +10,7 @@ let test_uri = "ipfs://QmQxkoWcpFgMa7bCzxaANWtSt43J1iMgksjNnT4vM1Apd7"; //"TEST_
 let test_uri2 = "ipfs://TEST2";
 let actionGUID = "";
 let soulTokenId = 0;  //Try to keep track of Current Soul Token ID
-const soulTokens = {};  //Soul Token Assignment
+const soulTokens: any = {};  //Soul Token Assignment
 
 describe("Protocol", function () {
   //Contract Instances
@@ -18,7 +18,7 @@ describe("Protocol", function () {
   let avatarContract: Contract;
   let actionContract: Contract;
   let gameContract: Contract;
-  let unOwnedTokenId: number;
+  // let unOwnedTokenId: number;
 
   //Addresses
   let owner: Signer;
@@ -187,6 +187,26 @@ describe("Protocol", function () {
       expect(result).to.equal(tokenId);
     });
 
+    it("Should Post as Owned-Soul", async function () {
+      soulTokens.tester = await avatarContract.tokenByAddress(this.testerAddr);
+      let post = {
+        tokenId: soulTokens.tester,
+        uri:test_uri,
+      };
+
+      //Validate Permissions
+      await expect(
+        //Failed Post
+        avatarContract.connect(tester4).post(post.tokenId, post.uri)
+      ).to.be.revertedWith("POST:SOUL_NOT_YOURS");
+
+      //Successful Post
+      let tx = await avatarContract.connect(tester).post(post.tokenId, post.uri);
+      await tx.wait();  //wait until the transaction is mined
+      //Expect Event
+      await expect(tx).to.emit(avatarContract, 'Post').withArgs(this.testerAddr, post.tokenId, post.uri);
+    });
+
     /* CANCELLED Lost-Souls Feature
     it("Can add other people", async function () {
       unOwnedTokenId = await avatarContract.connect(tester).callStatic.add(test_uri);
@@ -203,32 +223,7 @@ describe("Protocol", function () {
       //Check URI
       expect(await avatarContract.tokenURI(3)).to.equal(test_uri);
     });
-    */
-
-    // it("[TBD] Should Merge Avatars", async function () {
-
-    // });
     
-    it("Should Post as Owned-Soul", async function () {
-      let testerToken = await avatarContract.tokenByAddress(this.testerAddr);
-      let post = {
-        tokenId: testerToken,
-        uri:test_uri,
-      };
-
-      //Validate Permissions
-      await expect(
-        //Failed Post
-        avatarContract.connect(tester4).post(post.tokenId, post.uri)
-      ).to.be.revertedWith("POST:SOUL_NOT_YOURS");
-
-      //Successful Post
-      let tx = await avatarContract.connect(tester).post(post.tokenId, post.uri);
-      await tx.wait();  //wait until the transaction is mined
-      //Expect Event
-      await expect(tx).to.emit(avatarContract, 'Post').withArgs(this.testerAddr, post.tokenId, post.uri);
-    });
-    /* CANCELLED Lost-Souls Feature
     it("Should Post as a Lost-Soul", async function () {
       let post = {
         tokenId: unOwnedTokenId,
@@ -248,6 +243,10 @@ describe("Protocol", function () {
     });
     */
 
+    // it("[TBD] Should Merge Avatars", async function () {
+
+    // });
+    
     it("Should NOT be transferable", async function () {
       //Should Fail to transfer -- "Sorry, assets are non-transferable"
       let fromAddr = await tester.getAddress();
@@ -510,10 +509,9 @@ describe("Protocol", function () {
     });
 
     it("Should Write a Post", async function () {
-      let testerToken = await avatarContract.tokenByAddress(this.testerAddr);
       let post = {
         entRole:"member",
-        tokenId: testerToken,
+        tokenId: soulTokens.tester,
         uri:test_uri,
       };
 
@@ -566,13 +564,11 @@ describe("Protocol", function () {
       });
       
       it("Can Apply to Join", async function () {
-        //Get Tester's Avatar TokenID
-        let tokenId = await avatarContract.tokenByAddress(this.testerAddr);
         //Apply to Join Game
-        let tx = await this.gameContract.connect(tester).nominate(tokenId, test_uri);
+        let tx = await this.gameContract.connect(tester).nominate(soulTokens.tester, test_uri);
         await tx.wait();
         //Expect Event
-        await expect(tx).to.emit(gameContract, 'Nominate').withArgs(this.testerAddr, tokenId, test_uri);
+        await expect(tx).to.emit(gameContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
       });
 
       it("Can Re-Open Game", async function () {
@@ -582,14 +578,32 @@ describe("Protocol", function () {
         expect(await this.gameContract.confGet("isClosed")).to.equal("false");
       });
       
+    }); //Closed Game
+
+    
+    it("Should Report Event", async function () {
+      let eventData = {
+        ruleId: 1,
+        account: this.tester2Addr,
+        uri: test_uri,
+      };
+      
+      //Report Event
+      let tx = await this.gameContract.connect(authority).reportEvent(eventData.ruleId, eventData.account, eventData.uri);
+      soulTokens.tester2 = await avatarContract.tokenByAddress(this.tester2Addr);
+
+      // const receipt = await tx.wait();
+      // console.log("Rule Added", receipt.logs);
+      // console.log("Rule Added Events: ", receipt.events);
+
+      //Validate
+      await expect(tx).to.emit(this.gameContract, 'EffectsExecuted').withArgs(soulTokens.tester2, eventData.ruleId, "0x");
     });
     
     describe("Game Extensions", function () {
 
       it("Should Set DAO Extension Contract", async function () {
         //Deploy Extensions
-        // let dummyContract1 = await ethers.getContractFactory("Dummy").then(res => res.deploy());
-        // let dummyContract2 = await ethers.getContractFactory("Dummy2").then(res => res.deploy());
         let dummyContract1 = await deployContract("Dummy", []);
         let dummyContract2 = await deployContract("Dummy2", []);
         //Set DAO Extension Contract
@@ -642,9 +656,8 @@ describe("Protocol", function () {
 
       it("Should be Created (by Game)", async function () {
         //Soul Tokens
-        let adminToken = await avatarContract.tokenByAddress(this.adminAddr);
-        let tester2Token = await avatarContract.tokenByAddress(this.tester2Addr);
-        let tester3Token = await avatarContract.tokenByAddress(this.tester2Addr);
+        soulTokens.admin = await avatarContract.tokenByAddress(this.adminAddr);
+        soulTokens.tester3 = await avatarContract.tokenByAddress(this.tester3Addr);
       
         let reactionName = "Test Reaction #1";
         let ruleRefArr = [
@@ -656,17 +669,17 @@ describe("Protocol", function () {
         let roleRefArr = [
           {
             role: "subject",
-            tokenId: tester2Token,
+            tokenId: soulTokens.tester2,
           },
           {
             role: "affected",
             // tokenId: unOwnedTokenId,
-            tokenId: tester3Token,
+            tokenId: soulTokens.tester3,
           },
         ];
         let posts = [
           {
-            tokenId: adminToken, 
+            tokenId: soulTokens.admin, 
             entRole: "admin",
             uri: test_uri,
           }
@@ -697,11 +710,6 @@ describe("Protocol", function () {
       });
       
       it("Should be Created & Opened (by Game)", async function () {
-        //Soul Tokens
-        let adminToken = await avatarContract.tokenByAddress(this.adminAddr);
-        let tester2Token = await avatarContract.tokenByAddress(this.tester2Addr);
-        let tester3Token = await avatarContract.tokenByAddress(this.tester3Addr);
-
         let reactionName = "Test Reaction #1";
         let ruleRefArr = [
           {
@@ -712,16 +720,16 @@ describe("Protocol", function () {
         let roleRefArr = [
           {
             role: "subject",
-            tokenId: tester2Token,
+            tokenId: soulTokens.tester2,
           },
           {
             role: "witness",
-            tokenId: tester3Token,
+            tokenId: soulTokens.tester3,
           }
         ];
         let posts = [
           {
-            tokenId: adminToken, 
+            tokenId: soulTokens.admin, 
             entRole: "admin",
             uri: test_uri,
           }
@@ -747,10 +755,7 @@ describe("Protocol", function () {
 
       it("Should be Created & Closed (by Game)", async function () {
         //Soul Tokens
-        let adminToken = await avatarContract.tokenByAddress(this.adminAddr);
-        let authorityToken = await avatarContract.tokenByAddress(this.authorityAddr);
-        let tester2Token = await avatarContract.tokenByAddress(this.tester2Addr);
-        let tester3Token = await avatarContract.tokenByAddress(this.tester3Addr);
+        soulTokens.authority = await avatarContract.tokenByAddress(this.authorityAddr);
 
         let reactionName = "Test Reaction #3";
         let ruleRefArr = [
@@ -762,16 +767,16 @@ describe("Protocol", function () {
         let roleRefArr = [
           {
             role: "subject",
-            tokenId: tester2Token,
+            tokenId: soulTokens.tester2,
           },
           {
             role: "witness",
-            tokenId: tester3Token,
+            tokenId: soulTokens.tester3,
           },
         ];
         let posts: any = [
           // {
-          //   tokenId: authorityToken, 
+          //   tokenId: soulTokens.authority, 
           //   entRole: "authority",
           //   uri: test_uri,
           // }
@@ -825,13 +830,11 @@ describe("Protocol", function () {
       });
 
       it("Users Can Apply to Join", async function () {
-        //Get Tester's Avatar TokenID
-        let tokenId = await avatarContract.tokenByAddress(this.testerAddr);
         //Apply to Join Game
-        let tx = await this.reactionContract.connect(tester).nominate(tokenId, test_uri);
+        let tx = await this.reactionContract.connect(tester).nominate(soulTokens.tester, test_uri);
         await tx.wait();
         //Expect Event
-        await expect(tx).to.emit(this.reactionContract, 'Nominate').withArgs(this.testerAddr, tokenId, test_uri);
+        await expect(tx).to.emit(this.reactionContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
       });
 
       it("Should Update", async function () {
@@ -852,9 +855,8 @@ describe("Protocol", function () {
       });
       
       it("Should Write a Post", async function () {
-        let tester2Token = await avatarContract.tokenByAddress(this.tester2Addr);
         let post = {
-          tokenId: tester2Token,
+          tokenId: soulTokens.tester2,
           entRole:"subject",
           uri:test_uri,
         };
@@ -919,13 +921,11 @@ describe("Protocol", function () {
       });
 
       it("Anyone Can Apply to Join", async function () {
-        //Get Tester's Avatar TokenID
-        let tokenId = await avatarContract.tokenByAddress(this.testerAddr);
         //Apply to Join Game
-        let tx = await this.reactionContract.connect(tester).nominate(tokenId, test_uri);
+        let tx = await this.reactionContract.connect(tester).nominate(soulTokens.tester, test_uri);
         await tx.wait();
         //Expect Event
-        await expect(tx).to.emit(this.reactionContract, 'Nominate').withArgs(this.testerAddr, tokenId, test_uri);
+        await expect(tx).to.emit(this.reactionContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
       });
 
       it("Should Accept a Authority From the parent game", async function () {

@@ -12,7 +12,8 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/utils/VotesUpgradeable.sol"; //Adds 3.486Kb
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import "./interfaces/IGameUp.sol";
-import "./interfaces/IRulesRepo.sol";
+// import "./interfaces/IRulesRepo.sol";
+import "./interfaces/IRules.sol";
 import "./interfaces/IReaction.sol";
 import "./interfaces/IActionRepo.sol";
 import "./public/interfaces/IVotesRepoTracker.sol";
@@ -50,7 +51,7 @@ import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
  */
 contract GameUpgradable is 
         IGame, 
-        IRules,
+        // IRules,
         ProtocolEntityUpgradable, 
         Opinions, 
         Posts,
@@ -136,37 +137,34 @@ contract GameUpgradable is
 
     //** Reaction Functions
 
-    /// Automatic Reaction -- Direct Feedback, No Reaction Contract
-    function triggerReaction(
-        DataTypes.RuleRef[] calldata rules, 
-        uint256[] memory sbtIds,
-        string calldata decisionURI_
+    /// Register an Incident (happening of a valued action)
+    function reportEvent(
+        uint256 ruleId, 
+        address account,
+        string calldata detailsURI_
     ) external override {
         //Validate Role
         require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        //Process Decisions
-        for (uint256 i = 0; i < rules.length; ++i) {
-            address sbtContract = getSoulAddr();
-            for (uint256 s = 0; s < sbtIds.length; ++s) {
-                //Execute Effects
-                _effectsExecute(rules[i], sbtContract, sbtIds[s]);
-            }
-        }
+        //Fetch Rule Data
+        DataTypes.Rule memory rule = ruleGet(ruleId);
+        uint256 sbToken = _getExtTokenId(account);
+        //Mint SBT for that Account if doesn't exist
+        if(sbToken == 0) _HUB.mintForAccount(account, "");
+        //Execute Effects
+        _effectsExecute(ruleId, getSoulAddr(), sbToken);
     }
 
     /// Execute Rule's Effects (By Reaction Contreact)
-    function effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) external override {
+    function effectsExecute(uint256 ruleId, address targetContract, uint256 targetTokenId) external override {
         //Validate - Called by Child Reaction
         require(reactionHas(msg.sender), "NOT A VALID INCIDENT");
-        _effectsExecute(rule, targetContract, targetTokenId);
+        _effectsExecute(ruleId, targetContract, targetTokenId);
     }
 
     /// Execute Rule's Effects
-    function _effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) internal {
-        //Validate
-        require(rule.game == address(this) || rule.game == address(0) , "ROLE:EXTERNAL_RULE_UNSUPPORTED");
+    function _effectsExecute(uint256 ruleId, address targetContract, uint256 targetTokenId) internal {
         //Fetch Rule's Effects
-        DataTypes.Effect[] memory effects = effectsGet(rule.ruleId);
+        DataTypes.Effect[] memory effects = effectsGet(ruleId);
         //Run Each Effect
         for (uint256 j = 0; j < effects.length; ++j) {
             DataTypes.Effect memory effect = effects[j];
@@ -175,6 +173,8 @@ contract GameUpgradable is
             //Update Hub
             _HUB.repAdd(targetContract, targetTokenId, effect.name, effect.direction, effect.value);
         }
+        //
+        emit EffectsExecuted(targetTokenId, ruleId, "");
     }
 
     /// Disable (Disown) Reaction
@@ -379,27 +379,25 @@ contract GameUpgradable is
                 }
             }
         }
-        else{
-            // console.log("No Votes Repo Configured", votesRepoAddr);
-        }
+        // else{ console.log("No Votes Repo Configured", votesRepoAddr); }
     }
 
-    //** Rule Management
+    //** Rule Management    //Maybe Offload to a GameExtension
     
     //-- Getters
 
     /// Get Rule
-    function ruleGet(uint256 id) public view override returns (DataTypes.Rule memory) {
+    function ruleGet(uint256 id) public view returns (DataTypes.Rule memory) {
         return _ruleRepo().ruleGet(id);
     }
 
     /// Get Rule's Effects
-    function effectsGet(uint256 id) public view override returns (DataTypes.Effect[] memory) {
+    function effectsGet(uint256 id) public view returns (DataTypes.Effect[] memory) {
         return _ruleRepo().effectsGet(id);
     }
 
     /// Get Rule's Confirmation Method
-    function confirmationGet(uint256 id) public view override returns (DataTypes.Confirmation memory) {
+    function confirmationGet(uint256 id) public view returns (DataTypes.Confirmation memory) {
         return _ruleRepo().confirmationGet(id);
     }
 
@@ -410,7 +408,7 @@ contract GameUpgradable is
         DataTypes.Rule memory rule, 
         DataTypes.Confirmation memory confirmation, 
         DataTypes.Effect[] memory effects
-    ) public override returns (uint256) {
+    ) public returns (uint256) {
         return _ruleRepo().ruleAdd(rule, confirmation, effects);
     }
 
@@ -419,17 +417,17 @@ contract GameUpgradable is
         uint256 id, 
         DataTypes.Rule memory rule, 
         DataTypes.Effect[] memory effects
-    ) external override {
+    ) external {
         _ruleRepo().ruleUpdate(id, rule, effects);
     }
 
     /// Set Disable Status for Rule
-    function ruleDisable(uint256 id, bool disabled) external override {
+    function ruleDisable(uint256 id, bool disabled) external {
         _ruleRepo().ruleDisable(id, disabled);
     }
 
     /// Update Rule's Confirmation Data
-    function ruleConfirmationUpdate(uint256 id, DataTypes.Confirmation memory confirmation) external override {
+    function ruleConfirmationUpdate(uint256 id, DataTypes.Confirmation memory confirmation) external {
         _ruleRepo().ruleConfirmationUpdate(id, confirmation);
     }
 

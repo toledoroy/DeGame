@@ -16,7 +16,7 @@ import "./abstract/Posts.sol";
 
 /**
  * @title Upgradable Reaction Contract
- * @dev Version 1.1
+ * @dev Version 2.0.0
  */
 contract ReactionUpgradable is 
     IReaction, 
@@ -318,10 +318,9 @@ contract ReactionUpgradable is
                 for (uint256 s = 0; s < subjects.length; ++s) {
                     //Get Subject's SBT ID 
                     uint256 tokenId = subjects[s];
-                    
+                    uint256 parentRuleId = _rules[verdict[i].ruleId].ruleId;
                     //Execute Rule
-                    IGame(getContainerAddr()).effectsExecute(_rules[verdict[i].ruleId], getSoulAddr(), tokenId);
-
+                    IGame(getContainerAddr()).effectsExecute(parentRuleId, getSoulAddr(), tokenId);
                 }
                         
                 //Rule Confirmed Event

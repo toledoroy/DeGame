@@ -66,14 +66,11 @@ interface IGame {
     // function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
 
     /// Execute Rule's Effects (By Reaction Contreact)
-    function effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) external;
+    function effectsExecute(uint256 ruleId, address targetContract, uint256 targetTokenId) external;
 
-    /// Automatic Reaction -- Direct Feedback, No Reaction Contract
-    function triggerReaction(
-        DataTypes.RuleRef[] calldata rules, 
-        uint256[] memory sbtIds,
-        string calldata decisionURI_
-    ) external;
+    /// Register an Incident (happening of a valued action)
+    function reportEvent(uint256 ruleId, address account, string calldata detailsURI_) external;
+
 
     /* MOVED TO IRules
     //-- Rule Func.
@@ -96,5 +93,8 @@ interface IGame {
 
     /// Nominate
     event Nominate(address account, uint256 indexed id, string uri);
+
+    /// Effect
+    event EffectsExecuted(uint256 indexed targetTokenId, uint256 indexed ruleId, bytes data);
 
 }
