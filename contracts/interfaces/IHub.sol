@@ -17,7 +17,7 @@ interface IHub {
     function owner() external view returns (address);
 
     //Repo Address
-    function repoAddr() external view returns(address);
+    function repoAddr() external view returns (address);
 
     /// Make a new Game
     function gameMake(
@@ -40,7 +40,7 @@ interface IHub {
     function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
 
     //Get Contract Association
-    function assocGet(string memory key) external view returns(address);
+    function assocGet(string memory key) external view returns (address);
     
     //--- Events
 

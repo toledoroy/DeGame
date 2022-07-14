@@ -30,7 +30,7 @@ abstract contract TrackerUpgradable {
     }
 
     /// Get a Token ID Based on account address (Throws)
-    function getExtTokenId(address account) public view returns(uint256) {
+    function getExtTokenId(address account) public view returns (uint256) {
         //Validate Input
         require(account != _targetContract, "ERC1155Tracker: source contract address is not a valid account");
         //Get

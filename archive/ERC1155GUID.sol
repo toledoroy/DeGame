@@ -100,7 +100,7 @@ abstract contract ERC1155GUID is IERC1155GUID, ERC1155 {
     }
 
     /// Translate GUID to Token ID
-    function _GUIDToId(bytes32 guid) internal view GUIDExists(guid) returns(uint256) {
+    function _GUIDToId(bytes32 guid) internal view GUIDExists(guid) returns (uint256) {
         return _GUID[guid];
     }
 
@@ -113,7 +113,7 @@ abstract contract ERC1155GUID is IERC1155GUID, ERC1155 {
     }
 
     /// Get Metadata URI by GUID
-    function GUIDURI(bytes32 guid) public view override returns(string memory) {
+    function GUIDURI(bytes32 guid) public view override returns (string memory) {
         return _tokenURIs[_GUIDToId(guid)];
     }
 

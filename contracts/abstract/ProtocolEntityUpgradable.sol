@@ -40,12 +40,12 @@ abstract contract ProtocolEntityUpgradable is
     }
 
     /// Get Current Hub Contract Address
-    function getHub() external view override returns(address) {
+    function getHub() external view override returns (address) {
         return _getHub();
     }
 
     /// Set Hub Contract
-    function _getHub() internal view returns(address) {
+    function _getHub() internal view returns (address) {
         return address(_HUB);
     }
     
@@ -76,12 +76,12 @@ abstract contract ProtocolEntityUpgradable is
     }
 
     /// Get Soul Contract Address
-    function getSoulAddr() internal view returns(address){
+    function getSoulAddr() internal view returns (address){
         return repo().addressGetOf(address(_HUB), "SBT");
     }
 
     /// Generic Config Get Function
-    // function confGet(string memory key) public view override returns(string memory) {
+    // function confGet(string memory key) public view override returns (string memory) {
     //     return repo().stringGet(key);
     // }
 

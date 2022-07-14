@@ -15,7 +15,7 @@ interface IERC1155GUID {
     function GUIDHas(address account, bytes32 guid) external view returns (bool);
     
     /// Get Metadata URI by GUID
-    function GUIDURI(bytes32 guid) external view returns(string memory);
+    function GUIDURI(bytes32 guid) external view returns (string memory);
 
     //--- Events
 

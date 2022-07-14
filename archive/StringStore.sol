@@ -48,33 +48,33 @@ abstract contract StringStore is
     // }
     
     /// Get Boolean By Origin Owner Node
-    function stringGetOf(address originContract, string memory key) public view override returns(string memory) {
+    function stringGetOf(address originContract, string memory key) public view override returns (string memory) {
         //Return Item
         return _RepoString[originContract][key][0];
     }
 
     /// Get First Boolean in Slot
-    function stringGet(string memory key) external view override returns(string memory) {
+    function stringGet(string memory key) external view override returns (string memory) {
         address originContract = _msgSender();
         //Validate
         return stringGetOf(originContract, key);
     }
     
     /// Get First Boolean by Index
-    function stringGetIndexOf(address originContract, string memory key, uint256 index) public view override returns(string memory) {
+    function stringGetIndexOf(address originContract, string memory key, uint256 index) public view override returns (string memory) {
         //Fetch
         return _RepoString[originContract][key][index];
     }
 
     /// Get First Boolean in Index
-    function stringGetIndex(string memory key, uint256 index) external view override returns(string memory) {
+    function stringGetIndex(string memory key, uint256 index) external view override returns (string memory) {
         address originContract = _msgSender();
         //Fetch
         return stringGetIndexOf(originContract, key, index);
     }
     
     /// Get All Boolean in Slot
-    function stringGetAll(string memory key) external view returns(string[] memory) {
+    function stringGetAll(string memory key) external view returns (string[] memory) {
         address originContract = _msgSender();
         //Validate
         return _RepoString[originContract][key];

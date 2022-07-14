@@ -13,13 +13,13 @@ interface IProtocolEntity {
     function setHub(address hubAddr) external;
 
     /// Get Hub Contract
-    function getHub() external view returns(address);
+    function getHub() external view returns (address);
     
     //Repo Address
-    function repoAddr() external view returns(address);
+    function repoAddr() external view returns (address);
 
     /// Generic Config Get Function
-    // function confGet(string memory key) external view returns(string memory);
+    // function confGet(string memory key) external view returns (string memory);
 
     /// Generic Config Set Function
     // function confSet(string memory key, string memory value) external;

@@ -9,10 +9,10 @@ interface IAssocRepo {
     function set(string memory key, address destinationContract) external;
 
     /// Get Association
-    function get(string memory key) external view returns(address);
+    function get(string memory key) external view returns (address);
 
     /// Get Contract Association
-    function getOf(address originContract, string memory key) external view returns(address);
+    function getOf(address originContract, string memory key) external view returns (address);
 
     //--- Events
 

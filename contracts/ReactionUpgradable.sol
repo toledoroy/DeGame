@@ -113,7 +113,7 @@ contract ReactionUpgradable is
     }
 
     /// Get Contract Association
-    function assocGet(string memory key) public view override returns(address) {
+    function assocGet(string memory key) public view override returns (address) {
         //Return address from the Repo
         return repo().addressGet(key);
     }
@@ -130,14 +130,14 @@ contract ReactionUpgradable is
     }
     
     /// Get Container Address
-    function getContainerAddr() internal view returns(address){
+    function getContainerAddr() internal view returns (address){
         // return _game;
         return repo().addressGet("container");
     }
 
     /* MOVED TO ProtocolEntity
     /// Get Soul Contract Address
-    function getSoulAddr() internal view returns(address){
+    function getSoulAddr() internal view returns (address){
         return repo().addressGetOf(address(_HUB), "SBT");
     }
     */

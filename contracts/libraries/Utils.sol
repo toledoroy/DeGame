@@ -12,7 +12,7 @@ library Utils {
     using AddressUpgradeable for address;
 
     /// Match Two Strings
-    function stringMatch(string memory str1, string memory str2) internal pure returns(bool){
+    function stringMatch(string memory str1, string memory str2) internal pure returns (bool){
         return (keccak256(abi.encodePacked(str1)) == keccak256(abi.encodePacked(str2)));
     }
 
@@ -23,7 +23,7 @@ library Utils {
     // }
 
     /// Contract Type Logic
-    function getAddressType(address account) internal view returns(string memory){
+    function getAddressType(address account) internal view returns (string memory){
         
         // console.log("** _getType() Return: ", response);
 

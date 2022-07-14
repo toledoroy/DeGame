@@ -78,7 +78,7 @@ contract OpenRepoUpgradable is
     //-- Addresses
 
     /// Get First Address in Slot By Owner Node
-    function addressGetOf(address originContract, string memory key) public view override returns(address) {
+    function addressGetOf(address originContract, string memory key) public view override returns (address) {
         //Handle Missing Values
         if(_addressesMulti[originContract][key].length == 0) return address(0);
         //Return
@@ -86,12 +86,12 @@ contract OpenRepoUpgradable is
     }
 
     /// Get First Address in Slot
-    function addressGet(string memory key) external view override returns(address) {
+    function addressGet(string memory key) external view override returns (address) {
         return addressGetOf(_msgSender(), key);
     }
     
     /// Check if address is Regitered to Slot
-    function addressHasOf(address originContract, string memory key, address targetAddress) public view override returns(bool) {
+    function addressHasOf(address originContract, string memory key, address targetAddress) public view override returns (bool) {
         //Extract Address Array
         address[] memory addressArray = _addressesMulti[originContract][key];
         for (uint256 i = 0; i < addressArray.length; ++i) {
@@ -103,27 +103,27 @@ contract OpenRepoUpgradable is
     }
 
     /// Check if address is Regitered to Slot
-    function addressHas(string memory key, address targetAddress) external view override returns(bool) {
+    function addressHas(string memory key, address targetAddress) external view override returns (bool) {
         return addressHasOf(_msgSender(), key, targetAddress);
     }
     
     /// Get First Address by Index
-    function addressGetIndexOf(address originContract, string memory key, uint256 index) public view override returns(address) {
+    function addressGetIndexOf(address originContract, string memory key, uint256 index) public view override returns (address) {
         return _addressesMulti[originContract][key][index];
     }
 
     /// Get First Address in Index
-    function addressGetIndex(string memory key, uint256 index) external view override returns(address) {
+    function addressGetIndex(string memory key, uint256 index) external view override returns (address) {
         return addressGetIndexOf(_msgSender(), key, index);
     }
     
     /// Get All Address in Slot
-    function addressGetAllOf(address originContract, string memory key) public view override returns(address[] memory) {
+    function addressGetAllOf(address originContract, string memory key) public view override returns (address[] memory) {
         return _addressesMulti[originContract][key];
     }
 
     /// Get All Address in Slot
-    function addressGetAll(string memory key) external view override returns(address[] memory) {
+    function addressGetAll(string memory key) external view override returns (address[] memory) {
         address originContract = _msgSender();
         return addressGetAllOf(originContract, key);
     }
@@ -154,7 +154,7 @@ contract OpenRepoUpgradable is
 
 
     /// Get Boolean By Origin Owner Node
-    function boolGetOf(address originContract, string memory key) public view override returns(bool) {
+    function boolGetOf(address originContract, string memory key) public view override returns (bool) {
         //Validate
         if(_RepoBool[originContract][key].length == 0) return false;
         //Return Item
@@ -162,22 +162,22 @@ contract OpenRepoUpgradable is
     }
 
     /// Get First Boolean in Slot
-    function boolGet(string memory key) external view override returns(bool) {
+    function boolGet(string memory key) external view override returns (bool) {
         return boolGetOf(_msgSender(), key);
     }
     
     /// Get First Boolean by Index
-    function boolGetIndexOf(address originContract, string memory key, uint256 index) public view override returns(bool) {
+    function boolGetIndexOf(address originContract, string memory key, uint256 index) public view override returns (bool) {
         return _RepoBool[originContract][key][index];
     }
 
     /// Get First Boolean in Index
-    function boolGetIndex(string memory key, uint256 index) external view override returns(bool) {
+    function boolGetIndex(string memory key, uint256 index) external view override returns (bool) {
         return boolGetIndexOf(_msgSender(), key, index);
     }
     
     /// Get All Boolean in Slot
-    function boolGetAll(string memory key) external view returns(bool[] memory) {
+    function boolGetAll(string memory key) external view returns (bool[] memory) {
         return _RepoBool[_msgSender()][key];
     }
 
@@ -206,7 +206,7 @@ contract OpenRepoUpgradable is
     //-- Strings
         
     /// Get Boolean By Origin Owner Node
-    function stringGetOf(address ownerAddr, string memory key) public view override returns(string memory) {
+    function stringGetOf(address ownerAddr, string memory key) public view override returns (string memory) {
         //Validate
         if(_RepoString[ownerAddr][key].length == 0) return "";
         //Return Item
@@ -214,22 +214,22 @@ contract OpenRepoUpgradable is
     }
 
     /// Get First Boolean in Slot
-    function stringGet(string memory key) external view override returns(string memory) {
+    function stringGet(string memory key) external view override returns (string memory) {
         return stringGetOf(_msgSender(), key);
     }
     
     /// Get First Boolean by Index
-    function stringGetIndexOf(address originContract, string memory key, uint256 index) public view override returns(string memory) {
+    function stringGetIndexOf(address originContract, string memory key, uint256 index) public view override returns (string memory) {
         return _RepoString[originContract][key][index];
     }
 
     /// Get First Boolean in Index
-    function stringGetIndex(string memory key, uint256 index) external view override returns(string memory) {
+    function stringGetIndex(string memory key, uint256 index) external view override returns (string memory) {
         return stringGetIndexOf(_msgSender(), key, index);
     }
     
     /// Get All Boolean in Slot
-    function stringGetAll(string memory key) external view returns(string[] memory) {
+    function stringGetAll(string memory key) external view returns (string[] memory) {
         return _RepoString[_msgSender()][key];
     }
 

@@ -499,7 +499,7 @@ abstract contract ERC1155TrackerUpgradable is
     }
 
     /// An 'onwer' Address (Not Address 0 and not Target Contract)
-    function _isOwnerAddress(address addr) internal view returns(bool){
+    function _isOwnerAddress(address addr) internal view returns (bool){
         return (addr != address(0) && addr != _targetContract);
     }
 

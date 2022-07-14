@@ -49,33 +49,33 @@ abstract contract BoolStore is
     // }
 
     /// Get Boolean By Origin Owner Node
-    function boolGetOf(address originContract, string memory key) public view override returns(bool) {
+    function boolGetOf(address originContract, string memory key) public view override returns (bool) {
         //Return Item
         return _RepoBool[originContract][key][0];
     }
 
     /// Get First Boolean in Slot
-    function boolGet(string memory key) external view override returns(bool) {
+    function boolGet(string memory key) external view override returns (bool) {
         address originContract = _msgSender();
         //Validate
         return boolGetOf(originContract, key);
     }
     
     /// Get First Boolean by Index
-    function boolGetIndexOf(address originContract, string memory key, uint256 index) public view override returns(bool) {
+    function boolGetIndexOf(address originContract, string memory key, uint256 index) public view override returns (bool) {
         //Fetch
         return _RepoBool[originContract][key][index];
     }
 
     /// Get First Boolean in Index
-    function boolGetIndex(string memory key, uint256 index) external view override returns(bool) {
+    function boolGetIndex(string memory key, uint256 index) external view override returns (bool) {
         address originContract = _msgSender();
         //Fetch
         return boolGetIndexOf(originContract, key, index);
     }
     
     /// Get All Boolean in Slot
-    function boolGetAll(string memory key) external view returns(bool[] memory) {
+    function boolGetAll(string memory key) external view returns (bool[] memory) {
         address originContract = _msgSender();
         //Validate
         return _RepoBool[originContract][key];

@@ -6,16 +6,16 @@ interface IStringStore {
     //--- Functions
 
     /// Get Association
-    function stringGet(string memory key) external view returns(string memory);
+    function stringGet(string memory key) external view returns (string memory);
 
     /// Get Contract Association
-    function stringGetOf(address originAddress, string memory key) external view returns(string memory);
+    function stringGetOf(address originAddress, string memory key) external view returns (string memory);
 
     /// Get First Address in Index
-    function stringGetIndexOf(address originAddress, string memory key, uint256 index) external view returns(string memory);
+    function stringGetIndexOf(address originAddress, string memory key, uint256 index) external view returns (string memory);
 
     /// Get First Address in Index
-    function stringGetIndex(string memory key, uint256 index) external view returns(string memory);
+    function stringGetIndex(string memory key, uint256 index) external view returns (string memory);
 
     /// Set  Association
     function stringSet(string memory key, string memory value) external;

@@ -112,7 +112,7 @@ abstract contract ERC1155RolesUpgradable is IERC1155Roles, ERC1155GUIDUpgradable
     }
 
     /// Translate Role to Token ID
-    function _roleToId(string memory role) internal view roleExists(role) returns(uint256) {
+    function _roleToId(string memory role) internal view roleExists(role) returns (uint256) {
         return _GUIDToId(_stringToBytes32(role));
     }
 
@@ -128,7 +128,7 @@ abstract contract ERC1155RolesUpgradable is IERC1155Roles, ERC1155GUIDUpgradable
     }
 
     /// Get Metadata URI by Role
-    function roleURI(string calldata role) public view override roleExists(role) returns(string memory) {
+    function roleURI(string calldata role) public view override roleExists(role) returns (string memory) {
         return _tokenURIs[_roleToId(role)];
     }
     

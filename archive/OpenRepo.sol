@@ -49,7 +49,7 @@ contract OpenRepo is
     /** 
      * Get Address
      */
-    function getAddress(string memory key) external view override returns(address) {
+    function getAddress(string memory key) external view override returns (address) {
         address originContract = _msgSender();
         //Validate
         // require(_addresses[originContract][key] != address(0) , string(abi.encodePacked("Assoc:Faild to Get Assoc: ", key)));
@@ -59,7 +59,7 @@ contract OpenRepo is
     /** 
      * Get Address By Origin Owner Node
      */
-    function getAddressOf(address originContract, string memory key) external view override returns(address) {
+    function getAddressOf(address originContract, string memory key) external view override returns (address) {
         //Validate
         require(_addresses[originContract][key] != address(0) , string(abi.encodePacked("Faild to Find Address: ", key)));
         return _addresses[originContract][key];

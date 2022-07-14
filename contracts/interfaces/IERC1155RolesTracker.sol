@@ -26,7 +26,7 @@ interface IERC1155RolesTracker {
     function roleHasByToken(uint256 soulToken, string memory role) external view returns (bool);
 
     /// Get Metadata URI by Role
-    function roleURI(string calldata role) external view returns(string memory);
+    function roleURI(string calldata role) external view returns (string memory);
 
     //--- Events
 

@@ -23,7 +23,7 @@ interface IERC1155Roles {
     function roleHas(address account, string calldata role) external view returns (bool);
     
     /// Get Metadata URI by Role
-    function roleURI(string calldata role) external view returns(string memory);
+    function roleURI(string calldata role) external view returns (string memory);
 
     //--- Events
 

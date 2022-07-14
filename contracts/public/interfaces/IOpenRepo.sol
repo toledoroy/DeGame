@@ -8,28 +8,28 @@ interface IOpenRepo {
     //-- Addresses  
 
     /// Get Association
-    function addressGet(string memory key) external view returns(address);
+    function addressGet(string memory key) external view returns (address);
 
     /// Get Contract Association
-    function addressGetOf(address originContract, string memory key) external view returns(address);
+    function addressGetOf(address originContract, string memory key) external view returns (address);
 
     /// Check if address is Regitered
-    function addressHasOf(address originContract, string memory key, address targetAddress) external view returns(bool);
+    function addressHasOf(address originContract, string memory key, address targetAddress) external view returns (bool);
 
     /// Check if address is Regitered to Slot
-    function addressHas(string memory key, address targetAddress) external view returns(bool);
+    function addressHas(string memory key, address targetAddress) external view returns (bool);
 
     /// Get First Address in Index
-    function addressGetIndexOf(address originContract, string memory key, uint256 index) external view returns(address);
+    function addressGetIndexOf(address originContract, string memory key, uint256 index) external view returns (address);
 
     /// Get First Address in Index
-    function addressGetIndex(string memory key, uint256 index) external view returns(address);
+    function addressGetIndex(string memory key, uint256 index) external view returns (address);
 
     /// Get All Address in Slot
-    function addressGetAllOf(address originContract, string memory key) external view returns(address[] memory);
+    function addressGetAllOf(address originContract, string memory key) external view returns (address[] memory);
     
     /// Get All Address in Slot
-    function addressGetAll(string memory key) external view returns(address[] memory);
+    function addressGetAll(string memory key) external view returns (address[] memory);
 
     /// Set  Association
     function addressSet(string memory key, address value) external;
@@ -43,16 +43,16 @@ interface IOpenRepo {
     //-- Booleans
 
     /// Get Association
-    function boolGet(string memory key) external view returns(bool);
+    function boolGet(string memory key) external view returns (bool);
 
     /// Get Contract Association
-    function boolGetOf(address originContract, string memory key) external view returns(bool);
+    function boolGetOf(address originContract, string memory key) external view returns (bool);
 
     /// Get First Address in Index
-    function boolGetIndexOf(address originContract, string memory key, uint256 index) external view returns(bool);
+    function boolGetIndexOf(address originContract, string memory key, uint256 index) external view returns (bool);
 
     /// Get First Address in Index
-    function boolGetIndex(string memory key, uint256 index) external view returns(bool);
+    function boolGetIndex(string memory key, uint256 index) external view returns (bool);
 
     /// Set  Association
     function boolSet(string memory key, bool value) external;
@@ -67,16 +67,16 @@ interface IOpenRepo {
     //-- Strings
 
     /// Get Association
-    function stringGet(string memory key) external view returns(string memory);
+    function stringGet(string memory key) external view returns (string memory);
 
     /// Get Contract Association
-    function stringGetOf(address originAddress, string memory key) external view returns(string memory);
+    function stringGetOf(address originAddress, string memory key) external view returns (string memory);
 
     /// Get First Address in Index
-    function stringGetIndexOf(address originAddress, string memory key, uint256 index) external view returns(string memory);
+    function stringGetIndexOf(address originAddress, string memory key, uint256 index) external view returns (string memory);
 
     /// Get First Address in Index
-    function stringGetIndex(string memory key, uint256 index) external view returns(string memory);
+    function stringGetIndex(string memory key, uint256 index) external view returns (string memory);
 
     /// Set  Association
     function stringSet(string memory key, string memory value) external;

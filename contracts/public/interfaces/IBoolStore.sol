@@ -6,16 +6,16 @@ interface IBoolStore {
     //--- Functions
 
     /// Get Association
-    function boolGet(string memory key) external view returns(bool);
+    function boolGet(string memory key) external view returns (bool);
 
     /// Get Contract Association
-    function boolGetOf(address originContract, string memory key) external view returns(bool);
+    function boolGetOf(address originContract, string memory key) external view returns (bool);
 
     /// Get First Address in Index
-    function boolGetIndexOf(address originContract, string memory key, uint256 index) external view returns(bool);
+    function boolGetIndexOf(address originContract, string memory key, uint256 index) external view returns (bool);
 
     /// Get First Address in Index
-    function boolGetIndex(string memory key, uint256 index) external view returns(bool);
+    function boolGetIndex(string memory key, uint256 index) external view returns (bool);
 
     /// Set  Association
     function boolSet(string memory key, bool value) external;

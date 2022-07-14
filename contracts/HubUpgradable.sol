@@ -108,7 +108,7 @@ contract HubUpgradable is
     //-- Assoc
 
     /// Get Contract Association
-    function assocGet(string memory key) public view override returns(address) {
+    function assocGet(string memory key) public view override returns (address) {
         //Return address from the Repo
         return repo().addressGet(key);
     }
@@ -129,7 +129,7 @@ contract HubUpgradable is
     }
 
     //Repo Address
-    function repoAddr() external view override returns(address) {
+    function repoAddr() external view override returns (address) {
         return address(repo());
     }
 

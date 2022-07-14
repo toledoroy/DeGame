@@ -33,12 +33,12 @@ abstract contract ProtocolEntity is IProtocolEntity, ContractBase, Ownable {
     }
 
     /// Get Current Hub Contract Address
-    function getHub() external view override returns(address) {
+    function getHub() external view override returns (address) {
         return _getHub();
     }
 
     /// Get Hub Contract
-    function _getHub() internal view returns(address) {
+    function _getHub() internal view returns (address) {
         return address(_HUB);
     }
 

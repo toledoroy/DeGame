@@ -223,7 +223,7 @@ contract GameUpgradable is
     //** Generic Config
     
     /// Generic Config Get Function
-    function confGet(string memory key) public view override returns(string memory) {
+    function confGet(string memory key) public view override returns (string memory) {
         return repo().stringGet(key);
     }
     
@@ -266,7 +266,7 @@ contract GameUpgradable is
     }
     
     /// Concatenate Arrays (A Suboptimal Solution -- ~800Bytes)      //TODO: Maybe move to an external library?
-    function arrayConcat(address[] memory Accounts, address[] memory Accounts2) private pure returns(address[] memory) {
+    function arrayConcat(address[] memory Accounts, address[] memory Accounts2) private pure returns (address[] memory) {
         //Create a new container array
         address[] memory returnArr = new address[](Accounts.length + Accounts2.length);
         uint i=0;
@@ -365,10 +365,11 @@ contract GameUpgradable is
         bytes memory data
     ) internal virtual override {
         super._afterTokenTransferTracker(operator, fromToken, toToken, ids, amounts, data);
-
+        //-- Track Voting Power by SBT
         address votesRepoAddr = repo().addressGetOf(address(_HUB), "VOTES_REPO");
         // console.log("Votes Repo: ", votesRepoAddr);
         if(votesRepoAddr != address(0)){
+
             for (uint256 i = 0; i < ids.length; ++i) {
                 // uint256 id = ids[i];
                 uint256 amount = amounts[i];

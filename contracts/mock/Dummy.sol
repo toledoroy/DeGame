@@ -12,7 +12,7 @@ contract Dummy {
 
     }
 
-    function debugFunc() public pure returns(string memory){
+    function debugFunc() public pure returns (string memory){
         return "Hello World Dummy";
     }
 

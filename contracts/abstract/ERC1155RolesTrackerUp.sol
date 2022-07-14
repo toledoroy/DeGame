@@ -137,7 +137,7 @@ abstract contract ERC1155RolesTrackerUp is
     }
 
     /// Translate Role to Token ID
-    function _roleToId(string memory role) internal view roleExists(role) returns(uint256) {
+    function _roleToId(string memory role) internal view roleExists(role) returns (uint256) {
         return _GUIDToId(_stringToBytes32(role));
     }
 
@@ -153,7 +153,7 @@ abstract contract ERC1155RolesTrackerUp is
     }
 
     /// Get Metadata URI by Role
-    function roleURI(string calldata role) public view override roleExists(role) returns(string memory) {
+    function roleURI(string calldata role) public view override roleExists(role) returns (string memory) {
         return _tokenURIs[_roleToId(role)];
     }
     
