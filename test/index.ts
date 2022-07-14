@@ -187,10 +187,7 @@ describe("Protocol", function () {
       expect(result).to.equal(tokenId);
     });
 
-    // it("[TBD] Should Merge Avatars", async function () {
-
-    // });
-
+    /* CANCELLED Lost-Souls Feature
     it("Can add other people", async function () {
       unOwnedTokenId = await avatarContract.connect(tester).callStatic.add(test_uri);
       await avatarContract.connect(tester).add(test_uri);
@@ -206,7 +203,12 @@ describe("Protocol", function () {
       //Check URI
       expect(await avatarContract.tokenURI(3)).to.equal(test_uri);
     });
+    */
 
+    // it("[TBD] Should Merge Avatars", async function () {
+
+    // });
+    
     it("Should Post as Owned-Soul", async function () {
       let testerToken = await avatarContract.tokenByAddress(this.testerAddr);
       let post = {

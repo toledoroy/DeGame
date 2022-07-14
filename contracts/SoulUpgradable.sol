@@ -148,11 +148,13 @@ contract SoulUpgradable is
         return _mint(_msgSender(), tokenURI);
     }
 	
+    /* CANCELLED Lost-Souls Feature
     /// Add (Create New Token Without an Owner)
     function add(string memory tokenURI) external override returns (uint256) {
         //Mint
         return _mint(address(this), tokenURI);
     }
+    */
 
     /// Burn NFTs
     function burn(uint256 tokenId) external {
