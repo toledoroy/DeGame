@@ -55,7 +55,7 @@ contract SoulUpgradable is
     /// Initializer
     function initialize (address hub) public initializer {
         //Initializers
-        __ERC721_init("Soulbound Tokens (YJ.life)", "SOUL");
+        __ERC721_init("Soulbound Tokens (Persona)", "SOUL");
         __ERC721URIStorage_init();
         __UUPSUpgradeable_init();
         __ProtocolEntity_init(hub);

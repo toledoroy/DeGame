@@ -23,7 +23,7 @@ import "./abstract/AssocExt.sol";
 
 
 /**
- * YJ Hub Contract
+ * Hub Contract
  * - Hold Known Contract Addresses (Avatar, History)
  * - Contract Factory (Games & Reactions)
  * - Remember Products (Games & Reactions)
