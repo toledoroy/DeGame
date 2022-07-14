@@ -19,6 +19,9 @@ interface IHub {
     //Repo Address
     function repoAddr() external view returns (address);
 
+    /// Mint an SBT for another account
+    function mintForAccount(address account, string memory tokenURI) external returns (uint256);
+
     /// Make a new Game
     function gameMake(
         string calldata name_, 

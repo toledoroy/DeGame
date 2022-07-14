@@ -48,6 +48,16 @@ contract HubUpgradable is
     mapping(address => bool) internal _games; // Mapping for Active Game Contracts
     mapping(address => address) internal _reactions; // Mapping for Reaction Contracts  [G] => [R]
 
+
+    //--- Modifiers
+
+    /// Check if GUID Exists
+    modifier activeGame() {
+        //Validate Caller Permissions (Active Game)
+        require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
+        _;
+    }
+
     //--- Functions
  
     /// ERC165 - Supported Interfaces
@@ -88,9 +98,9 @@ contract HubUpgradable is
     /// Update Hub
     function hubChange(address newHubAddr) external override onlyOwner {
         //Avatar
-        address avatarContract = repo().addressGet("SBT");
-        if(avatarContract != address(0)) {
-            try IProtocolEntity(avatarContract).setHub(newHubAddr) {}  //Failure should not be fatal
+        address SBTAddress = repo().addressGet("SBT");
+        if(SBTAddress != address(0)) {
+            try IProtocolEntity(SBTAddress).setHub(newHubAddr) {}  //Failure should not be fatal
             catch Error(string memory /*reason*/) {}
         }
         //History
@@ -171,9 +181,9 @@ contract HubUpgradable is
         string calldata uri_,
         DataTypes.RuleRef[] memory addRules,
         DataTypes.InputRoleToken[] memory assignRoles
-    ) public override returns (address) {
-        //Validate Caller Permissions (A Game)
-        require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
+    ) public override activeGame returns (address) {
+        //Validate Caller Permissions (Active Game)
+        // require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
         //Deploy
         BeaconProxy newReactionProxy = new BeaconProxy(
             beaconReaction,
@@ -198,21 +208,31 @@ contract HubUpgradable is
     //--- Reputation
 
     /// Add Reputation (Positive or Negative)       /// Opinion Updated
-    function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) public override {
+    function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) public override activeGame {
         //Validate - Known & Active Game 
-        require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
+        // require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
         //Update Avatar's Reputation
-        address avatarContract = repo().addressGet("SBT");
-        if(avatarContract != address(0) && avatarContract == contractAddr) {
+        address SBTAddress = repo().addressGet("SBT");
+        if(SBTAddress != address(0) && SBTAddress == contractAddr) {
             _repAddAvatar(tokenId, domain, rating, amount);
         }
     }
 
     /// Add Repuation to Avatar
     function _repAddAvatar(uint256 tokenId, string calldata domain, bool rating, uint8 amount) internal {
-        address avatarContract = repo().addressGet("SBT");
-        try ISoul(avatarContract).repAdd(tokenId, domain, rating, amount) {}   //Failure should not be fatal
+        address SBTAddress = repo().addressGet("SBT");
+        try ISoul(SBTAddress).repAdd(tokenId, domain, rating, amount) {}   //Failure should not be fatal
         catch Error(string memory /*reason*/) {}
+    }
+
+    /// Mint an SBT for another account
+    function mintForAccount(address account, string memory tokenURI) external override activeGame returns (uint256) {
+        address SBTAddress = repo().addressGet("SBT");
+        // uint256 extToken = ISoul(SBTAddress).tokenByAddress(account);
+        uint256 extToken = ISoul(SBTAddress).mintFor(account, tokenURI);
+        //Validate
+        require(extToken != 0, "Failed to Mint Token");
+        return extToken;
     }
 
     //--- Upgrades
