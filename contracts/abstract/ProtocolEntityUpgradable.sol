@@ -76,7 +76,7 @@ abstract contract ProtocolEntityUpgradable is
     }
 
     /// Get Soul Contract Address
-    function getSoulAddr() internal view returns (address){
+    function getSoulAddr() internal view returns (address) {
         return repo().addressGetOf(address(_HUB), "SBT");
     }
 

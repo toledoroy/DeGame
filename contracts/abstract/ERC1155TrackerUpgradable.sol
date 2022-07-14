@@ -499,7 +499,7 @@ abstract contract ERC1155TrackerUpgradable is
     }
 
     /// An 'onwer' Address (Not Address 0 and not Target Contract)
-    function _isOwnerAddress(address addr) internal view returns (bool){
+    function _isOwnerAddress(address addr) internal view returns (bool) {
         return (addr != address(0) && addr != _targetContract);
     }
 
@@ -541,11 +541,11 @@ abstract contract ERC1155TrackerUpgradable is
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        if(toToken != 0){
+        if(toToken != 0) {
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
                 //If New Owner 
-                if(_balances[id][toToken] == 0){
+                if(_balances[id][toToken] == 0) {
                     //Register New Owner
                     _uniqueMemberTokens[id].push(toToken);
                 }
@@ -591,11 +591,11 @@ abstract contract ERC1155TrackerUpgradable is
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        if(fromToken != 0){
+        if(fromToken != 0) {
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
                 //If Owner Ran Out of Tokens
-                if(_balances[id][fromToken] == 0){
+                if(_balances[id][fromToken] == 0) {
                     //Remvoed Owner
                     _uniqueMemberTokens[id].removeItem(fromToken);
                 }

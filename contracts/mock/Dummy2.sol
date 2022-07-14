@@ -20,16 +20,16 @@ contract Dummy2 is GameExtension {
 
     //** Debug Functions
 
-    function debugFunc() public pure returns (string memory){
+    function debugFunc() public pure returns (string memory) {
         return "Hello World 2";
     }
 
-    function debugFunc2() public pure returns (string memory){
+    function debugFunc2() public pure returns (string memory) {
         return "Hello World Dummy 2";
     }
 
     /// Try to Use Self (Main Contract's Functions)
-    function useSelf() public view returns (string memory){
+    function useSelf() public view returns (string memory) {
         string memory gameType = game().confGet("type");
         return string(abi.encodePacked("Game Type: ", gameType));
     }

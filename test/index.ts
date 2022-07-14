@@ -461,7 +461,7 @@ describe("Protocol", function () {
       await expect(tx).to.emit(this.ruleRepo, 'Rule').withArgs(gameContract.address, 1, rule.about, rule.affected, rule.uri, rule.negation);
       
       // await expect(tx).to.emit(this.ruleRepo, 'RuleEffects').withArgs(gameContract.address, 1, rule.effects.environmental, rule.effects.personal, rule.effects.social, rule.effects.professional);
-      for(let effect of effects1){
+      for(let effect of effects1) {
         await expect(tx).to.emit(this.ruleRepo, 'RuleEffect').withArgs(gameContract.address, 1, effect.direction, effect.value, effect.name);
       }
       await expect(tx).to.emit(this.ruleRepo, 'Confirmation').withArgs(gameContract.address, 1, confirmation.ruling, confirmation.evidence, confirmation.witness);
@@ -966,7 +966,7 @@ describe("Protocol", function () {
         // await expect(tx).to.emit(avatarContract, 'ReputationChange').withArgs(repCall.tokenId, repCall.domain, repCall.rating, repCall.amount);
 
         //Validate State
-        // getRepForDomain(address contractAddr, uint256 tokenId, string domain, bool rating) public view override returns (uint256){
+        // getRepForDomain(address contractAddr, uint256 tokenId, string domain, bool rating) public view override returns (uint256) {
 
         // let rep = await avatarContract.getRepForDomain(repCall.tokenId, repCall.domain, repCall.rating);
         // expect(rep).to.equal(repCall.amount);

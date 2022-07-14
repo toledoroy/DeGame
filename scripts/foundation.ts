@@ -21,7 +21,7 @@ console.log()
 async function main() {
 
   //--- Open Repo
-  if(!publicAddr.openRepo){
+  if(!publicAddr.openRepo) {
     //Deploy OpenRepo Upgradable (UUPS)
     let contractInstance = await ethers.getContractFactory("OpenRepoUpgradable").then(Contract => 
       upgrades.deployProxy(Contract, [],{
@@ -40,7 +40,7 @@ async function main() {
   }
 
   //--- Rule Repo
-  if(!publicAddr.ruleRepo){
+  if(!publicAddr.ruleRepo) {
     //Deploy RuleRepo
     let contractInstance = await ethers.getContractFactory("RuleRepo").then(res => res.deploy());
     //Set Address

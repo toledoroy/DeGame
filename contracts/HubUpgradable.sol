@@ -89,13 +89,13 @@ contract HubUpgradable is
     function hubChange(address newHubAddr) external override onlyOwner {
         //Avatar
         address avatarContract = repo().addressGet("SBT");
-        if(avatarContract != address(0)){
-            try IProtocolEntity(avatarContract).setHub(newHubAddr){}  //Failure should not be fatal
+        if(avatarContract != address(0)) {
+            try IProtocolEntity(avatarContract).setHub(newHubAddr) {}  //Failure should not be fatal
             catch Error(string memory /*reason*/) {}
         }
         //History
         address actionRepo = repo().addressGet("history");
-        if(actionRepo != address(0)){
+        if(actionRepo != address(0)) {
             try IProtocolEntity(actionRepo).setHub(newHubAddr) {}   //Failure should not be fatal
             catch Error(string memory reason) {
                 console.log("Failed to update Hub for ActionRepo Contract", reason);
@@ -203,7 +203,7 @@ contract HubUpgradable is
         require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
         //Update Avatar's Reputation
         address avatarContract = repo().addressGet("SBT");
-        if(avatarContract != address(0) && avatarContract == contractAddr){
+        if(avatarContract != address(0) && avatarContract == contractAddr) {
             _repAddAvatar(tokenId, domain, rating, amount);
         }
     }

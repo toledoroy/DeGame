@@ -16,17 +16,17 @@ abstract contract Opinions is IOpinions {
     mapping(uint256 => mapping(address => mapping(uint256 => mapping(string => mapping(bool => uint256))))) internal _rep;
 
     /// Fetch Opinion (Crosschain)
-    function getRepForDomain(uint256 chainId, address contractAddr, uint256 tokenId, string calldata domain, bool rating) public view override returns (uint256){
+    function getRepForDomain(uint256 chainId, address contractAddr, uint256 tokenId, string calldata domain, bool rating) public view override returns (uint256) {
         return _rep[chainId][contractAddr][tokenId][domain][rating];
     }
 
     /// Fetch Opinion (Current Chain)
-    function getRepForDomain(address contractAddr, uint256 tokenId, string calldata domain, bool rating) public view override returns (uint256){
+    function getRepForDomain(address contractAddr, uint256 tokenId, string calldata domain, bool rating) public view override returns (uint256) {
         return _rep[block.chainid][contractAddr][tokenId][domain][rating];
     }
 
     /// Fetch Opinion (Self)
-    function getRepForDomain(uint256 tokenId, string calldata domain, bool rating) public view override returns (uint256){
+    function getRepForDomain(uint256 tokenId, string calldata domain, bool rating) public view override returns (uint256) {
         return _rep[block.chainid][address(this)][tokenId][domain][rating];
     }
 

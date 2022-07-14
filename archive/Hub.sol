@@ -78,7 +78,7 @@ contract Hub is
             || super.supportsInterface(interfaceId);
     }
 
-    constructor(address config, address gameContract, address reactionContract){
+    constructor(address config, address gameContract, address reactionContract) {
         //Set Protocol's Config Address
         _setConfig(config);
         //Init Game Contract Beacon
@@ -120,12 +120,12 @@ contract Hub is
     function hubChange(address newHubAddr) external override onlyOwner {
         //Avatar
         address avatarContract = assocGet("SBT");
-        if(avatarContract != address(0)){
+        if(avatarContract != address(0)) {
             IProtocolEntity(avatarContract).setHub(newHubAddr);
         }
         //History
         address actionRepo = assocGet("history");
-        if(actionRepo != address(0)){
+        if(actionRepo != address(0)) {
             IProtocolEntity(actionRepo).setHub(newHubAddr);
         }
         //Emit Hub Change Event
@@ -209,7 +209,7 @@ contract Hub is
         // console.log("Hub: Add Reputation in Domain:", domain);
         address avatarContract = assocGet("SBT");
         //Update Avatar's Reputation    //TODO: Just Check if Contract Implements IRating
-        if(avatarContract != address(0) && avatarContract == contractAddr){
+        if(avatarContract != address(0) && avatarContract == contractAddr) {
             _repAddAvatar(tokenId, domain, rating, amount);
         }
     }

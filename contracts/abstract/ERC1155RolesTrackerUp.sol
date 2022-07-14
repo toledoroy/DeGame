@@ -93,7 +93,7 @@ abstract contract ERC1155RolesTrackerUp is
     /// [TEST] Has Any of These Roles
     function rolesHas(address account, string[] memory roles) public view returns (bool) {
         for (uint256 i = 0; i < roles.length; ++i) {
-            if(roleHas(account, roles[i])){
+            if(roleHas(account, roles[i])) {
                 return true;
             } 
         }
@@ -103,7 +103,7 @@ abstract contract ERC1155RolesTrackerUp is
     /// Assign Someone Else to a Role
     function _roleAssign(address account, string memory role, uint256 amount) internal {
         //Create Role if does not Exist
-        if(!roleExist(role)){
+        if(!roleExist(role)) {
             _roleCreate(role);
         }
         //Validate Account Has Token
@@ -116,7 +116,7 @@ abstract contract ERC1155RolesTrackerUp is
     /// Assign Tethered Token to a Role
     function _roleAssignToToken(uint256 ownerToken, string memory role, uint256 amount) internal {
         //Create Role if does not Exist
-        if(!roleExist(role)){
+        if(!roleExist(role)) {
             _roleCreate(role);
         }
         //Assign
@@ -142,7 +142,7 @@ abstract contract ERC1155RolesTrackerUp is
     }
 
     /// Translate string Roles to GUID hashes
-    function _stringToBytes32(string memory str) internal pure returns (bytes32){
+    function _stringToBytes32(string memory str) internal pure returns (bytes32) {
         require(bytes(str).length <= 32, "String is too long. Max 32 chars");
         return keccak256(abi.encode(str));
     }

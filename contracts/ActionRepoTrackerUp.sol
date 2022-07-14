@@ -118,17 +118,17 @@ contract ActionRepoTrackerUp is
     }
 
     /// Get Action by GUID
-    function actionGet(bytes32 guid) public view override returns (DataTypes.SVO memory){
+    function actionGet(bytes32 guid) public view override returns (DataTypes.SVO memory) {
         return _actionGet(guid);
     }
 
     /// Get Action by GUID
-    function _actionGet(bytes32 guid) internal view GUIDExists(guid) returns (DataTypes.SVO memory){
+    function _actionGet(bytes32 guid) internal view GUIDExists(guid) returns (DataTypes.SVO memory) {
         return _actions[guid];
     }
 
     /// Get Action's URI
-    function actionGetURI(bytes32 guid) public view override returns (string memory){
+    function actionGetURI(bytes32 guid) public view override returns (string memory) {
         return _tokenURI[_GUIDToId(guid)];
     }
 

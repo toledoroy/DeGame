@@ -22,7 +22,7 @@ abstract contract ProtocolEntity is IProtocolEntity, ContractBase, Ownable {
 
     //--- Functions
 
-    constructor(address hub){
+    constructor(address hub) {
         //Set Protocol's Hub Address
         _setHub(hub);
     }

@@ -130,7 +130,7 @@ abstract contract ERC1155GUID is IERC1155GUID, ERC1155 {
         if (from == address(0)) { //Mint
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
-                if(balanceOf(to, id) == 0){
+                if(balanceOf(to, id) == 0) {
                     _uniqueMembers[id].push(to);
                 }
             }
@@ -138,7 +138,7 @@ abstract contract ERC1155GUID is IERC1155GUID, ERC1155 {
         if (to == address(0)) { //Burn
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
-                if(balanceOf(from, id) == amounts[i]){   //Burn All
+                if(balanceOf(from, id) == amounts[i]) {   //Burn All
                     _uniqueMembers[id].removeItem(from);
                 }
             }

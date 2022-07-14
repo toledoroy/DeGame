@@ -130,14 +130,14 @@ contract ReactionUpgradable is
     }
     
     /// Get Container Address
-    function getContainerAddr() internal view returns (address){
+    function getContainerAddr() internal view returns (address) {
         // return _game;
         return repo().addressGet("container");
     }
 
     /* MOVED TO ProtocolEntity
     /// Get Soul Contract Address
-    function getSoulAddr() internal view returns (address){
+    function getSoulAddr() internal view returns (address) {
         return repo().addressGetOf(address(_HUB), "SBT");
     }
     */
@@ -150,7 +150,7 @@ contract ReactionUpgradable is
     /// Assign to a Role
     function roleAssign(address account, string memory role) public override roleExists(role) {
         //Special Validations for Special Roles 
-        if (Utils.stringMatch(role, "admin") || Utils.stringMatch(role, "authority")){
+        if (Utils.stringMatch(role, "admin") || Utils.stringMatch(role, "authority")) {
             require(getContainerAddr() != address(0), "Unknown Parent Container");
             //Validate: Must Hold same role in Containing Game
             require(IERC1155RolesTracker(getContainerAddr()).roleHas(account, role), "User Required to hold same role in the Game context");
@@ -178,26 +178,26 @@ contract ReactionUpgradable is
     }
 
     /// Check if Reference ID exists
-    function ruleRefExist(uint256 ruleRefId) internal view returns (bool){
+    function ruleRefExist(uint256 ruleRefId) internal view returns (bool) {
         return (_rules[ruleRefId].game != address(0) && _rules[ruleRefId].ruleId != 0);
     }
 
     /// Fetch Rule By Reference ID
-    function ruleGet(uint256 ruleRefId) public view returns (DataTypes.Rule memory){
+    function ruleGet(uint256 ruleRefId) public view returns (DataTypes.Rule memory) {
         //Validate
         require (ruleRefExist(ruleRefId), "INEXISTENT_RULE_REF_ID");
         return IRules(_rules[ruleRefId].game).ruleGet(_rules[ruleRefId].ruleId);
     }
 
     /// Get Rule's Confirmation Data
-    function ruleGetConfirmation(uint256 ruleRefId) public view returns (DataTypes.Confirmation memory){
+    function ruleGetConfirmation(uint256 ruleRefId) public view returns (DataTypes.Confirmation memory) {
         //Validate
         require (ruleRefExist(ruleRefId), "INEXISTENT_RULE_REF_ID");
         return IRules(_rules[ruleRefId].game).confirmationGet(_rules[ruleRefId].ruleId);
     }
 
     /// Get Rule's Effects
-    function ruleGetEffects(uint256 ruleRefId) public view returns (DataTypes.Effect[] memory){
+    function ruleGetEffects(uint256 ruleRefId) public view returns (DataTypes.Effect[] memory) {
         //Validate
         require (ruleRefExist(ruleRefId), "INEXISTENT_RULE_REF_ID");
         return IRules(_rules[ruleRefId].game).effectsGet(_rules[ruleRefId].ruleId);
@@ -253,7 +253,7 @@ contract ReactionUpgradable is
         DataTypes.Rule memory rule = ruleGet(ruleId);
         //Validate Rule Active
         require(rule.disabled == false, "Selected rule is disabled");
-        if(!roleExist(rule.affected)){
+        if(!roleExist(rule.affected)) {
             //Create Affected Role if Missing
             _roleCreate(rule.affected);
         }
@@ -307,7 +307,7 @@ contract ReactionUpgradable is
         //Process Decision
         for (uint256 i = 0; i < verdict.length; ++i) {
             decision[verdict[i].ruleId] = verdict[i].decision;
-            if(verdict[i].decision){
+            if(verdict[i].decision) {
                 
                 //Rule Confirmation Procedure (OLD)
                 // _ruleConfirmed(verdict[i].ruleId);
@@ -369,7 +369,7 @@ contract ReactionUpgradable is
         for (uint256 i = 0; i < subjects.length; ++i) {
             //Get Subject's SBT ID 
             uint256 tokenId = subjects[i];
-            if(tokenId > 0){
+            if(tokenId > 0) {
                 
                 //Get Effects
                 DataTypes.Effect[] memory effects = ruleGetEffects(ruleId);

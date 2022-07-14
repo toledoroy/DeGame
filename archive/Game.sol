@@ -76,7 +76,7 @@ contract Game is
             || super.supportsInterface(interfaceId);
     }
 
-    constructor(address hub, address actionRepo) ProtocolEntity(hub) ERC1155(""){
+    constructor(address hub, address actionRepo) ProtocolEntity(hub) ERC1155("") {
         //Fetch & Set Current History Contract
         // _setActionsContract(_HUB.historyContract());
         // _setActionsContract(actionRepo); //CANCELLED
@@ -143,7 +143,7 @@ contract Game is
     }
 
     /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) public view override returns (bool){
+    function reactionHas(address reactionContract) public view override returns (bool) {
         return _active[reactionContract];
     }
 

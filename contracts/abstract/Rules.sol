@@ -46,12 +46,12 @@ abstract contract Rules is IRules {
     }
 
     /// Get Rule's Effects
-    function effectsGet(uint256 id) public view override returns (DataTypes.Effect[] memory){
+    function effectsGet(uint256 id) public view override returns (DataTypes.Effect[] memory) {
         return _effects[id];
     }
    
     /// Get Rule's Confirmation Method
-    function confirmationGet(uint256 id) public view override returns (DataTypes.Confirmation memory){
+    function confirmationGet(uint256 id) public view override returns (DataTypes.Confirmation memory) {
         return _ruleConfirmation[id];
     }
 

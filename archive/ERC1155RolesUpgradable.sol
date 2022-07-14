@@ -92,7 +92,7 @@ abstract contract ERC1155RolesUpgradable is IERC1155Roles, ERC1155GUIDUpgradable
     /// [TEST] Has Any of These Roles
     function rolesHas(address account, string[] calldata roles) public view returns (bool) {
         for (uint256 i = 0; i < roles.length; ++i) {
-            if(roleHas(account, roles[i])){
+            if(roleHas(account, roles[i])) {
                 return true;
             } 
         }
@@ -117,7 +117,7 @@ abstract contract ERC1155RolesUpgradable is IERC1155Roles, ERC1155GUIDUpgradable
     }
 
     /// Translate string Roles to GUID hashes
-    function _stringToBytes32(string memory str) internal pure returns (bytes32){
+    function _stringToBytes32(string memory str) internal pure returns (bytes32) {
         require(bytes(str).length <= 32, "String is too long. Max 32 chars");
         return keccak256(abi.encode(str));
     }

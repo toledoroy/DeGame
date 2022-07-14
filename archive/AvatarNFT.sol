@@ -73,7 +73,7 @@ contract AvatarNFT is
     }
 
     /// Get Token ID by Address
-    function tokenByAddress(address owner) external view override returns (uint256){
+    function tokenByAddress(address owner) external view override returns (uint256) {
         return _owners[owner];
     }
 
@@ -158,7 +158,7 @@ contract AvatarNFT is
     }
 
     /// Create a new Avatar
-    function _createAvatar(address to, string memory uri) internal returns (uint256){
+    function _createAvatar(address to, string memory uri) internal returns (uint256) {
         //Validate - Bot Protection
         require(tx.origin == _msgSender(), "Bots not allowed");
         //Mint
@@ -189,7 +189,7 @@ contract AvatarNFT is
         
         //Update Address Index        
         if(from != address(0)) _owners[from] = 0;
-        if(to != address(0) && to != address(this)){
+        if(to != address(0) && to != address(this)) {
             require(_owners[to] == 0, "Receiving address already owns a token");
             _owners[to] = tokenId;
         }

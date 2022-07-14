@@ -185,7 +185,7 @@ contract GameUpgradable is
     }
 
     /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) public view override returns (bool){
+    function reactionHas(address reactionContract) public view override returns (bool) {
         return repo().addressHas("reaction", reactionContract);
     }
 
@@ -235,7 +235,7 @@ contract GameUpgradable is
     //** Multi Proxy
 
     /// Proxy Fallback Implementations
-    function _implementations() internal view virtual override returns (address[] memory){
+    function _implementations() internal view virtual override returns (address[] memory) {
         address[] memory implementationAddresses;
         string memory gameType = confGet("type");
         
@@ -256,7 +256,7 @@ contract GameUpgradable is
 
     /* Support for Global Extension
     /// Proxy Fallback Implementations
-    function _implementations() internal view virtual override returns (address[] memory){
+    function _implementations() internal view virtual override returns (address[] memory) {
         //UID
         string memory gameType = string(abi.encodePacked("GAME_", confGet("type")));
         //Fetch Implementations
@@ -270,13 +270,13 @@ contract GameUpgradable is
         //Create a new container array
         address[] memory returnArr = new address[](Accounts.length + Accounts2.length);
         uint i=0;
-        if(Accounts.length > 0){
+        if(Accounts.length > 0) {
             for (; i < Accounts.length; i++) {
                 returnArr[i] = Accounts[i];
             }
         }
         uint j=0;
-        if(Accounts2.length > 0){
+        if(Accounts2.length > 0) {
             while (j < Accounts.length) {
                 returnArr[i++] = Accounts2[j++];
             }
@@ -343,8 +343,8 @@ contract GameUpgradable is
         bytes memory data
     ) internal virtual override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-        // if (to != address(0) && to != _targetContract){ //Not Burn
-        if (_isOwnerAddress(to)){ //Not Burn
+        // if (to != address(0) && to != _targetContract) { //Not Burn
+        if (_isOwnerAddress(to)) { //Not Burn
             for (uint256 i = 0; i < ids.length; ++i) {
                 //Validate - Max of 1 Per Account
                 uint256 id = ids[i];
@@ -368,7 +368,7 @@ contract GameUpgradable is
         //-- Track Voting Power by SBT
         address votesRepoAddr = repo().addressGetOf(address(_HUB), "VOTES_REPO");
         // console.log("Votes Repo: ", votesRepoAddr);
-        if(votesRepoAddr != address(0)){
+        if(votesRepoAddr != address(0)) {
 
             for (uint256 i = 0; i < ids.length; ++i) {
                 // uint256 id = ids[i];
@@ -392,12 +392,12 @@ contract GameUpgradable is
     }
 
     /// Get Rule's Effects
-    function effectsGet(uint256 id) public view override returns (DataTypes.Effect[] memory){
+    function effectsGet(uint256 id) public view override returns (DataTypes.Effect[] memory) {
         return _ruleRepo().effectsGet(id);
     }
 
     /// Get Rule's Confirmation Method
-    function confirmationGet(uint256 id) public view override returns (DataTypes.Confirmation memory){
+    function confirmationGet(uint256 id) public view override returns (DataTypes.Confirmation memory) {
         return _ruleRepo().confirmationGet(id);
     }
 

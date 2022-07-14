@@ -26,7 +26,7 @@ abstract contract Project is Proxy {
      * and {_fallback} should delegate.
      */
     // function _implementation() internal view returns (address);
-    // function _implementation() internal view override returns (address){
+    // function _implementation() internal view override returns (address) {
     //     return _implementationAddress;
     // }
 
@@ -34,7 +34,7 @@ abstract contract Project is Proxy {
 
     //-- Test Functions
     
-    function showImplementation() internal view returns (address){
+    function showImplementation() internal view returns (address) {
         return _implementationAddress;
     }
 

@@ -25,7 +25,7 @@ async function main() {
   let hubContract;
 
   //--- Game Implementation
-  if(!contractAddr.game){
+  if(!contractAddr.game) {
     //Deploy Game
     let contract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
     await contract.deployed();
@@ -37,7 +37,7 @@ async function main() {
   }
 
   //--- Reaction Implementation
-  if(!contractAddr.reaction){
+  if(!contractAddr.reaction) {
     //Deploy Reaction
     let contract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
     await contract.deployed();
@@ -49,7 +49,7 @@ async function main() {
   }
 
   //--- TEST: Upgradable Hub
-  if(!contractAddr.hub){
+  if(!contractAddr.hub) {
     //Deploy Hub Upgradable (UUPS)    
     hubContract = await deployUUPS("HubUpgradable",
       [
@@ -74,7 +74,7 @@ async function main() {
       //Set as History
       if(!!contractAddr.history) await hubContract.assocSet("history", contractAddr.history);
     }
-    catch(error){
+    catch(error) {
       console.error("Failed to Set Contracts to Hub", error);
     }
 
@@ -84,7 +84,7 @@ async function main() {
   }
 
   //--- Soul Upgradable
-  if(!contractAddr.avatar){
+  if(!contractAddr.avatar) {
     //Deploy Soul Upgradable
     const proxyAvatar = await deployUUPS("SoulUpgradable", [contractAddr.hub]);
 
@@ -94,21 +94,21 @@ async function main() {
     //Log
     console.log("Deployed Avatar Proxy Contract to " + contractAddr.avatar);
     // console.log("Run: npx hardhat verify --network "+chain+" "+contractAddr.avatar);
-    if(!!hubContract){  //If Deployed Together
+    if(!!hubContract) {  //If Deployed Together
       try{
         //Set to HUB
         await hubContract.assocSet("SBT", contractAddr.avatar);
         //Log
         console.log("Registered Avatar Contract to Hub");
       }
-      catch(error){
+      catch(error) {
         console.error("Failed to Set Avatar Contract to Hub", error);
       }
     }
   }
 
   //--- Action Repo
-  if(!contractAddr.history){
+  if(!contractAddr.history) {
     //Action Repository (History)
     const proxyActionRepo = await deployUUPS("ActionRepoTrackerUp", [contractAddr.hub]);
     await proxyActionRepo.deployed();
@@ -120,7 +120,7 @@ async function main() {
     //Log
     console.log("Deployed ActionRepo Contract to " + contractAddr.history);
 
-    if(!!hubContract){  //If Deployed Together
+    if(!!hubContract) {  //If Deployed Together
       try{
         //Log
         console.log("Will Register History to Hub");
@@ -128,7 +128,7 @@ async function main() {
         //Set to HUB
         await hubContract.assocSet("history", contractAddr.history);
       }
-      catch(error){
+      catch(error) {
         console.error("Failed to Set History Contract to Hub", error);
       }
     }
