@@ -70,9 +70,14 @@ contract RuleRepo is IRules {
         return _rules[msg.sender][id];
     }
 
+    /// Get Rule's Effects By Owner
+    function effectsGetOf(address ownerAddress, uint256 id) public view override returns (DataTypes.Effect[] memory) {
+        return _effects[ownerAddress][id];
+    }
+
     /// Get Rule's Effects
     function effectsGet(uint256 id) public view override returns (DataTypes.Effect[] memory) {
-        return _effects[msg.sender][id];
+        return effectsGetOf(msg.sender, id);
     }
 
     /// Get Rule's Confirmation Method

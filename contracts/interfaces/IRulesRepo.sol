@@ -14,6 +14,9 @@ interface IRules {
     /// Get Rule's Effects
     function effectsGet(uint256 id) external view returns (DataTypes.Effect[] memory);
 
+    /// Get Rule's Effects By Owner
+    function effectsGetOf(address ownerAddress, uint256 id) external view returns (DataTypes.Effect[] memory);
+
     /// Get Rule's Confirmation Method
     function confirmationGet(uint256 id) external view returns (DataTypes.Confirmation memory);
 
