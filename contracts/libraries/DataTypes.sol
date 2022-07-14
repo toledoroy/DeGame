@@ -62,7 +62,7 @@ library DataTypes {
     struct Rule {
         bytes32 about;      //About What (Action's GUID)      //TODO: Maybe Call This 'actionGUID'? 
         string affected;    //Affected Role. E.g. "investors"
-        bool negation;      //0 - Commision  1 - Omission
+        bool negation;      //0 - Commission  1 - Omission
         string uri;         //Test & Conditions
         bool disabled;      //1 - Rule Disabled
     }
