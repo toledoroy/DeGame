@@ -20,7 +20,7 @@ interface ISoul {
     function mintFor(address to, string memory tokenURI) external returns (uint256);
 
     /// Add (Create New Avatar Without an Owner)
-    function add(string memory tokenURI) external returns (uint256);
+    // function add(string memory tokenURI) external returns (uint256);
 
     /// Update Token's Metadata
     function update(uint256 tokenId, string memory uri) external returns (uint256);
