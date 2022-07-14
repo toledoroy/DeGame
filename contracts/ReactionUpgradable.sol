@@ -295,14 +295,14 @@ contract ReactionUpgradable is
             || roleHas(_msgSender(), "authority") 
             || roleHas(_msgSender(), "admin") , "ROLE:AUTHORITY_OR_ADMIN");
         //Reaction is now Waiting for Verdict
-        _setStage(DataTypes.ReactionStage.Verdict);
+        _setStage(DataTypes.ReactionStage.Decision);
     }   
 
     /// Reaction Stage: Place Verdict  --> Closed
     function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
         require(_msgSender() == getContainerAddr() 
             || roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ReactionStage.Verdict, "STAGE:VERDICT_ONLY");
+        require(stage == DataTypes.ReactionStage.Decision, "STAGE:VERDICT_ONLY");
 
         //Process Decision
         for (uint256 i = 0; i < verdict.length; ++i) {
@@ -338,7 +338,7 @@ contract ReactionUpgradable is
     /// Reaction Stage: Reject Reaction --> Cancelled
     function stageCancel(string calldata uri_) public override {
         require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ReactionStage.Verdict, "STAGE:VERDICT_ONLY");
+        require(stage == DataTypes.ReactionStage.Decision, "STAGE:VERDICT_ONLY");
         //Reaction is now Closed
         _setStage(DataTypes.ReactionStage.Cancelled);
         //Cancellation Event

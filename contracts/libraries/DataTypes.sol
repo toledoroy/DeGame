@@ -30,7 +30,7 @@ library DataTypes {
     enum ReactionStage {
         Draft,
         Open,           // Filed -- Confirmation/Discussion (Evidence, Witnesses, etc’)
-        Verdict,        // Awaiting Decision (Authority, Jury, vote, etc’)
+        Decision,       // Awaiting Decision (Authority, Jury, vote, etc’)
         Action,         // Remedy - Reward / Punishment / Compensation
         Appeal,
         Execution,
