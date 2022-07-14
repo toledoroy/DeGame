@@ -369,12 +369,14 @@ contract GameUpgradable is
         address votesRepoAddr = repo().addressGetOf(address(_HUB), "VOTES_REPO");
         // console.log("Votes Repo: ", votesRepoAddr);
         if(votesRepoAddr != address(0)) {
-
             for (uint256 i = 0; i < ids.length; ++i) {
-                // uint256 id = ids[i];
-                uint256 amount = amounts[i];
-                //Votes Changes
-                IVotesRepoTracker(votesRepoAddr).transferVotingUnits(fromToken, toToken, amount);
+                //Only "member" tokens give voting rights
+                if(_roleToId("member") == ids[i]) {
+                    // uint256 id = ids[i];
+                    uint256 amount = amounts[i];
+                    //Votes Changes
+                    IVotesRepoTracker(votesRepoAddr).transferVotingUnits(fromToken, toToken, amount);
+                }
             }
         }
         else{
