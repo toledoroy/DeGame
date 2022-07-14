@@ -121,17 +121,17 @@ contract GameUpgradable is
         _setContractURI(uri_);
         //Identifiers
         name = name_;
-        //Init Default Game Roles
-        _roleCreate("admin"); 
-        _roleCreate("member");
-        _roleCreate("authority");
-        //Default Token URIs
-        _setRoleURI("admin", "https://ipfs.io/ipfs/QmQcahBAJkXzSgwQn2zZ9D1m7friRCuW7rVia5KWNpWK7x");
-        _setRoleURI("member", "https://ipfs.io/ipfs/QmbXVfwyTAfoYcThK7LZ2FAADoZPjbfbPJDcXWcwf79ssY");
-        _setRoleURI("authority", "https://ipfs.io/ipfs/QmRVXii7PRTtaYRt5mD1yrAqy623itttjQX3hsnikYpi1x");
         //Assign Creator as Admin & Member
         _roleAssign(tx.origin, "admin", 1);
         _roleAssign(tx.origin, "member", 1);
+        //Init Default Game Roles
+        // _roleCreate("admin"); 
+        // _roleCreate("member");
+        _roleCreate("authority");
+        //Default Token URIs
+        // _setRoleURI("admin", "");
+        // _setRoleURI("member", "");
+        // _setRoleURI("authority", "");
     }
 
     //** Reaction Functions
@@ -157,7 +157,7 @@ contract GameUpgradable is
     /// Execute Rule's Effects (By Reaction Contreact)
     function effectsExecute(DataTypes.RuleRef memory rule, address targetContract, uint256 targetTokenId) external override {
         //Validate - Called by Child Reaction
-        require(reactionHas(_msgSender()), "NOT A VALID INCIDENT");
+        require(reactionHas(msg.sender), "NOT A VALID INCIDENT");
         _effectsExecute(rule, targetContract, targetTokenId);
     }
 
@@ -177,17 +177,15 @@ contract GameUpgradable is
         }
     }
 
-    /// Disable Reaction        //TODO: Should Also Support Enable
+    /// Disable (Disown) Reaction
     function reactionDisable(address reactionContract) public override onlyOwner {
         //Validate
         require(reactionHas(reactionContract), "Reaction Not Active");
-        // _active[reactionContract] = false;
         repo().addressRemove("reaction", reactionContract);
     }
 
     /// Check if Reaction is Owned by This Contract (& Active)
     function reactionHas(address reactionContract) public view override returns (bool){
-        // return _active[reactionContract];
         return repo().addressHas("reaction", reactionContract);
     }
 
@@ -207,7 +205,6 @@ contract GameUpgradable is
 
     /// Get Token URI by Token ID
     // function tokenURI(uint256 token_id) public view returns (string memory) {
-    // function uri(uint256 token_id) public view override returns (string memory) {
     function uri(uint256 token_id) public view returns (string memory) {
         // require(exists(token_id), "NONEXISTENT_TOKEN");
         return _tokenURIs[token_id];
@@ -287,19 +284,6 @@ contract GameUpgradable is
         return returnArr;
     } 
     */
-
-
-    //** Custom Rating Functions
-    
-    /// Add Reputation (Positive or Negative)
-    // function repAdd(address targetContract, uint256 targetTokenId, string memory domain, bool rating, uint8 amount) external override {
-    //     //Validate - Called by Child Reaction
-    //     require(reactionHas(_msgSender()), "NOT A VALID INCIDENT");
-    //     //Run on Self
-    //     _repAdd(targetContract, targetTokenId, domain, rating, amount);
-    //     //Update Hub
-    //     _HUB.repAdd(targetContract, targetTokenId, domain, rating, amount);
-    // }
 
     //** Role Management
 

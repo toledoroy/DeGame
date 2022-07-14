@@ -92,7 +92,7 @@ interface IGame {
     //--- Events
 
     /// New Reaction Created
-    event ReactionCreated(uint256 indexed id, address contractAddress);    
+    // event ReactionCreated(uint256 indexed id, address contractAddress);    
 
     /// Nominate
     event Nominate(address account, uint256 indexed id, string uri);

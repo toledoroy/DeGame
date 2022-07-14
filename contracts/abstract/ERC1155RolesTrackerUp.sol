@@ -101,7 +101,6 @@ abstract contract ERC1155RolesTrackerUp is
     }
 
     /// Assign Someone Else to a Role
-    // function _roleAssign(address account, string memory role, uint256 amount) internal roleExists(role) {
     function _roleAssign(address account, string memory role, uint256 amount) internal {
         //Create Role if does not Exist
         if(!roleExist(role)){
@@ -115,7 +114,6 @@ abstract contract ERC1155RolesTrackerUp is
     }
     
     /// Assign Tethered Token to a Role
-    // function _roleAssignToToken(uint256 ownerToken, string memory role, uint256 amount) internal roleExists(role) {
     function _roleAssignToToken(uint256 ownerToken, string memory role, uint256 amount) internal {
         //Create Role if does not Exist
         if(!roleExist(role)){

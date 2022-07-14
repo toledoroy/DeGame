@@ -20,7 +20,10 @@ interface IHub {
     function repoAddr() external view returns(address);
 
     /// Make a new Game
-    function gameMake(string calldata name_, string calldata uri_) external returns (address);
+    function gameMake(
+        string calldata name_, 
+        string calldata uri_
+    ) external returns (address);
 
     /// Make a new Reaction
     function reactionMake(
@@ -32,12 +35,6 @@ interface IHub {
 
     /// Update Hub
     function hubChange(address newHubAddr) external;
-
-    //Get Avatar Contract Address
-    // function avatarContract() external view returns (address);
-
-    //Get History Contract Address
-    // function historyContract() external view returns (address);
 
     /// Add Reputation (Positive or Negative)       /// Opinion Updated
     function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;

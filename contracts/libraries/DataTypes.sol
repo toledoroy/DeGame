@@ -72,7 +72,7 @@ library DataTypes {
         string name;
         uint8 value;    // value: 5
         bool direction; // Direction: -
-        // Confidence/Strictness: [?]
+        // bytes data;  //[TBD]
     }
     
     //Rule Confirmation Method

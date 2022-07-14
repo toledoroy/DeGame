@@ -41,12 +41,9 @@ contract HubUpgradable is
     {
 
     //---Storage
+
     address public beaconReaction;
     address public beaconGame;  //TBD
-
-    // using Counters for Counters.Counter;
-    // Counters.Counter internal _tokenIds; //Track Last Token ID
-    // Counters.Counter internal _reactionIds;  //Track Last Reaction ID
 
     // Arbitrary contract designation signature
     string public constant override role = "Hub";
@@ -210,11 +207,11 @@ contract HubUpgradable is
             beaconReaction,
             abi.encodeWithSelector(
                 IReaction( payable(address(0)) ).initialize.selector,
-                address(this),   //Hub
+                address(this),  //Hub
                 name_,          //Name
-                uri_,
-                addRules,
-                assignRoles,
+                uri_,           //Contract URI
+                addRules,       //Rules
+                assignRoles,    //Roles
                 _msgSender()    //Birth Parent (Container)
             )
         );
@@ -232,7 +229,7 @@ contract HubUpgradable is
     function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) public override {
         //Validate - Known & Active Game 
         require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
-        //Update Avatar's Reputation    //TODO: Just Check if Contract Implements IRating
+        //Update Avatar's Reputation
         address avatarContract = repo().addressGet("SBT");
         if(avatarContract != address(0) && avatarContract == contractAddr){
             _repAddAvatar(tokenId, domain, rating, amount);
