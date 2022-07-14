@@ -354,32 +354,7 @@ contract GameUpgradable is
             }
         }
     }
-    /* Not Good Enough
-    function _afterTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual override {
-        super._afterTokenTransfer(operator, from, to, ids, amounts, data);
-
-        address votesRepoAddr = repo().addressGetOf(address(_HUB), "VOTES_REPO");
-        // console.log("Votes Repo: ", votesRepoAddr);
-        if(votesRepoAddr != address(0)){
-            for (uint256 i = 0; i < ids.length; ++i) {
-                // uint256 id = ids[i];
-                uint256 amount = amounts[i];
-                //Votes Changes
-                IVotesRepo(votesRepoAddr).transferVotingUnits(from, to, amount);
-            }
-        }
-        else{
-            console.log("No Votes Repo Configured", votesRepoAddr);
-        }
-    }
-    */
+    
     /// Hook:Track Voting Power    //UNTESTED
     function _afterTokenTransferTracker(
         address operator,
@@ -404,7 +379,6 @@ contract GameUpgradable is
         else{
             // console.log("No Votes Repo Configured", votesRepoAddr);
         }
-
     }
 
     //** Rule Management
