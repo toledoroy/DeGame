@@ -228,13 +228,12 @@ describe("Protocol", function () {
       //Expect Event
       await expect(tx).to.emit(avatarContract, 'Post').withArgs(this.testerAddr, post.tokenId, post.uri);
     });
-
+    /* CANCELLED Lost-Souls Feature
     it("Should Post as a Lost-Soul", async function () {
       let post = {
         tokenId: unOwnedTokenId,
         uri: test_uri,
       };
-
       //Validate Permissions
       await expect(
         //Failed Post
@@ -247,7 +246,8 @@ describe("Protocol", function () {
       //Expect Event
       await expect(tx).to.emit(avatarContract, 'Post').withArgs(this.ownerAddr, post.tokenId, post.uri);
     });
-    
+    */
+
     it("Should NOT be transferable", async function () {
       //Should Fail to transfer -- "Sorry, assets are non-transferable"
       let fromAddr = await tester.getAddress();
@@ -388,7 +388,8 @@ describe("Protocol", function () {
       //Check After
       expect(await this.gameContract.roleHas(this.authorityAddr, "authority")).to.equal(true);
     });
-
+    
+    /* CANCELLED Lost-Souls Feature
     it("Admin can Assign Roles to Lost-Souls", async function () {
       //Check Before
       expect(await this.gameContract.roleHasByToken(unOwnedTokenId, "authority")).to.equal(false);
@@ -397,6 +398,7 @@ describe("Protocol", function () {
       //Check After
       expect(await this.gameContract.roleHasByToken(unOwnedTokenId, "authority")).to.equal(true);
     });
+    */
 
     it("Can change Roles (Promote / Demote)", async function () {
       //Check Before
@@ -642,6 +644,7 @@ describe("Protocol", function () {
         //Soul Tokens
         let adminToken = await avatarContract.tokenByAddress(this.adminAddr);
         let tester2Token = await avatarContract.tokenByAddress(this.tester2Addr);
+        let tester3Token = await avatarContract.tokenByAddress(this.tester2Addr);
       
         let reactionName = "Test Reaction #1";
         let ruleRefArr = [
@@ -657,7 +660,8 @@ describe("Protocol", function () {
           },
           {
             role: "affected",
-            tokenId: unOwnedTokenId,
+            // tokenId: unOwnedTokenId,
+            tokenId: tester3Token,
           },
         ];
         let posts = [

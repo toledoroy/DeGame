@@ -76,10 +76,6 @@ describe("Deployment", function () {
         // console.log("SoulUpgradable deployed to:", proxyAvatar.address);
     });
 
-    it("Should Create an Unownd Soul", async function () {
-        await this.avatarContract.add("");
-    });
-
     it("Should Deploy History (ActionRepo)", async function () {
         //Deploy Action Repository
         const proxyActionRepo = await deployUUPS("ActionRepoTrackerUp", [hubContract.address]);
