@@ -24,6 +24,7 @@ async function main() {
 
   let hubContract;
 
+  /* CANCELLED
   //--- Config
   if(!contractAddr.config){
     //Deploy Config
@@ -34,6 +35,7 @@ async function main() {
     //Log
     console.log("Deployed Config Contract to " + contractAddr.config);
   }
+  */
 
   //--- Game Implementation
   if(!contractAddr.game){
@@ -62,22 +64,10 @@ async function main() {
   //--- TEST: Upgradable Hub
   if(!contractAddr.hub){
     //Deploy Hub Upgradable (UUPS)    
-    // hubContract = await ethers.getContractFactory("HubUpgradable").then(Contract => 
-    //   upgrades.deployProxy(Contract,
-    //     [
-    //       publicAddr.openRepo,
-    //       contractAddr.config, 
-    //       contractAddr.game,
-    //       contractAddr.reaction,
-    //     ],{
-    //     kind: "uups",
-    //     timeout: 120000
-    //   })
-    // );
     hubContract = await deployUUPS("HubUpgradable",
       [
         publicAddr.openRepo,
-        contractAddr.config, 
+        // contractAddr.config, 
         contractAddr.game,
         contractAddr.reaction,
       ]);
@@ -103,8 +93,8 @@ async function main() {
     }
 
     //Log
-    console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " Conf: "+ contractAddr.config+ " game: "+contractAddr.game+ " Reaction: "+ contractAddr.reaction);
-    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub+" "+publicAddr.openRepo+" "+ contractAddr.config+" "+contractAddr.game+ " "+contractAddr.reaction);
+    console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Reaction: "+ contractAddr.reaction);
+    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub+" "+publicAddr.openRepo+" "+contractAddr.game+ " "+contractAddr.reaction);
   }
 
   //--- Soul Upgradable

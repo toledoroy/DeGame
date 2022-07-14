@@ -13,7 +13,7 @@ describe("Deployment", function () {
     let gameContract: Contract;
     let reactionContract: Contract;
     let hubContract: Contract;
-    let configContract: Contract;
+    // let Contract: Contract;
     let actionRepoContract: Contract;
     let openRepoContract: Contract;
     let SoulUpgradable: Contract;
@@ -30,13 +30,11 @@ describe("Deployment", function () {
         [account1, account2] = await ethers.getSigners();
 
         //--- OpenRepo (UUPS)
-        // openRepoContract = await ethers.getContractFactory("OpenRepoUpgradable")
-        //     .then(Contract => upgrades.deployProxy(Contract, [],{kind: "uups", timeout: 120000}));
         openRepoContract = await deployUUPS("OpenRepoUpgradable", []);
 
         //--- Config
-        configContract = await ethers.getContractFactory("Config").then(res => res.deploy());
-        await configContract.deployed();
+        // configContract = await ethers.getContractFactory("Config").then(res => res.deploy());
+        // await configContract.deployed();
 
         //--- Game Implementation
         gameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
@@ -49,23 +47,10 @@ describe("Deployment", function () {
     });
 
     it("Should Deploy Upgradable Hub Contract", async function () {
-        //Deploy Avatar Upgradable
-        // const HubUpgradable = await ethers.getContractFactory("HubUpgradable");
-        // deploying new proxy
-        // const proxyHub = await upgrades.deployProxy(HubUpgradable,
-        //     [
-        //         openRepoContract.address,
-        //         configContract.address, 
-        //         gameContract.address,
-        //         reactionContract.address,
-        //     ],{
-        //     // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-        //     kind: "uups",
-        //     timeout: 120000
-        // });
+        //Deploy Hub Upgradable
         const proxyHub = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
-            configContract.address, 
+            // configContract.address, 
             gameContract.address,
             reactionContract.address
         ]);
@@ -74,32 +59,18 @@ describe("Deployment", function () {
         hubContract = proxyHub;
     });
 
-    it("Should Remember & Serve Config", async function () {
-        expect(await hubContract.assocGet("config")).to.equal(configContract.address);
-    });
+    // it("Should Remember & Serve Config", async function () {
+    //     expect(await hubContract.assocGet("config")).to.equal(configContract.address);
+    // });
 
     it("Should Change Hub", async function () {
-       //--- Hub Contract
-       //Deploy Hub Upgradable
-    //    const HubUpgradable = await ethers.getContractFactory("HubUpgradable");
-    //    const proxyHub2 = await upgrades.deployProxy(HubUpgradable,
-    //        [
-    //            openRepoContract.address,
-    //            configContract.address, 
-    //            gameContract.address,
-    //            reactionContract.address,
-    //        ],{
-    //        // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-    //        kind: "uups",
-    //        timeout: 120000
-    //    });
+       //Deploy Another Hub Upgradable
         const proxyHub2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
-            configContract.address, 
+            // configContract.address, 
             gameContract.address,
             reactionContract.address
         ]);
-
         await proxyHub2.deployed();
        
         // console.log("Hub Address:", hubContract.address);
@@ -108,15 +79,7 @@ describe("Deployment", function () {
     });
 
     it("Should Deploy Upgradable Soul Contract", async function () {
-        //Deploy Avatar Upgradable
-        // const SoulUpgradable = await ethers.getContractFactory("SoulUpgradable");
-        // deploying new proxy
-        // const proxyAvatar = await upgrades.deployProxy(SoulUpgradable,
-        //     [hubContract.address],{
-        //     // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-        //     kind: "uups",
-        //     timeout: 120000
-        // });
+        //Deploy Soul Upgradable
         const proxyAvatar = await deployUUPS("SoulUpgradable", [hubContract.address]);
         await proxyAvatar.deployed();
         this.avatarContract = proxyAvatar;
@@ -130,15 +93,7 @@ describe("Deployment", function () {
     });
 
     it("Should Deploy History (ActionRepo)", async function () {
-        //Deploy Avatar Upgradable
-        // const ActionRepo = await ethers.getContractFactory("ActionRepoTrackerUp");
-        // deploying new proxy
-        // const proxyActionRepo = await upgrades.deployProxy(ActionRepo,
-        //     [hubContract.address],{
-        //     // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-        //     kind: "uups",
-        //     timeout: 120000
-        // });
+        //Deploy Action Repository
         const proxyActionRepo = await deployUUPS("ActionRepoTrackerUp", [hubContract.address]);
         await proxyActionRepo.deployed();
         //Set Avatar Contract to Hub
@@ -183,7 +138,7 @@ describe("Deployment", function () {
             //--- Mock Hub
             let mockHub = await ethers.getContractFactory("HubMock").then(res => res.deploy(
                 openRepoContract.address,
-                configContract.address, 
+                // configContract.address, 
                 gameContract.address,
                 reactionContract.address
             ));

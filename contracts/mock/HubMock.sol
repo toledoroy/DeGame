@@ -14,13 +14,13 @@ contract HubMock is HubUpgradable {
 
     constructor(
         address openRepo,
-        address config, 
+        // address config, 
         address gameContract, 
         address reactionContract
         ) {
         initialize(
             openRepo,
-            config, 
+            // config, 
             gameContract, 
             reactionContract
         );

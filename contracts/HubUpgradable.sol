@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "./interfaces/IConfig.sol";
+// import "./interfaces/IConfig.sol";
 import "./public/interfaces/IOpenRepo.sol";
 import "./interfaces/IProtocolEntity.sol";
 import "./interfaces/IHub.sol";
@@ -50,11 +50,9 @@ contract HubUpgradable is
     string public constant override symbol = "HUB";
 
     //--- Storage
-    // address internal _CONFIG;    //Configuration Contract
-    IConfig private _CONFIG;  //Configuration Contract       //DEPRECATE
 
     mapping(address => bool) internal _games; // Mapping for Active Games   //[TBD]
-    mapping(address => address) internal _reactions;      // Mapping for Reaction Contracts  [C] => [J]
+    mapping(address => address) internal _reactions; // Mapping for Reaction Contracts  [G] => [R]
 
     
     //--- Functions
@@ -68,16 +66,14 @@ contract HubUpgradable is
     /// Initializer
     function initialize (
         address openRepo,
-        address config, 
         address gameContract, 
         address reactionContract
     ) public initializer {
         //Set Data Repo Address
         _setRepo(openRepo);
         //Initializers
+        __Ownable_init();
         __UUPSUpgradeable_init();
-        //Set Protocol's Config Address
-        _setConfig(config);
         //Set Contract URI
         // _setContractURI(uri_);
         //Init Game Contract Beacon
@@ -93,9 +89,12 @@ contract HubUpgradable is
 
     /// @dev Returns the address of the current owner.
     function owner() public view override(IHub, OwnableUpgradeable) returns (address) {
-        return IConfig(getConfig()).owner();
+        /* CANCELLED - From now on, the hub will be the main Owned Contract */
+        // return IConfig(getConfig()).owner();
+        return OwnableUpgradeable.owner();
     }
-
+    
+    /* DEPRECATED
     /// Get Configurations Contract Address
     function getConfig() public view returns (address) {
         return repo().addressGet("config");
@@ -113,6 +112,7 @@ contract HubUpgradable is
         //Set
         repo().addressSet("config", config);
     }
+    */
 
     /// Update Hub
     function hubChange(address newHubAddr) external override onlyOwner {

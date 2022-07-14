@@ -15,8 +15,8 @@ describe("Hub", function () {
     let hubContract2: Contract;
     let avatarContract: Contract;
     let actionContract: Contract;
-    let configContract1: Contract;
-    let configContract2: Contract;
+    // let configContract1: Contract;
+    // let configContract2: Contract;
     
     //Addresses
     let account1: Signer;
@@ -31,14 +31,13 @@ describe("Hub", function () {
         this.addr1 = await account1.getAddress();
         this.addr2 = await account2.getAddress();
 
-        //Deploy OpenRepo (UUPS)
-        openRepoContract = await ethers.getContractFactory("OpenRepoUpgradable")
-            .then(Contract => upgrades.deployProxy(Contract, [],{kind: "uups", timeout: 120000}));
+        //--- Deploy OpenRepo (UUPS)
+        openRepoContract = await deployUUPS("OpenRepoUpgradable", []);
 
-        //Deploy Config
-        const ConfigContract = await ethers.getContractFactory("Config");
-        configContract1 = await ConfigContract.connect(account1).deploy();
-        configContract2 = await ConfigContract.connect(account2).deploy();
+        //--- Deploy Config
+        // const ConfigContract = await ethers.getContractFactory("Config");
+        // configContract1 = await ConfigContract.connect(account1).deploy();
+        // configContract2 = await ConfigContract.connect(account2).deploy();
 
         //Deploy Reaction Implementation
         this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
@@ -46,71 +45,31 @@ describe("Hub", function () {
         this.gameUpContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
 
         //--- Deploy Hub Upgradable
-        // const HubUpgradable = await ethers.getContractFactory("HubUpgradable");
-        // hubContract = await upgrades.deployProxy(HubUpgradable,
-        //     [
-        //         openRepoContract.address,
-        //         configContract1.address,
-        //         this.gameUpContract.address,
-        //         this.reactionContract.address
-        //     ],{
-        //     // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-        //     kind: "uups",
-        //     timeout: 120000
-        // });
         hubContract = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
-            configContract1.address,
+            // configContract1.address,
             this.gameUpContract.address,
             this.reactionContract.address
           ]);
         await hubContract.deployed();
 
-        //Deploy Another Hub
-        // hubContract2 = await ethers.getContractFactory("Hub").then(res => res.deploy(configContract2.address, this.gameUpContract.address, this.reactionContract.address));
-        // hubContract2 = await upgrades.deployProxy(HubUpgradable,
-        //     [
-        //         openRepoContract.address,
-        //         configContract2.address,
-        //         this.gameUpContract.address,
-        //         this.reactionContract.address
-        //     ],{
-        //     // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-        //     kind: "uups",
-        //     timeout: 120000
-        // });
+        //-- Deploy Another Hub
         hubContract2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
-            configContract2.address,
+            // configContract2.address,
             this.gameUpContract.address,
             this.reactionContract.address
           ]);
         await hubContract2.deployed();
 
-        //Deploy Avatar
-        avatarContract = await ethers.getContractFactory("SoulUpgradable").then(Contract => 
-            upgrades.deployProxy(Contract,
-              [hubContract.address],{
-              kind: "uups",
-              timeout: 120000
-            })
-          );
-
+        //--- Deploy Avatar
+        avatarContract = await deployUUPS("SoulUpgradable", [hubContract.address]);
         //Set Avatar Contract to Hub
         hubContract.assocSet("SBT", avatarContract.address);
         hubContract2.assocSet("SBT", avatarContract.address);
 
-        //Deploy History
-        // actionContract = await ethers.getContractFactory("ActionRepo").then(res => res.deploy(hubContract.address));
-        actionContract = await ethers.getContractFactory("ActionRepoTrackerUp").then(Contract => 
-            upgrades.deployProxy(Contract,
-              [hubContract.address],{
-              // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-              kind: "uups",
-              timeout: 120000
-            })
-          );
-
+        //--- Deploy History
+        actionContract = await deployUUPS("ActionRepoTrackerUp", [hubContract.address]);
         //Set Avatar Contract to Hub
         hubContract.assocSet("history", actionContract.address);
         hubContract2.assocSet("history", actionContract.address);
@@ -122,27 +81,19 @@ describe("Hub", function () {
           ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it("Should Remember & Serve Config", async function () {
-        expect(await hubContract.getConfig()).to.equal(configContract1.address);
-    });
+    // it("Should Remember & Serve Config", async function () {
+    //     expect(await hubContract.getConfig()).to.equal(configContract1.address);
+    // });
 
-    /* TODO: Should Find out a way to check Soul's Hub Address
     it("Should Move Children Contracts to a New Hub", async function () {
-        //Validate Configs
-        expect(await configContract1.owner()).to.equal(this.addr1);
-        expect(await configContract2.owner()).to.equal(this.addr2);
-        //Validate Hub        
-        expect(await hubContract.owner()).to.equal(this.addr1);
-        expect(await hubContract2.owner()).to.equal(this.addr2);
         //Check Before
-        expect(await avatarContract.owner()).to.equal(this.addr1);
-        expect(await actionContract.owner()).to.equal(this.addr1);
+        expect(await avatarContract.getHub()).to.equal(hubContract.address);
+        expect(await actionContract.getHub()).to.equal(hubContract.address);
         //Change Hub
         hubContract.hubChange(hubContract2.address);
         //Check After
-        expect(await avatarContract.owner()).to.equal(this.addr2);
-        expect(await actionContract.owner()).to.equal(this.addr2);
+        expect(await avatarContract.getHub()).to.equal(hubContract2.address);
+        expect(await actionContract.getHub()).to.equal(hubContract2.address);
     });
-    */
 
 });

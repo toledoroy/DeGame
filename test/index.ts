@@ -14,7 +14,7 @@ const soulTokens = {};  //Soul Token Assignment
 
 describe("Protocol", function () {
   //Contract Instances
-  let configContract: Contract;
+  // let configContract: Contract;
   let hubContract: Contract;
   let avatarContract: Contract;
   let actionContract: Contract;
@@ -37,28 +37,23 @@ describe("Protocol", function () {
     //Deploy Config
     // const ConfigContract = await ethers.getContractFactory("Config");
     // configContract = await ConfigContract.deploy();
-    configContract = await ethers.getContractFactory("Config").then(res => res.deploy());
+    // configContract = await ethers.getContractFactory("Config").then(res => res.deploy());
 
     //--- Deploy OpenRepo Upgradable (UUPS)
-    // this.openRepo = await ethers.getContractFactory("OpenRepoUpgradable")
-    //   .then(Contract => upgrades.deployProxy(Contract, [],{kind: "uups", timeout: 120000}));
     this.openRepo = await deployUUPS("OpenRepoUpgradable", []);
 
     //--- Deploy Reaction Implementation
-    this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
-    // this.reactionContract = await deployContract("ReactionUpgradable", []);
+    // this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
+    this.reactionContract = await deployContract("ReactionUpgradable", []);
     
     //Game Upgradable Implementation
-    this.gameUpContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
-    // this.gameUpContract = await deployContract("GameUpgradable", []);
-
-    //Deploy Hub
-    // hubContract = await ethers.getContractFactory("Hub").then(res => res.deploy(configContract.address, this.gameUpContract.address, this.reactionContract.address));
+    // this.gameUpContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
+    this.gameUpContract = await deployContract("GameUpgradable", []);
 
     //--- Deploy Hub Upgradable (UUPS)
     hubContract = await deployUUPS("HubUpgradable", [
         this.openRepo.address,
-        configContract.address, 
+        // configContract.address, 
         this.gameUpContract.address, 
         this.reactionContract.address
       ]);
@@ -114,13 +109,13 @@ describe("Protocol", function () {
     this.authorityAddr = await authority.getAddress();
   });
 
-  describe("Config", function () {
 
-    it("Should be owned by deployer", async function () {
-      expect(await configContract.owner()).to.equal(await owner.getAddress());
-    });
-
-  });
+  // describe("Config", function () {
+  //   it("Should be owned by deployer", async function () {
+  //     expect(await configContract.owner()).to.equal(await owner.getAddress());
+  //   });
+  // });
+  
 
   describe("OpenRepo", function () {
 
