@@ -15,8 +15,6 @@ describe("Hub", function () {
     let hubContract2: Contract;
     let avatarContract: Contract;
     let actionContract: Contract;
-    // let configContract1: Contract;
-    // let configContract2: Contract;
     
     //Addresses
     let account1: Signer;
@@ -34,11 +32,6 @@ describe("Hub", function () {
         //--- Deploy OpenRepo (UUPS)
         openRepoContract = await deployUUPS("OpenRepoUpgradable", []);
 
-        //--- Deploy Config
-        // const ConfigContract = await ethers.getContractFactory("Config");
-        // configContract1 = await ConfigContract.connect(account1).deploy();
-        // configContract2 = await ConfigContract.connect(account2).deploy();
-
         //Deploy Reaction Implementation
         this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
         //Game Upgradable Implementation
@@ -47,7 +40,6 @@ describe("Hub", function () {
         //--- Deploy Hub Upgradable
         hubContract = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
-            // configContract1.address,
             this.gameUpContract.address,
             this.reactionContract.address
           ]);
@@ -56,7 +48,6 @@ describe("Hub", function () {
         //-- Deploy Another Hub
         hubContract2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
-            // configContract2.address,
             this.gameUpContract.address,
             this.reactionContract.address
           ]);
@@ -80,10 +71,6 @@ describe("Hub", function () {
             hubContract.connect(account2).hubChange(hubContract2.address)
           ).to.be.revertedWith("Ownable: caller is not the owner");
     });
-
-    // it("Should Remember & Serve Config", async function () {
-    //     expect(await hubContract.getConfig()).to.equal(configContract1.address);
-    // });
 
     it("Should Move Children Contracts to a New Hub", async function () {
         //Check Before

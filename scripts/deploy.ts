@@ -24,19 +24,6 @@ async function main() {
 
   let hubContract;
 
-  /* CANCELLED
-  //--- Config
-  if(!contractAddr.config){
-    //Deploy Config
-    let configContract = await ethers.getContractFactory("Config").then(res => res.deploy());
-    await configContract.deployed();
-    //Set Address
-    contractAddr.config = configContract.address;
-    //Log
-    console.log("Deployed Config Contract to " + contractAddr.config);
-  }
-  */
-
   //--- Game Implementation
   if(!contractAddr.game){
     //Deploy Game
@@ -67,7 +54,6 @@ async function main() {
     hubContract = await deployUUPS("HubUpgradable",
       [
         publicAddr.openRepo,
-        // contractAddr.config, 
         contractAddr.game,
         contractAddr.reaction,
       ]);
@@ -99,16 +85,7 @@ async function main() {
 
   //--- Soul Upgradable
   if(!contractAddr.avatar){
-
     //Deploy Soul Upgradable
-    // const proxyAvatar = await ethers.getContractFactory("SoulUpgradable").then(Contract => 
-    //   upgrades.deployProxy(Contract,
-    //     [contractAddr.hub],{
-    //     kind: "uups",
-    //     timeout: 120000
-    //   })
-    // );
-    //Deploy UUPS
     const proxyAvatar = await deployUUPS("SoulUpgradable", [contractAddr.hub]);
 
     await proxyAvatar.deployed();
@@ -132,27 +109,8 @@ async function main() {
 
   //--- Action Repo
   if(!contractAddr.history){
-
-    /* DEPRECAETD - Non-Upgradable
-    //Deploy Action Repo
-    let actionContract = await ethers.getContractFactory("ActionRepo").then(res => res.deploy(contractAddr.hub));
-    await actionContract.deployed();
-    //Set Address
-    contractAddr.history = actionContract.address;
-    */
-
-    console.log("BEFORE History Contract Deployment");
-
-    //Deploy History Upgradable (UUPS)
-    // const proxyActionRepo = await ethers.getContractFactory("ActionRepoTrackerUp").then(Contract => 
-    //   upgrades.deployProxy(Contract,
-    //     [contractAddr.hub],{
-    //     kind: "uups",
-    //     timeout: 120000
-    //   })
-    // );
+    //Action Repository (History)
     const proxyActionRepo = await deployUUPS("ActionRepoTrackerUp", [contractAddr.hub]);
-
     await proxyActionRepo.deployed();
     
     console.log("Deployed History Contract", proxyActionRepo.address);
@@ -175,21 +133,6 @@ async function main() {
       }
     }
   }
-
-  /*
-  try{
-    // Verify your contracts with Etherscan
-    console.log("Start code verification on etherscan");
-    await run("verify:verify", {
-        address: contractAddr.avatar,
-        contract: "contracts/AvatarNFT.sol:AvatarNFT",
-        contractArguments: [contractAddr.hub],
-    });
-    console.log("End code verification on etherscan");
-  }
-  catch(error){
-      console.error("Faild Etherscan Verification", error);
-  }*/
 
 }
 

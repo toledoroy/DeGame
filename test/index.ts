@@ -14,7 +14,6 @@ const soulTokens = {};  //Soul Token Assignment
 
 describe("Protocol", function () {
   //Contract Instances
-  // let configContract: Contract;
   let hubContract: Contract;
   let avatarContract: Contract;
   let actionContract: Contract;
@@ -34,63 +33,41 @@ describe("Protocol", function () {
 
 
   before(async function () {
-    //Deploy Config
-    // const ConfigContract = await ethers.getContractFactory("Config");
-    // configContract = await ConfigContract.deploy();
-    // configContract = await ethers.getContractFactory("Config").then(res => res.deploy());
 
-    //--- Deploy OpenRepo Upgradable (UUPS)
+    //--- OpenRepo Upgradable (UUPS)
     this.openRepo = await deployUUPS("OpenRepoUpgradable", []);
 
-    //--- Deploy Reaction Implementation
-    // this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
+    //--- Reaction Implementation
     this.reactionContract = await deployContract("ReactionUpgradable", []);
     
-    //Game Upgradable Implementation
-    // this.gameUpContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
+    //--- Game Upgradable Implementation
     this.gameUpContract = await deployContract("GameUpgradable", []);
 
-    //--- Deploy Hub Upgradable (UUPS)
+    //--- Hub Upgradable (UUPS)
     hubContract = await deployUUPS("HubUpgradable", [
         this.openRepo.address,
-        // configContract.address, 
         this.gameUpContract.address, 
         this.reactionContract.address
       ]);
-
-    // await hubContract.deployed();
-
+    await hubContract.deployed();
 
     //--- Game Extensions
     //Game Extension: Court of Law
     let extCourt = await deployContract("CourtExt", []);
     await hubContract.assocAdd("GAME_COURT", extCourt.address);
 
-
     //--- Rule Repository
-    //Deploy
     this.ruleRepo = await deployContract("RuleRepo", []);
     //Set to Hub
     await hubContract.assocSet("RULE_REPO", this.ruleRepo.address);
 
-    //--- Deploy Soul Upgradable (UUPS)
+    //--- Soul Upgradable (UUPS)
     avatarContract = await deployUUPS("SoulUpgradable", [hubContract.address]);
 
     //Set Avatar Contract to Hub
     await hubContract.assocSet("SBT", avatarContract.address);
 
-    //Deploy History
-    // actionContract = await ethers.getContractFactory("ActionRepo").then(res => res.deploy(hubContract.address));
-
-    //--- Deploy History Upgradable (UUPS)
-    // actionContract = await ethers.getContractFactory("ActionRepoTrackerUp").then(Contract => 
-    //   upgrades.deployProxy(Contract,
-    //     [hubContract.address],{
-    //     // https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#common-options
-    //     kind: "uups",
-    //     timeout: 120000
-    //   })
-    // );
+    //--- History Upgradable (UUPS)
     actionContract = await deployUUPS("ActionRepoTrackerUp", [hubContract.address]);
 
     //Set Avatar Contract to Hub
@@ -109,13 +86,6 @@ describe("Protocol", function () {
     this.authorityAddr = await authority.getAddress();
   });
 
-
-  // describe("Config", function () {
-  //   it("Should be owned by deployer", async function () {
-  //     expect(await configContract.owner()).to.equal(await owner.getAddress());
-  //   });
-  // });
-  
 
   describe("OpenRepo", function () {
 

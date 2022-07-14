@@ -11,8 +11,6 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeabl
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-
-// import "./interfaces/IConfig.sol";
 import "./public/interfaces/IOpenRepo.sol";
 import "./interfaces/IProtocolEntity.sol";
 import "./interfaces/IHub.sol";
@@ -42,19 +40,14 @@ contract HubUpgradable is
 
     //---Storage
 
-    address public beaconReaction;
-    address public beaconGame;  //TBD
-
     // Arbitrary contract designation signature
     string public constant override role = "Hub";
     string public constant override symbol = "HUB";
-
-    //--- Storage
-
-    mapping(address => bool) internal _games; // Mapping for Active Games   //[TBD]
+    address public beaconReaction;
+    address public beaconGame;  //TBD
+    mapping(address => bool) internal _games; // Mapping for Active Game Contracts
     mapping(address => address) internal _reactions; // Mapping for Reaction Contracts  [G] => [R]
 
-    
     //--- Functions
  
     /// ERC165 - Supported Interfaces
@@ -89,31 +82,9 @@ contract HubUpgradable is
 
     /// @dev Returns the address of the current owner.
     function owner() public view override(IHub, OwnableUpgradeable) returns (address) {
-        /* CANCELLED - From now on, the hub will be the main Owned Contract */
-        // return IConfig(getConfig()).owner();
         return OwnableUpgradeable.owner();
     }
     
-    /* DEPRECATED
-    /// Get Configurations Contract Address
-    function getConfig() public view returns (address) {
-        return repo().addressGet("config");
-    }
-
-    /// Expose Configurations Set for Current Owner
-    function setConfig(address config) public onlyOwner {
-        _setConfig(config);
-    }
-
-    /// Set Configurations Contract Address
-    function _setConfig(address config) internal {
-        //Validate Contract's Designation
-        require(Utils.stringMatch(IConfig(config).symbol(), "Config"), "Invalid Config Contract");
-        //Set
-        repo().addressSet("config", config);
-    }
-    */
-
     /// Update Hub
     function hubChange(address newHubAddr) external override onlyOwner {
         //Avatar
@@ -178,16 +149,17 @@ contract HubUpgradable is
         );
         //Event
         emit ContractCreated("game", address(newGameProxy));
-        //Remember
-        _games[address(newGameProxy)] = true;
 
         //Register as a Soul
         try ISoul(repo().addressGet("SBT")).mintFor(address(newGameProxy), uri_) {}   //Failure should not be fatal
         catch Error(string memory reason) {
             console.log("Failed to mint a soul for the new Game Contract", reason);
         }
-        
-        // repo().addressAdd("GAME", address(newGameProxy));
+
+        //Remember
+        _games[address(newGameProxy)] = true;
+        //Register Game to Repo
+        repo().addressAdd("game", address(newGameProxy));
 
         //Return
         return address(newGameProxy);
@@ -243,7 +215,7 @@ contract HubUpgradable is
         catch Error(string memory /*reason*/) {}
     }
 
-    //-- Upgrades
+    //--- Upgrades
 
     /// Upgrade Reaction Implementation
     function upgradeReactionImplementation(address newImplementation) public onlyOwner {

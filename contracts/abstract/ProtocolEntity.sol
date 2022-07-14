@@ -23,11 +23,11 @@ abstract contract ProtocolEntity is IProtocolEntity, ContractBase, Ownable {
     //--- Functions
 
     constructor(address hub){
-        //Set Protocol's Config Address
+        //Set Protocol's Hub Address
         _setHub(hub);
     }
 
-    /// Inherit owner from Protocol's config
+    /// Inherit owner from Protocol's Hub
     function owner() public view override (IProtocolEntity, Ownable) returns (address) {
         return _HUB.owner();
     }

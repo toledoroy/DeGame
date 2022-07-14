@@ -20,19 +20,6 @@ console.log()
  */
 async function main() {
 
-  /* DEPRECATED
-  //--- Assoc Repo
-  if(!publicAddr.assocRepo){
-      //Deploy Config
-      let contractInstance = await ethers.getContractFactory("AssocRepo").then(res => res.deploy());
-      await contractInstance.deployed();
-      //Set Address
-      publicAddr.assocRepo = contractInstance.address;
-      //Log
-      console.log("Deployed AssocRepo Contract to " + contractInstance.address);
-  }
-  */
-
   //--- Open Repo
   if(!publicAddr.openRepo){
     //Deploy OpenRepo Upgradable (UUPS)
