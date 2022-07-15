@@ -27,7 +27,8 @@ async function main() {
   //--- Game Implementation
   if(!contractAddr.game) {
     //Deploy Game
-    let contract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
+    // let contract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
+    let contract = await deployContract("GameUpgradable", []);
     await contract.deployed();
     //Set Address
     contractAddr.game = contract.address;
@@ -39,7 +40,8 @@ async function main() {
   //--- Reaction Implementation
   if(!contractAddr.reaction) {
     //Deploy Reaction
-    let contract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
+    // let contract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
+    let contract = await deployContract("ReactionUpgradable", []);
     await contract.deployed();
     //Set Address
     contractAddr.reaction = contract.address;
