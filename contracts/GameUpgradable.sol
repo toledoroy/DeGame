@@ -109,15 +109,14 @@ contract GameUpgradable is
     }
 
     /// Initializer
-    function initialize (address hub, string calldata name_, string calldata uri_) public override initializer {
+    function initialize (
+        address hub, 
+        string calldata name_, 
+        string calldata uri_
+    ) public override initializer {
         //Initializers
-        // __ERC1155RolesUpgradable_init("");
         __ProtocolEntity_init(hub);
         __setTargetContract(repo().addressGetOf(address(_HUB), "SBT"));
-        
-        //Init Recursion Controls
-        // __Recursion_init(address(_HUB)); //CANCELLED
-
         //Set Contract URI
         _setContractURI(uri_);
         //Identifiers
@@ -145,13 +144,16 @@ contract GameUpgradable is
     ) external override {
         //Validate Role
         require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        //Fetch Rule Data
-        DataTypes.Rule memory rule = ruleGet(ruleId);
+        //Fetch SBT Token
         uint256 sbToken = _getExtTokenId(account);
         //Mint SBT for that Account if doesn't exist
         if(sbToken == 0) _HUB.mintForAccount(account, "");
-        //Execute Effects
+
+        //Execute Effects on that SBT
         _effectsExecute(ruleId, getSoulAddr(), sbToken);
+
+        //TODO: Event: Rule Confirmed / Action Executed
+
     }
 
     /// Execute Rule's Effects (By Reaction Contreact)
