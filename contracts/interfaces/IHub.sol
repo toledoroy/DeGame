@@ -24,6 +24,7 @@ interface IHub {
 
     /// Make a new Game
     function gameMake(
+        string calldata gameType_,
         string calldata name_, 
         string calldata uri_
     ) external returns (address);

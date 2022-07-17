@@ -12,7 +12,7 @@ interface IGame {
     function setContractURI(string calldata contract_uri) external;
 
     /// Initialize
-    function initialize(address hub, string calldata name_, string calldata uri_) external;
+    function initialize(string calldata gameType_, string calldata name_, string calldata uri_) external;
 
     /// Symbol As Arbitrary contract designation signature
     function symbol() external view returns (string memory);

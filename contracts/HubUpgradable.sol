@@ -146,13 +146,14 @@ contract HubUpgradable is
     //--- Factory 
 
     /// Make a new Game
-    function gameMake(string calldata name_, string calldata uri_) external override returns (address) {
+    function gameMake(string calldata gameType_, string calldata name_, string calldata uri_) external override returns (address) {
         //Deploy
         BeaconProxy newGameProxy = new BeaconProxy(
             beaconGame,
             abi.encodeWithSelector(
                 IGame( payable(address(0)) ).initialize.selector,
-                address(this),   //Hub
+                // address(this),   //Hub
+                gameType_,      //Game Type
                 name_,          //Name
                 uri_            //Contract URI
             )

@@ -78,7 +78,8 @@ contract GameUpgradable is
     modifier AdminOrOwner() {
        //Validate Permissions
         require(owner() == _msgSender()      //Owner
-            || roleHas(_msgSender(), "admin")    //Admin Role
+            // || roleHas(_msgSender(), "admin")    //Admin Role
+            || roleHas(tx.origin, "admin")    //Admin Role
             , "INVALID_PERMISSIONS");
         _;
     }
@@ -110,12 +111,14 @@ contract GameUpgradable is
 
     /// Initializer
     function initialize (
-        address hub, 
+        // address hub, 
+        string calldata gameType_,
         string calldata name_, 
         string calldata uri_
     ) public override initializer {
         //Initializers
-        __ProtocolEntity_init(hub);
+        // __ProtocolEntity_init(hub);
+        __ProtocolEntity_init(msg.sender);  //Birth Parent
         __setTargetContract(repo().addressGetOf(address(_HUB), "SBT"));
         //Set Contract URI
         _setContractURI(uri_);
@@ -132,6 +135,8 @@ contract GameUpgradable is
         // _setRoleURI("admin", "");
         // _setRoleURI("member", "");
         // _setRoleURI("authority", "");
+        //Set Game Type        
+        confSet("type", gameType_);
     }
 
     //** Reaction Functions

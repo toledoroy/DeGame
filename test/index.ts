@@ -1,3 +1,4 @@
+        // DataTypes.Rule memory rule = ruleGet(ruleId);
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
@@ -289,14 +290,18 @@ describe("Protocol", function () {
       await avatarContract.connect(tester5).mint(test_uri);
       await avatarContract.connect(authority).mint(test_uri);
       soulTokenId = soulTokenId + 5;
+      let game = {
+        name: "Test Game",
+        type: "",
+      };
 
       //Simulate to Get New Game Address
-      let JAddr = await hubContract.callStatic.gameMake("Test Game", test_uri);
-      // let JAddr = await hubContract.connect(admin).callStatic.gameMake("Test Game", test_uri);
+      let JAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      // let JAddr = await hubContract.connect(admin).callStatic.gameMake(game.type, game.name, test_uri);
 
       //Create New Game
-      // let tx = await hubContract.connect(admin).gameMake("Test Game", test_uri);
-      let tx = await hubContract.gameMake("Test Game", test_uri);
+      // let tx = await hubContract.connect(admin).gameMake(game.type, game.name, test_uri);
+      let tx = await hubContract.gameMake(game.type, game.name, test_uri);
       //Expect Valid Address
       expect(JAddr).to.be.properAddress;
       //Expect Reaction Created Event
