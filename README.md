@@ -1,4 +1,4 @@
-# The Playground Protocol 
+# The Excalibur Protocol 
 
 
 Using the magic of decentralized cryptography to create a higher-level game and reputation system out of composible smart contracts and NFT.
