@@ -8,7 +8,7 @@ import "./abstract/Proxy.sol";
 
 
 /**
- * @title Project Over Reaction
+ * @title Project Over Claim
  * @dev 
  */
 abstract contract Project is Proxy {

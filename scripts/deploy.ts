@@ -37,17 +37,17 @@ async function main() {
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.game);
   }
 
-  //--- Reaction Implementation
-  if(!contractAddr.reaction) {
-    //Deploy Reaction
-    // let contract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
-    let contract = await deployContract("ReactionUpgradable", []);
+  //--- Claim Implementation
+  if(!contractAddr.claim) {
+    //Deploy Claim
+    // let contract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
+    let contract = await deployContract("ClaimUpgradable", []);
     await contract.deployed();
     //Set Address
-    contractAddr.reaction = contract.address;
+    contractAddr.claim = contract.address;
     //Log
-    console.log("Deployed Reaction Contract to " + contractAddr.reaction);
-    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.reaction);
+    console.log("Deployed Claim Contract to " + contractAddr.claim);
+    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.claim);
   }
 
   //--- TEST: Upgradable Hub
@@ -57,7 +57,7 @@ async function main() {
       [
         publicAddr.openRepo,
         contractAddr.game,
-        contractAddr.reaction,
+        contractAddr.claim,
       ]);
 
     await hubContract.deployed();
@@ -81,8 +81,8 @@ async function main() {
     }
 
     //Log
-    console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Reaction: "+ contractAddr.reaction);
-    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub+" "+publicAddr.openRepo+" "+contractAddr.game+ " "+contractAddr.reaction);
+    console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Claim: "+ contractAddr.claim);
+    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub+" "+publicAddr.openRepo+" "+contractAddr.game+ " "+contractAddr.claim);
   }
 
   //--- Soul Upgradable

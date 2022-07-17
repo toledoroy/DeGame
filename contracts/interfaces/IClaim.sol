@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 
 import "../libraries/DataTypes.sol";
 
-interface IReaction {
+interface IClaim {
     
     //-- Functions
 
@@ -26,17 +26,17 @@ interface IReaction {
     /// Remove Tethered Token from a Role
     function roleRemoveFromToken(uint256 ownerToken, string memory role) external;
 
-    /// File the Reaction (Validate & Open Discussion)  --> Open
+    /// File the Claim (Validate & Open Discussion)  --> Open
     function stageFile() external;
 
-    /// Reaction Wait For Verdict  --> Pending
+    /// Claim Wait For Verdict  --> Pending
     function stageWaitForVerdict() external;
 
-    /// Reaction Stage: Place Verdict  --> Closed
+    /// Claim Stage: Place Verdict  --> Closed
     // function stageVerdict(string calldata uri) external;
     function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri) external;
 
-    /// Reaction Stage: Reject Reaction --> Cancelled
+    /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri) external;
 
     /// Add Post 
@@ -50,13 +50,13 @@ interface IReaction {
 
     //--- Events
 
-    /// Reaction Stage Change
-    event Stage(DataTypes.ReactionStage stage);
+    /// Claim Stage Change
+    event Stage(DataTypes.ClaimStage stage);
 
     /// Post Verdict
     event Verdict(string uri, address account);
 
-    /// Reaction Cancelation Data
+    /// Claim Cancelation Data
     event Cancelled(string uri, address account);
 
     /// Rule Reference Added

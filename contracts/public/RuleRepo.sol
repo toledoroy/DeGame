@@ -34,7 +34,7 @@ contract RuleRepo is IRules {
     mapping(address => mapping(uint256 => DataTypes.Rule)) internal _rules;
     mapping(address => mapping(uint256 => DataTypes.Confirmation)) internal _ruleConfirmation;  //Rule Confirmations
     mapping(address => mapping(uint256 => DataTypes.Effect[])) internal _effects;  //Rule Efects (Reputation Changes)   //effects[id][] => {direction:true, value:5, name:'personal'}  // Generic, Iterable & Extendable/Flexible
-    mapping(address => mapping(uint256 => bytes32[])) internal _reactions;  //Rule Reactions (Consequences) //action GUIDs   
+    mapping(address => mapping(uint256 => bytes32[])) internal _claims;  //Rule Claims (Consequences) //action GUIDs   
     // mapping(address => mapping(uint256 => string) internal _uri;
 
     //--- Functions
@@ -218,12 +218,12 @@ contract RuleRepo is IRules {
         emit Confirmation(msg.sender, id, confirmation.ruling, confirmation.evidence, confirmation.witness);
     }
 
-    /// Set Action's Reaction ID
-    function _reactionSet(uint256 id, bytes32 reaction) internal {
+    /// Set Action's Claim ID
+    function _claimSet(uint256 id, bytes32 claim) internal {
         //Save
-        _reactions[msg.sender][id][0] = reaction;
+        _claims[msg.sender][id][0] = claim;
         //Event
-        emit Reaction(msg.sender, id, reaction);
+        emit Claim(msg.sender, id, claim);
     }
    
 }

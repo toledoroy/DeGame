@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interfaces/IGame.sol";
 import "./interfaces/IRules.sol";
-import "./interfaces/IReaction.sol";
+import "./interfaces/IClaim.sol";
 // import "./libraries/DataTypes.sol";
 import "./abstract/ERC1155Roles.sol";
 import "./abstract/ProtocolEntity.sol";
@@ -28,7 +28,7 @@ import "./abstract/Posts.sol";
  * - One for each
  * - All members are the same
  * - Rules
- * - Creates new Reactions
+ * - Creates new Claims
  * - Contract URI
  * - [TODO] Validation: Make Sure Account has an Avatar NFT
  * - [TODO] Token URIs for Roles
@@ -51,7 +51,7 @@ contract Game is
 
     using Counters for Counters.Counter;
     // Counters.Counter internal _tokenIds; //Track Last Token ID
-    Counters.Counter internal _reactionIds;  //Track Last Reaction ID
+    Counters.Counter internal _claimIds;  //Track Last Claim ID
     
     // Contract name
     string public name;
@@ -61,8 +61,8 @@ contract Game is
     // string internal _contract_uri;
 
     // mapping(string => uint256) internal _roles;    //NFTs as Roles
-    // mapping(uint256 => address) internal _reactions;   // Mapping for Reaction Contracts      //DEPRECATED - No need for Reaction IDs, Use Hash
-    mapping(address => bool) internal _active;        // Mapping for Reaction Contracts
+    // mapping(uint256 => address) internal _claims;   // Mapping for Claim Contracts      //DEPRECATED - No need for Claim IDs, Use Hash
+    mapping(address => bool) internal _active;        // Mapping for Claim Contracts
 
     // mapping(uint256 => string) internal _rulesURI; // Mapping Metadata URIs for Individual Role 
     // mapping(uint256 => string) internal _uri;
@@ -89,9 +89,9 @@ contract Game is
         _roleAssign(tx.origin, "admin");
     }
 
-    //** Reaction Functions
+    //** Claim Functions
 
-    /// Make a new Reaction & File it
+    /// Make a new Claim & File it
     function caseMakeOpen(
         string calldata name_, 
         DataTypes.RuleRef[] calldata addRules, 
@@ -99,16 +99,16 @@ contract Game is
         PostInput[] calldata posts
     // ) public returns (uint256, address) {
     ) public returns (address) {
-        //Make Reaction
-        address reactionContract = reactionMake(name_, addRules, assignRoles, posts);
-        //File Reaction
-        IReaction(reactionContract).stageFile();
+        //Make Claim
+        address claimContract = claimMake(name_, addRules, assignRoles, posts);
+        //File Claim
+        IClaim(claimContract).stageFile();
         //Return
-        return reactionContract;
+        return claimContract;
     }
 
-    /// Make a new Reaction
-    function reactionMake(
+    /// Make a new Claim
+    function claimMake(
         string calldata name_, 
         DataTypes.RuleRef[] calldata addRules, 
         DataTypes.InputRole[] calldata assignRoles, 
@@ -118,33 +118,33 @@ contract Game is
         // roleHas(_msgSender(), "admin")
         // roleHas(_msgSender(), "member")
 
-        //Assign Reaction ID
-        _reactionIds.increment(); //Start with 1
-        uint256 reactionId = _reactionIds.current();
-        //Create new Reaction
-        address reactionContract = _HUB.reactionMake(name_, addRules, assignRoles);
+        //Assign Claim ID
+        _claimIds.increment(); //Start with 1
+        uint256 claimId = _claimIds.current();
+        //Create new Claim
+        address claimContract = _HUB.claimMake(name_, addRules, assignRoles);
         //Remember Address
-        // _reactions[reactionId] = reactionContract;
-        _active[reactionContract] = true;
-        //New Reaction Created Event
-        emit ReactionCreated(reactionId, reactionContract);
+        // _claims[claimId] = claimContract;
+        _active[claimContract] = true;
+        //New Claim Created Event
+        emit ClaimCreated(claimId, claimContract);
         //Posts
         for (uint256 i = 0; i < posts.length; ++i) {
-            IReaction(reactionContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
+            IClaim(claimContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
         }
-        return reactionContract;
+        return claimContract;
     }
     
-    /// Disable Reaction
-    function reactionDisable(address reactionContract) public override onlyOwner {
+    /// Disable Claim
+    function claimDisable(address claimContract) public override onlyOwner {
         //Validate
-        require(_active[reactionContract], "Reaction Not Active");
-        _active[reactionContract] = false;
+        require(_active[claimContract], "Claim Not Active");
+        _active[claimContract] = false;
     }
 
-    /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) public view override returns (bool) {
-        return _active[reactionContract];
+    /// Check if Claim is Owned by This Contract (& Active)
+    function claimHas(address claimContract) public view override returns (bool) {
+        return _active[claimContract];
     }
 
     //** Custom Rating Functions
@@ -152,8 +152,8 @@ contract Game is
     /// Add Reputation (Positive or Negative)
     // function repAdd(address contractAddr, uint256 tokenId, string calldata domain, DataTypes.Rating rating, uint8 amount) external override {
     function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external override {
-        //Validate - Called by Child Reaction
-        require(reactionHas(_msgSender()), "NOT A VALID INCIDENT");
+        //Validate - Called by Child Claim
+        require(claimHas(_msgSender()), "NOT A VALID INCIDENT");
         //Run
         _repAdd(contractAddr, tokenId, domain, rating, amount);
         //Update Hub

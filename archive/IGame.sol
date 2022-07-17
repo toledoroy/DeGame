@@ -14,11 +14,11 @@ interface IGame {
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
 
-    /// Disable Reaction
-    function reactionDisable(address reactionContract) external;
+    /// Disable Claim
+    function claimDisable(address claimContract) external;
 
-    /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) external view returns (bool);
+    /// Check if Claim is Owned by This Contract (& Active)
+    function claimHas(address claimContract) external view returns (bool);
 
     /// Join game as member
     function join() external;
@@ -38,8 +38,8 @@ interface IGame {
     /// Create a new Role
     // function roleCreate(address account, string calldata role) external;
 
-    /// Make a new Reaction
-    // function reactionMake(
+    /// Make a new Claim
+    // function claimMake(
     //     string calldata name_, 
     //     DataTypes.RuleRef[] calldata addRules, 
     //     DataTypes.InputRole[] calldata assignRoles, 
@@ -65,6 +65,6 @@ interface IGame {
 
     //--- Events
 
-    /// New Reaction Created
-    event ReactionCreated(uint256 indexed id, address contractAddress);    
+    /// New Claim Created
+    event ClaimCreated(uint256 indexed id, address contractAddress);    
 }

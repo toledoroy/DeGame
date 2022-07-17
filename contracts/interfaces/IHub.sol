@@ -29,8 +29,8 @@ interface IHub {
         string calldata uri_
     ) external returns (address);
 
-    /// Make a new Reaction
-    function reactionMake(
+    /// Make a new Claim
+    function claimMake(
         string calldata name_, 
         string calldata uri_,
         DataTypes.RuleRef[] memory addRules,

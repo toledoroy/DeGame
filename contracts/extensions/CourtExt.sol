@@ -7,7 +7,7 @@ pragma solidity ^0.8.4;
 import "./interfaces/ICourtExt.sol";
 import "../abstract/GameExtension.sol";
 import "../libraries/DataTypes.sol";
-import "../interfaces/IReaction.sol";
+import "../interfaces/IClaim.sol";
 
 /**
  * @title Game Extension: Court of Law 
@@ -25,20 +25,20 @@ contract CourtExt is ICourtExt, GameExtension {
     ) public override returns (address) {
         //Validate Caller Permissions (Member of Game)
         require(gameRoles().roleHas(_msgSender(), "member"), "Members Only");
-        //Create new Reaction
-        address reactionContract = hub().reactionMake(name_, uri_, rules, assignRoles);
+        //Create new Claim
+        address claimContract = hub().claimMake(name_, uri_, rules, assignRoles);
         //Register New Contract
-        _registerNewReaction(reactionContract);
+        _registerNewClaim(claimContract);
         //Posts
         for (uint256 i = 0; i < posts.length; ++i) {
-            IReaction(reactionContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
+            IClaim(claimContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
         }
         //Return new Contract Address
-        return reactionContract;
+        return claimContract;
     }
 
     /// Make a new Case & File it
-    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a reaction
+    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a claim
     function caseMakeOpen(
         string calldata name_, 
         string calldata uri_, 
@@ -48,16 +48,16 @@ contract CourtExt is ICourtExt, GameExtension {
     ) public override returns (address) {
         //Validate Caller Permissions (Member of Game)
         require(gameRoles().roleHas(_msgSender(), "member"), "Members Only");
-        //Create new Reaction
-        address reactionContract = caseMake(name_, uri_, rules, assignRoles, posts);
-        //File Reaction
-        IReaction(reactionContract).stageFile();
+        //Create new Claim
+        address claimContract = caseMake(name_, uri_, rules, assignRoles, posts);
+        //File Claim
+        IClaim(claimContract).stageFile();
         //Return new Contract Address
-        return reactionContract;
+        return claimContract;
     }
 
     /// Make a new Case, File it & Close it
-    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a reaction
+    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a claim
     function caseMakeClosed(
         string calldata name_, 
         string calldata uri_, 
@@ -74,25 +74,25 @@ contract CourtExt is ICourtExt, GameExtension {
             verdict[i].ruleId = i+1;
             verdict[i].decision = true;
         }
-        //Create new Reaction
-        // address reactionContract = caseMake(name_, uri_, rules, assignRoles, posts);
-        //Make Reaction & Open
-        address reactionContract = caseMakeOpen(name_, uri_, rules, assignRoles, posts);
-        //File Reaction
-        // IReaction(reactionContract).stageFile();
+        //Create new Claim
+        // address claimContract = caseMake(name_, uri_, rules, assignRoles, posts);
+        //Make Claim & Open
+        address claimContract = caseMakeOpen(name_, uri_, rules, assignRoles, posts);
+        //File Claim
+        // IClaim(claimContract).stageFile();
         //Push Forward
-        IReaction(reactionContract).stageWaitForVerdict();
-        //Close Reaction
-        IReaction(reactionContract).stageVerdict(verdict, decisionURI_);
+        IClaim(claimContract).stageWaitForVerdict();
+        //Close Claim
+        IClaim(claimContract).stageVerdict(verdict, decisionURI_);
         //Return
-        return reactionContract;
+        return claimContract;
     }
 
-    /// Register New Reaction Contract
-    function _registerNewReaction(address reactionContract) private {
+    /// Register New Claim Contract
+    function _registerNewClaim(address claimContract) private {
         //Register Child Contract
-        repo().addressAdd("reaction", reactionContract);
-        //New Reaction Created Event
-        // emit ReactionCreated(reactionId, reactionContract);  //CANCELLED
+        repo().addressAdd("claim", claimContract);
+        //New Claim Created Event
+        // emit ClaimCreated(claimId, claimContract);  //CANCELLED
     }
 }

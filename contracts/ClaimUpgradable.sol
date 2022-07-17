@@ -5,7 +5,7 @@ import "hardhat/console.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "./libraries/DataTypes.sol";
-import "./interfaces/IReaction.sol";
+import "./interfaces/IClaim.sol";
 import "./interfaces/IRules.sol";
 import "./interfaces/ISoul.sol";
 import "./interfaces/IERC1155RolesTracker.sol";
@@ -15,11 +15,11 @@ import "./abstract/ERC1155RolesTrackerUp.sol";
 import "./abstract/Posts.sol";
 
 /**
- * @title Upgradable Reaction Contract
+ * @title Upgradable Claim Contract
  * @dev Version 2.0.0
  */
-contract ReactionUpgradable is 
-    IReaction, 
+contract ClaimUpgradable is 
+    IClaim, 
     Posts, 
     ProtocolEntityUpgradable, 
     ERC1155RolesTrackerUp {
@@ -39,11 +39,11 @@ contract ReactionUpgradable is
     //Contract URI
     // string internal _contract_uri;
 
-    //Stage (Reaction Lifecycle)
-    DataTypes.ReactionStage public stage;
+    //Stage (Claim Lifecycle)
+    DataTypes.ClaimStage public stage;
 
     //Rules Reference
-    mapping(uint256 => DataTypes.RuleRef) internal _rules;      // Mapping for Reaction Rules
+    mapping(uint256 => DataTypes.RuleRef) internal _rules;      // Mapping for Claim Rules
     mapping(uint256 => bool) public decision;                   // Mapping for Rule Decisions
     
     //--- Modifiers
@@ -61,7 +61,7 @@ contract ReactionUpgradable is
     
     /// ERC165 - Supported Interfaces
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IReaction).interfaceId 
+        return interfaceId == type(IClaim).interfaceId 
             || interfaceId == type(IRules).interfaceId 
             || super.supportsInterface(interfaceId);
     }
@@ -85,9 +85,9 @@ contract ReactionUpgradable is
         _setContractURI(uri_);
         //Identifiers
         name = name_;
-        //Init Default Reaction Roles
+        //Init Default Claim Roles
         _roleCreate("admin");
-        _roleCreate("creator");     //Filing the reaction
+        _roleCreate("creator");     //Filing the claim
         _roleCreate("subject");     //Acting Agent
         _roleCreate("authority");   //Deciding authority
         _roleCreate("witness");     //Witnesses
@@ -204,7 +204,7 @@ contract ReactionUpgradable is
     }
 
     // function post(string entRole, string uri) 
-    // - Post by account + role (in the reaction, since an account may have multiple roles)
+    // - Post by account + role (in the claim, since an account may have multiple roles)
 
     // function post(uint256 token_id, string entRole, string uri) 
     //- Post by Entity (Token ID or a token identifier struct)
@@ -222,7 +222,7 @@ contract ReactionUpgradable is
         // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         //Validate Stage
-        require(stage < DataTypes.ReactionStage.Closed, "STAGE:CLOSED");
+        require(stage < DataTypes.ClaimStage.Closed, "STAGE:CLOSED");
         //Post Event
         _post(tx.origin, tokenId, entRole, uri_);
     }
@@ -263,12 +263,12 @@ contract ReactionUpgradable is
     
     //--- State Changers
     
-    /// File the Reaction (Validate & Open Discussion)  --> Open
+    /// File the Claim (Validate & Open Discussion)  --> Open
     function stageFile() public override {
         //Validate Caller
         require(roleHas(tx.origin, "creator") || roleHas(_msgSender(), "admin") , "ROLE:CREATOR_OR_ADMIN");
         //Validate Lifecycle Stage
-        require(stage == DataTypes.ReactionStage.Draft, "STAGE:DRAFT_ONLY");
+        require(stage == DataTypes.ClaimStage.Draft, "STAGE:DRAFT_ONLY");
         //Validate - Has Subject
         require(uniqueRoleMembersCount("subject") > 0 , "ROLE:MISSING_SUBJECT");
         //Validate - Prevent Self Report? (subject != affected)
@@ -282,27 +282,27 @@ contract ReactionUpgradable is
             //Validate Min Witness Requirements
             require(witnesses >= confirmation.witness, "INSUFFICIENT_WITNESSES");
         }
-        //Reaction is now Open
-        _setStage(DataTypes.ReactionStage.Open);
+        //Claim is now Open
+        _setStage(DataTypes.ClaimStage.Open);
     }
 
-    /// Reaction Wait For Verdict  --> Pending
+    /// Claim Wait For Verdict  --> Pending
     function stageWaitForVerdict() public override {
         //Validate Stage
-        require(stage == DataTypes.ReactionStage.Open, "STAGE:OPEN_ONLY");
+        require(stage == DataTypes.ClaimStage.Open, "STAGE:OPEN_ONLY");
         //Validate Caller
         require(_msgSender() == getContainerAddr() 
             || roleHas(_msgSender(), "authority") 
             || roleHas(_msgSender(), "admin") , "ROLE:AUTHORITY_OR_ADMIN");
-        //Reaction is now Waiting for Verdict
-        _setStage(DataTypes.ReactionStage.Decision);
+        //Claim is now Waiting for Verdict
+        _setStage(DataTypes.ClaimStage.Decision);
     }   
 
-    /// Reaction Stage: Place Verdict  --> Closed
+    /// Claim Stage: Place Verdict  --> Closed
     function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
         require(_msgSender() == getContainerAddr() 
             || roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ReactionStage.Decision, "STAGE:VERDICT_ONLY");
+        require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
 
         //Process Decision
         for (uint256 i = 0; i < verdict.length; ++i) {
@@ -312,7 +312,7 @@ contract ReactionUpgradable is
                 //Rule Confirmation Procedure (OLD)
                 // _ruleConfirmed(verdict[i].ruleId);
 
-                //Fetch Reaction's Subject(s)
+                //Fetch Claim's Subject(s)
                 uint256[] memory subjects = uniqueRoleMembers("subject");
                 //Each Subject
                 for (uint256 s = 0; s < subjects.length; ++s) {
@@ -328,24 +328,24 @@ contract ReactionUpgradable is
             }
         }
 
-        //Reaction is now Closed
-        _setStage(DataTypes.ReactionStage.Closed);
+        //Claim is now Closed
+        _setStage(DataTypes.ClaimStage.Closed);
         //Emit Verdict Event
         emit Verdict(uri_, tx.origin);
     }
 
-    /// Reaction Stage: Reject Reaction --> Cancelled
+    /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri_) public override {
         require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ReactionStage.Decision, "STAGE:VERDICT_ONLY");
-        //Reaction is now Closed
-        _setStage(DataTypes.ReactionStage.Cancelled);
+        require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
+        //Claim is now Closed
+        _setStage(DataTypes.ClaimStage.Cancelled);
         //Cancellation Event
         emit Cancelled(uri_, _msgSender());
     }
 
-    /// Change Reaction Stage
-    function _setStage(DataTypes.ReactionStage stage_) internal {
+    /// Change Claim Stage
+    function _setStage(DataTypes.ClaimStage stage_) internal {
         //Set Stage
         stage = stage_;
         //Stage Change Event
@@ -361,7 +361,7 @@ contract ReactionUpgradable is
         require(IERC165(address(avatarContract)).supportsInterface(type(ISoul).interfaceId), "Invalid Avatar Contract");
         * /
 
-        //Fetch Reaction's Subject(s)
+        //Fetch Claim's Subject(s)
         uint256[] memory subjects = uniqueRoleMembers("subject");
 
         //Each Subject

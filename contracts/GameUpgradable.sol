@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol"
 import "./interfaces/IGameUp.sol";
 // import "./interfaces/IRulesRepo.sol";
 import "./interfaces/IRules.sol";
-import "./interfaces/IReaction.sol";
+import "./interfaces/IClaim.sol";
 import "./interfaces/IActionRepo.sol";
 import "./public/interfaces/IVotesRepoTracker.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
@@ -37,7 +37,7 @@ import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
  * - One for each
  * - All members are the same
  * - Rules
- * - Creates new Reactions
+ * - Creates new Claims
  * - Contract URI
  * - Token URIs for Roles
  * - Owner account must have an Avatar NFT
@@ -65,11 +65,11 @@ contract GameUpgradable is
 
     using CountersUpgradeable for CountersUpgradeable.Counter;
     // CountersUpgradeable.Counter internal _tokenIds; //Track Last Token ID
-    CountersUpgradeable.Counter internal _reactionIds;  //Track Last Reaction ID
+    CountersUpgradeable.Counter internal _claimIds;  //Track Last Claim ID
     
     // Contract name
     string public name;
-    // Mapping for Reaction Contracts
+    // Mapping for Claim Contracts
     mapping(address => bool) internal _active;
 
     //--- Modifiers
@@ -139,7 +139,7 @@ contract GameUpgradable is
         confSet("type", gameType_);
     }
 
-    //** Reaction Functions
+    //** Claim Functions
 
     /// Register an Incident (happening of a valued action)
     function reportEvent(
@@ -161,10 +161,10 @@ contract GameUpgradable is
 
     }
 
-    /// Execute Rule's Effects (By Reaction Contreact)
+    /// Execute Rule's Effects (By Claim Contreact)
     function effectsExecute(uint256 ruleId, address targetContract, uint256 targetTokenId) external override {
-        //Validate - Called by Child Reaction
-        require(reactionHas(msg.sender), "NOT A VALID INCIDENT");
+        //Validate - Called by Child Claim
+        require(claimHas(msg.sender), "NOT A VALID INCIDENT");
         _effectsExecute(ruleId, targetContract, targetTokenId);
     }
 
@@ -184,16 +184,16 @@ contract GameUpgradable is
         emit EffectsExecuted(targetTokenId, ruleId, "");
     }
 
-    /// Disable (Disown) Reaction
-    function reactionDisable(address reactionContract) public override onlyOwner {
+    /// Disable (Disown) Claim
+    function claimDisable(address claimContract) public override onlyOwner {
         //Validate
-        require(reactionHas(reactionContract), "Reaction Not Active");
-        repo().addressRemove("reaction", reactionContract);
+        require(claimHas(claimContract), "Claim Not Active");
+        repo().addressRemove("claim", claimContract);
     }
 
-    /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) public view override returns (bool) {
-        return repo().addressHas("reaction", reactionContract);
+    /// Check if Claim is Owned by This Contract (& Active)
+    function claimHas(address claimContract) public view override returns (bool) {
+        return repo().addressHas("claim", claimContract);
     }
 
     /// Add Post 

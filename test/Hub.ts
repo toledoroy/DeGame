@@ -32,8 +32,8 @@ describe("Hub", function () {
         //--- Deploy OpenRepo (UUPS)
         openRepoContract = await deployUUPS("OpenRepoUpgradable", []);
 
-        //Deploy Reaction Implementation
-        this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
+        //Deploy Claim Implementation
+        this.claimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
         //Game Upgradable Implementation
         this.gameUpContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
 
@@ -41,7 +41,7 @@ describe("Hub", function () {
         hubContract = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             this.gameUpContract.address,
-            this.reactionContract.address
+            this.claimContract.address
           ]);
         await hubContract.deployed();
 
@@ -49,7 +49,7 @@ describe("Hub", function () {
         hubContract2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             this.gameUpContract.address,
-            this.reactionContract.address
+            this.claimContract.address
           ]);
         await hubContract2.deployed();
 

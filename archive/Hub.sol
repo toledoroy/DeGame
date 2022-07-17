@@ -16,7 +16,7 @@ import "./interfaces/IAssocRepo.sol";
 import "./interfaces/IProtocolEntity.sol";
 import "./interfaces/IHub.sol";
 import "./interfaces/IGameUp.sol";
-import "./interfaces/IReaction.sol";
+import "./interfaces/IClaim.sol";
 import "./interfaces/IAvatar.sol";
 import "./libraries/DataTypes.sol";
 // import "./abstract/ProtocolEntity.sol";
@@ -26,8 +26,8 @@ import "./abstract/Assoc.sol";
 /**
  * Hub Contract
  * - Hold Known Contract Addresses (Avatar, History)
- * - Contract Factory (Games & Reactions)
- * - Remember Products (Games & Reactions)
+ * - Contract Factory (Games & Claims)
+ * - Remember Products (Games & Claims)
  */
 contract Hub is 
         IHub, 
@@ -39,7 +39,7 @@ contract Hub is
     
 
     //---Storage
-    address public beaconReaction;
+    address public beaconClaim;
     address public beaconGame;  //TBD
 
     // mapping(string => address) internal _contracts;      // Mapping for Used Contracts
@@ -51,7 +51,7 @@ contract Hub is
 
     // using Counters for Counters.Counter;
     // Counters.Counter internal _tokenIds; //Track Last Token ID
-    // Counters.Counter internal _reactionIds;  //Track Last Reaction ID
+    // Counters.Counter internal _claimIds;  //Track Last Claim ID
 
     // Arbitrary contract designation signature
     string public constant override role = "Hub";
@@ -62,7 +62,7 @@ contract Hub is
     IConfig private _CONFIG;  //Configuration Contract       //DEPRECATE
 
     mapping(address => bool) internal _games; // Mapping for Active Games   //[TBD]
-    mapping(address => address) internal _reactions;      // Mapping for Reaction Contracts  [C] => [J]
+    mapping(address => address) internal _claims;      // Mapping for Claim Contracts  [C] => [J]
 
 
     //--- Events
@@ -78,15 +78,15 @@ contract Hub is
             || super.supportsInterface(interfaceId);
     }
 
-    constructor(address config, address gameContract, address reactionContract) {
+    constructor(address config, address gameContract, address claimContract) {
         //Set Protocol's Config Address
         _setConfig(config);
         //Init Game Contract Beacon
         UpgradeableBeacon _beaconJ = new UpgradeableBeacon(gameContract);
         beaconGame = address(_beaconJ);
-        //Init Reaction Contract Beacon
-        UpgradeableBeacon _beaconC = new UpgradeableBeacon(reactionContract);
-        beaconReaction = address(_beaconC);
+        //Init Claim Contract Beacon
+        UpgradeableBeacon _beaconC = new UpgradeableBeacon(claimContract);
+        beaconClaim = address(_beaconC);
     }
 
     /// @dev Returns the address of the current owner.
@@ -163,8 +163,8 @@ contract Hub is
         return address(newGameProxy);
     }
 
-    /// Make a new Reaction
-    function reactionMake(
+    /// Make a new Claim
+    function claimMake(
         string calldata name_, 
         string calldata uri_,
         DataTypes.RuleRef[] memory addRules,
@@ -174,13 +174,13 @@ contract Hub is
         require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
 
         //Validate
-        // require(beaconReaction != address(0), "Reaction Beacon Missing");    //Redundant
+        // require(beaconClaim != address(0), "Claim Beacon Missing");    //Redundant
 
         //Deploy
-        BeaconProxy newReactionProxy = new BeaconProxy(
-            beaconReaction,
+        BeaconProxy newClaimProxy = new BeaconProxy(
+            beaconClaim,
             abi.encodeWithSelector(
-                IReaction( payable(address(0)) ).initialize.selector,
+                IClaim( payable(address(0)) ).initialize.selector,
                 address(this),   //Hub
                 name_,          //Name
                 uri_,
@@ -190,11 +190,11 @@ contract Hub is
             )
         );
         //Event
-        emit ContractCreated("reaction", address(newReactionProxy));
+        emit ContractCreated("claim", address(newClaimProxy));
         //Remember
-        _reactions[address(newReactionProxy)] = _msgSender();
+        _claims[address(newClaimProxy)] = _msgSender();
         //Return
-        return address(newReactionProxy);
+        return address(newClaimProxy);
     }
 
     //--- Reputation
@@ -231,22 +231,22 @@ contract Hub is
 
     //-- Upgrades
 
-    /// Upgrade Reaction Implementation
-    function upgradeReactionImplementation(address newImplementation) public onlyOwner {
+    /// Upgrade Claim Implementation
+    function upgradeClaimImplementation(address newImplementation) public onlyOwner {
         //Validate Interface
-        // require(IERC165(newImplementation).supportsInterface(type(IReaction).interfaceId), "Implmementation Does Not Support Reaction Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
+        // require(IERC165(newImplementation).supportsInterface(type(IClaim).interfaceId), "Implmementation Does Not Support Claim Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
 
         //Upgrade Beacon
-        UpgradeableBeacon(beaconReaction).upgradeTo(newImplementation);
+        UpgradeableBeacon(beaconClaim).upgradeTo(newImplementation);
         //Upgrade Event
-        // emit UpdatedReactionImplementation(newImplementation);
-        emit UpdatedImplementation("reaction", newImplementation);
+        // emit UpdatedClaimImplementation(newImplementation);
+        emit UpdatedImplementation("claim", newImplementation);
     }
 
     /// Upgrade Game Implementation [TBD]
     function upgradeGameImplementation(address newImplementation) public onlyOwner {
         //Validate Interface
-        // require(IERC165(newImplementation).supportsInterface(type(IReaction).interfaceId), "Implmementation Does Not Support Reaction Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
+        // require(IERC165(newImplementation).supportsInterface(type(IClaim).interfaceId), "Implmementation Does Not Support Claim Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
 
         //Upgrade Beacon
         UpgradeableBeacon(beaconGame).upgradeTo(newImplementation);

@@ -28,7 +28,7 @@ async function main() {
      let selfSoulToken = 4;
      let otherSoulToken = 2;
    
-     let reactionName = "Test Reaction #1";
+     let claimName = "Test Claim #1";
      let ruleRefArr = [
        {
          game: gameContract.address, 
@@ -53,9 +53,9 @@ async function main() {
        }
      ];
 
-     //Simulate - Get New Reaction Address
-     let reactionAddr = await gameContract.callStatic.reactionMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
-     console.log("New Reaction Address: ", reactionAddr);
+     //Simulate - Get New Claim Address
+     let claimAddr = await gameContract.callStatic.claimMake(claimName, test_uri, ruleRefArr, roleRefArr, posts);
+     console.log("New Claim Address: ", claimAddr);
 
 }
 

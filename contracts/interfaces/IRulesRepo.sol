@@ -63,7 +63,7 @@ interface IRules {
     /// Action Confirmation Change
     event Confirmation(address indexed originAddress, uint256 indexed id, string ruling, bool evidence, uint witness);
 
-    /// Reaction Change
-    event Reaction(address indexed originAddress, uint256 indexed id, bytes32 reactionId);
+    /// Claim Change
+    event Claim(address indexed originAddress, uint256 indexed id, bytes32 claimId);
 
 }

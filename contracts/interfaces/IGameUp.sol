@@ -26,11 +26,11 @@ interface IGame {
     /// Add Post 
     function post(string calldata entRole, uint256 tokenId, string calldata uri) external;
 
-    /// Disable Reaction
-    function reactionDisable(address reactionContract) external;
+    /// Disable Claim
+    function claimDisable(address claimContract) external;
 
-    /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) external view returns (bool);
+    /// Check if Claim is Owned by This Contract (& Active)
+    function claimHas(address claimContract) external view returns (bool);
 
     /// Join game as member
     function join() external returns (uint256);
@@ -65,7 +65,7 @@ interface IGame {
     /// Add Reputation (Positive or Negative)
     // function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
 
-    /// Execute Rule's Effects (By Reaction Contreact)
+    /// Execute Rule's Effects (By Claim Contreact)
     function effectsExecute(uint256 ruleId, address targetContract, uint256 targetTokenId) external;
 
     /// Register an Incident (happening of a valued action)
@@ -88,8 +88,8 @@ interface IGame {
 
     //--- Events
 
-    /// New Reaction Created
-    // event ReactionCreated(uint256 indexed id, address contractAddress);    
+    /// New Claim Created
+    // event ClaimCreated(uint256 indexed id, address contractAddress);    
 
     /// Nominate
     event Nominate(address account, uint256 indexed id, string uri);
