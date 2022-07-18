@@ -1,3 +1,4 @@
+import { Contract } from "ethers";
 import { run } from "hardhat";
 import { ethers } from "hardhat";
 const { upgrades } = require("hardhat");
@@ -14,6 +15,15 @@ export const deployContract = async (contractName: string, args: any[]) => {
 export const deployUUPS = async (contractName: string, args: any[]) => {
   return await ethers.getContractFactory(contractName)
     .then(Contract => upgrades.deployProxy(Contract, args, {kind: "uups", timeout: 120000}));
+}
+
+//--- Deploy Game Extensions
+
+export const deployGameExt = async (hubContract: Contract) => {
+  //Game Extension: Court of Law
+  let extCourt = await deployContract("CourtExt", []);
+  await hubContract.assocAdd("GAME_COURT", extCourt.address);
+
 }
 
 export const verify = async (contractAddress: string, args: any[]) => {

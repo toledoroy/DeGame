@@ -2,7 +2,7 @@
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS } from "../utils/deployment";
+import { deployContract, deployUUPS, deployGameExt } from "../utils/deployment";
 const { upgrades } = require("hardhat");
 
 //Test Data
@@ -52,11 +52,14 @@ describe("Protocol", function () {
       ]);
     await hubContract.deployed();
 
-    //--- Game Extensions
+    //--- Game Extensions  
     //Game Extension: Court of Law
-    let extCourt = await deployContract("CourtExt", []);
-    await hubContract.assocAdd("GAME_COURT", extCourt.address);
+    // let extCourt = await deployContract("CourtExt", []);
+    // await hubContract.assocAdd("GAME_COURT", extCourt.address);
+    //Deploy All Game Extensions
+    deployGameExt(hubContract);
 
+  
     //--- Rule Repository
     this.ruleRepo = await deployContract("RuleRepo", []);
     //Set to Hub
@@ -650,6 +653,7 @@ describe("Protocol", function () {
       before(async function () {
         //Attach Court Functionality
         this.courtContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
+
       });
       
       it("Should Set COURT Extension Contract", async function () {
@@ -843,7 +847,8 @@ describe("Protocol", function () {
       });
 
       it("Should Update", async function () {
-        let testClaimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
+        // let testClaimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
+        let testClaimContract = await deployContract("ClaimUpgradable", []);
         await testClaimContract.deployed();
         //Update Claim Beacon (to the same implementation)
         hubContract.upgradeClaimImplementation(testClaimContract.address);

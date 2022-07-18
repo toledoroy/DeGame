@@ -4,7 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS } from "../utils/deployment";
+import { deployContract, deployUUPS, deployGameExt } from "../utils/deployment";
 const { upgrades } = require("hardhat");
 const hre = require("hardhat");
 const chain = hre.hardhatArguments.network;
@@ -40,7 +40,6 @@ async function main() {
   //--- Claim Implementation
   if(!contractAddr.claim) {
     //Deploy Claim
-    // let contract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
     let contract = await deployContract("ClaimUpgradable", []);
     await contract.deployed();
     //Set Address
@@ -61,6 +60,9 @@ async function main() {
       ]);
 
     await hubContract.deployed();
+
+    //Deploy All Game Extensions & Set to Hub
+    deployGameExt(hubContract);
 
     //Set RuleRepo to Hub
     hubContract.assocSet("RULE_REPO", publicAddr.ruleRepo.address);
