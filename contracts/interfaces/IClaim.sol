@@ -9,7 +9,13 @@ interface IClaim {
     //-- Functions
 
     /// Initialize
-    function initialize(address hub, string memory name_, string calldata uri_, DataTypes.RuleRef[] memory addRules, DataTypes.InputRoleToken[] memory assignRoles, address container) external ;
+    function initialize(
+        address container, 
+        string memory name_, 
+        string calldata uri_, 
+        DataTypes.RuleRef[] memory addRules, 
+        DataTypes.InputRoleToken[] memory assignRoles
+    ) external ;
 
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;

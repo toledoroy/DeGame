@@ -31,8 +31,8 @@ contract ClaimUpgradable is
     // Contract name
     string public name;
     // Contract symbol
-    // string public symbol;
-    string public constant symbol = "REACTION";
+    string public symbol;
+    // string public constant symbol = "CLAIM";
 
     //Game
     // address private _game;
@@ -68,15 +68,16 @@ contract ClaimUpgradable is
 
     /// Initializer
     function initialize (
-        address hub, 
+        address container,
         string memory name_, 
         string calldata uri_, 
         DataTypes.RuleRef[] memory addRules, 
-        DataTypes.InputRoleToken[] memory assignRoles, 
-        address container
+        DataTypes.InputRoleToken[] memory assignRoles
     ) public override initializer {
+        symbol = "CLAIM";
         //Initializers
-        __ProtocolEntity_init(hub);
+        // __ProtocolEntity_init(hub);
+        __ProtocolEntity_init(msg.sender);
         __setTargetContract(getSoulAddr());
         //Set Parent Container
         _setParentCTX(container);
@@ -91,7 +92,7 @@ contract ClaimUpgradable is
         _roleCreate("subject");     //Acting Agent
         _roleCreate("authority");   //Deciding authority
         _roleCreate("witness");     //Witnesses
-        _roleCreate("affected");    //Affected Party [?]
+        _roleCreate("affected");    //Affected Party (For reparations)
         //Auto-Set Creator Wallet as Admin
         _roleAssign(tx.origin, "admin", 1);
         _roleAssign(tx.origin, "creator", 1);
@@ -303,16 +304,11 @@ contract ClaimUpgradable is
         require(_msgSender() == getContainerAddr()  //Parent Contract
             || roleHas(_msgSender(), "authority")   //Authority
             , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
-
+        require(stage == DataTypes.ClaimStage.Decision, "STAGE:DECISION_ONLY");
         //Process Decision
         for (uint256 i = 0; i < verdict.length; ++i) {
             decision[verdict[i].ruleId] = verdict[i].decision;
             if(verdict[i].decision) {
-                
-                //Rule Confirmation Procedure (OLD)
-                // _ruleConfirmed(verdict[i].ruleId);
-
                 //Fetch Claim's Subject(s)
                 uint256[] memory subjects = uniqueRoleMembers("subject");
                 //Each Subject
@@ -323,7 +319,6 @@ contract ClaimUpgradable is
                     //Execute Rule
                     IGame(getContainerAddr()).effectsExecute(parentRuleId, getSoulAddr(), tokenId);
                 }
-                        
                 //Rule Confirmed Event
                 emit RuleConfirmed(verdict[i].ruleId);
             }
@@ -338,7 +333,7 @@ contract ClaimUpgradable is
     /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri_) public override {
         require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
+        require(stage == DataTypes.ClaimStage.Decision, "STAGE:DECISION_ONLY");
         //Claim is now Closed
         _setStage(DataTypes.ClaimStage.Cancelled);
         //Cancellation Event
@@ -353,7 +348,7 @@ contract ClaimUpgradable is
         emit Stage(stage);
     }
 
-    /*
+    /* OLDER VERSION
     /// Rule (Action) Confirmed (Currently Only Judging Avatars)
     function _ruleConfirmed(uint256 ruleId) internal {
 

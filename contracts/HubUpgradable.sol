@@ -190,12 +190,12 @@ contract HubUpgradable is
             beaconClaim,
             abi.encodeWithSelector(
                 IClaim( payable(address(0)) ).initialize.selector,
-                address(this),  //Hub
+                // address(this),  //Hub
+                _msgSender(),   //Birth Parent (Container)
                 name_,          //Name
                 uri_,           //Contract URI
                 addRules,       //Rules
-                assignRoles,    //Roles
-                _msgSender()    //Birth Parent (Container)
+                assignRoles    //Roles
             )
         );
         //Event
