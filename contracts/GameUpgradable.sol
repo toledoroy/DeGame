@@ -12,7 +12,6 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/utils/VotesUpgradeable.sol"; //Adds 3.486Kb
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import "./interfaces/IGameUp.sol";
-// import "./interfaces/IRulesRepo.sol";
 import "./interfaces/IRules.sol";
 import "./interfaces/IClaim.sol";
 import "./interfaces/IActionRepo.sol";
@@ -21,10 +20,9 @@ import "./abstract/ERC1155RolesTrackerUp.sol";
 import "./abstract/ProtocolEntityUpgradable.sol";
 import "./abstract/Opinions.sol";
 import "./abstract/Posts.sol";
-// import "./abstract/Rules.sol";
-// import "./abstract/Recursion.sol";
-// import "./public/interfaces/IOpenRepo.sol";
 import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
+// import "./interfaces/IRulesRepo.sol";
+// import "./public/interfaces/IOpenRepo.sol";
 // import "./libraries/DataTypes.sol";
 
 
@@ -95,13 +93,6 @@ contract GameUpgradable is
     }
     */
 
-
-    //Get Rules Repo
-    function _ruleRepo() internal view returns (IRules) {
-        address ruleRepoAddr = repo().addressGetOf(address(_HUB), "RULE_REPO");
-        return IRules(ruleRepoAddr);
-    }
-
     /// ERC165 - Supported Interfaces
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IGame).interfaceId 
@@ -153,12 +144,8 @@ contract GameUpgradable is
         uint256 sbToken = _getExtTokenId(account);
         //Mint SBT for that Account if doesn't exist
         if(sbToken == 0) _HUB.mintForAccount(account, "");
-
         //Execute Effects on that SBT
         _effectsExecute(ruleId, getSoulAddr(), sbToken);
-
-        //TODO: Event: Rule Confirmed / Action Executed
-
     }
 
     /// Execute Rule's Effects (By Claim Contreact)
@@ -389,8 +376,15 @@ contract GameUpgradable is
         // else{ console.log("No Votes Repo Configured", votesRepoAddr); }
     }
 
+
     //** Rule Management    //Maybe Offload to a GameExtension
     
+    //Get Rules Repo
+    function _ruleRepo() internal view returns (IRules) {
+        address ruleRepoAddr = repo().addressGetOf(address(_HUB), "RULE_REPO");
+        return IRules(ruleRepoAddr);
+    }
+
     //-- Getters
 
     /// Get Rule

@@ -300,8 +300,9 @@ contract ClaimUpgradable is
 
     /// Claim Stage: Place Verdict  --> Closed
     function stageDecision(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
-        require(_msgSender() == getContainerAddr() 
-            || roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
+        require(_msgSender() == getContainerAddr()  //Parent Contract
+            || roleHas(_msgSender(), "authority")   //Authority
+            , "ROLE:AUTHORITY_ONLY");
         require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
 
         //Process Decision
