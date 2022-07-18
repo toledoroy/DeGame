@@ -146,7 +146,11 @@ contract HubUpgradable is
     //--- Factory 
 
     /// Make a new Game
-    function gameMake(string calldata gameType_, string calldata name_, string calldata uri_) external override returns (address) {
+    function gameMake(
+        string calldata gameType_, 
+        string calldata name_, 
+        string calldata uri_
+    ) external override returns (address) {
         //Deploy
         BeaconProxy newGameProxy = new BeaconProxy(
             beaconGame,
