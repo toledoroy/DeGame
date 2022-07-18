@@ -17,8 +17,7 @@ export const deployUUPS = async (contractName: string, args: any[]) => {
     .then(Contract => upgrades.deployProxy(Contract, args, {kind: "uups", timeout: 120000}));
 }
 
-//--- Deploy Game Extensions
-
+/// Deploy Game Extensions
 export const deployGameExt = async (hubContract: Contract) => {
   //Game Extension: Court of Law
   let extCourt = await deployContract("CourtExt", []);
@@ -26,6 +25,7 @@ export const deployGameExt = async (hubContract: Contract) => {
 
 }
 
+/// Verify Contract on Etherscan
 export const verify = async (contractAddress: string, args: any[]) => {
   console.log("Verifying contract...")
   try {
