@@ -81,9 +81,7 @@ contract ClaimUpgradable is
     function initialize (
         address container,
         string memory name_, 
-        string calldata uri_ 
-        // DataTypes.RuleRef[] memory addRules, 
-        // DataTypes.InputRoleToken[] memory assignRoles
+        string calldata uri_
     ) public virtual override initializer {
         symbol = "CLAIM";
         //Initializers
@@ -92,7 +90,6 @@ contract ClaimUpgradable is
         __setTargetContract(getSoulAddr());
         //Set Parent Container
         _setParentCTX(container);
-        
         //Set Contract URI
         _setContractURI(uri_);
         //Identifiers
@@ -103,22 +100,11 @@ contract ClaimUpgradable is
         //Init Default Claim Roles
         // _roleCreate("admin");
         // _roleCreate("creator");     //Filing the claim
-        _roleCreate("subject");     //Acting Agent
-        _roleCreate("authority");   //Deciding authority
-        _roleCreate("witness");     //Witnesses
-        _roleCreate("affected");    //Affected Party (For reparations)
+        _roleCreate("subject");        //Acting Agent
+        _roleCreate("authority");      //Deciding authority
 
-        /* MOVED TO Controller (Caller)
-        //Assign Roles
-        for (uint256 i = 0; i < assignRoles.length; ++i) {
-            _roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role, 1);
-        }
-        //Add Rules
-        for (uint256 i = 0; i < addRules.length; ++i) {
-            _ruleRefAdd(addRules[i].game, addRules[i].ruleId);
-        }
-        */
-        
+        // _roleCreate("witness");     //Witnesses
+        // _roleCreate("affected");    //Affected Party (For reparations)
     }
 
     /* Maybe, When used more than once
@@ -192,6 +178,11 @@ contract ClaimUpgradable is
         _roleRemoveFromToken(ownerToken, role, 1);
     }
 
+    /// Create a new Role
+    function roleCreate(string memory role) external override AdminOrOwnerOrCTX {
+        _roleCreate(role);
+    }
+
     /// Check if Reference ID exists
     function ruleRefExist(uint256 ruleRefId) internal view returns (bool) {
         return (_rules[ruleRefId].game != address(0) && _rules[ruleRefId].ruleId != 0);
@@ -230,9 +221,7 @@ contract ClaimUpgradable is
     /// @param uri_     post URI
     function post(string calldata entRole, uint256 tokenId, string calldata uri_) external override {
         //Validate that User Controls The Token
-        // require(_hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
-        // require(ISoul( IAssoc(address(_HUB)).assocGet("SBT") ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
-        require(ISoul( getSoulAddr() ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
+        require(ISoul(getSoulAddr()).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
         //Validate: Soul Assigned to the Role 
         // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
@@ -248,12 +237,6 @@ contract ClaimUpgradable is
     function ruleRefAdd(address game_, uint256 ruleId_) external override AdminOrOwnerOrCTX {
         //Validate Jurisdiciton implements IRules (ERC165)
         require(IERC165(game_).supportsInterface(type(IRules).interfaceId), "Implmementation Does Not Support Rules Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
-        //Validate Sender
-        // require (
-        //     _msgSender() == address(_HUB) 
-        //     || roleHas(_msgSender(), "admin") 
-        //     || owner() == _msgSender(), "EXPECTED HUB OR ADMIN");
-        //Run
         _ruleRefAdd(game_, ruleId_);
     }
 

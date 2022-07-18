@@ -35,8 +35,6 @@ contract TaskUpgradable is
         address container,
         string memory name_, 
         string calldata uri_ 
-        // DataTypes.RuleRef[] memory addRules, 
-        // DataTypes.InputRoleToken[] memory assignRoles
     ) public override initializer {
         symbol = "TASK";
         //Initializers
@@ -60,16 +58,6 @@ contract TaskUpgradable is
         _roleCreate("authority");   //Deciding authority
         // _roleCreate("witness");     //Witnesses
         // _roleCreate("affected");    //Affected Party (For reparations)
-        /* COPY
-        //Assign Roles
-        for (uint256 i = 0; i < assignRoles.length; ++i) {
-            _roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role, 1);
-        }
-        //Add Rules
-        for (uint256 i = 0; i < addRules.length; ++i) {
-            _ruleAdd(addRules[i].game, addRules[i].ruleId);
-        }
-        */
     }
 
 

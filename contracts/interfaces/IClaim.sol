@@ -23,6 +23,9 @@ interface IClaim {
     /// Request to Join
     function nominate(uint256 soulToken, string memory uri) external;
 
+    /// Create a new Role
+    function roleCreate(string memory role) external;
+
     /// Assign Someone to a Role
     function roleAssign(address account, string calldata role) external;
 

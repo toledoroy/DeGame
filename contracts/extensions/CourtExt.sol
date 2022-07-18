@@ -29,6 +29,9 @@ contract CourtExt is ICourtExt, GameExtension {
         address claimContract = hub().claimMake(name_, uri_);
         //Register New Contract
         _registerNewClaim(claimContract);
+        //Create Custom Roles
+        IClaim(claimContract).roleCreate("witness");     //Witnesses
+        IClaim(claimContract).roleCreate("affected");    //Affected Party (For reparations)
         //Assign Roles
         for (uint256 i = 0; i < assignRoles.length; ++i) {
             IClaim(claimContract).roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role);
