@@ -12,10 +12,10 @@ interface IClaim {
     function initialize(
         address container, 
         string memory name_, 
-        string calldata uri_, 
-        DataTypes.RuleRef[] memory addRules, 
-        DataTypes.InputRoleToken[] memory assignRoles
-    ) external ;
+        string calldata uri_
+        // DataTypes.RuleRef[] memory addRules, 
+        // DataTypes.InputRoleToken[] memory assignRoles
+    ) external;
 
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
@@ -53,6 +53,11 @@ interface IClaim {
 
     //Get Contract Association
     // function assocGet(string memory key) external view returns (address);
+
+    //** Rules
+    
+    /// Add Rule Reference
+    function ruleRefAdd(address game_, uint256 ruleId_) external;
 
     //--- Events
 

@@ -30,6 +30,48 @@ contract TaskUpgradable is
     //-- Functions
 
 
+    /// Initializer
+    function initialize (
+        address container,
+        string memory name_, 
+        string calldata uri_ 
+        // DataTypes.RuleRef[] memory addRules, 
+        // DataTypes.InputRoleToken[] memory assignRoles
+    ) public override initializer {
+        symbol = "TASK";
+        //Initializers
+        // __ProtocolEntity_init(hub);
+        __ProtocolEntity_init(msg.sender);
+        __setTargetContract(getSoulAddr());
+        //Set Parent Container
+        _setParentCTX(container);
+        
+        //Set Contract URI
+        _setContractURI(uri_);
+        //Identifiers
+        name = name_;
+        //Auto-Set Creator Wallet as Admin
+        _roleAssign(tx.origin, "admin", 1);
+        _roleAssign(tx.origin, "creator", 1);
+        //Init Default Claim Roles
+        // _roleCreate("admin");
+        // _roleCreate("creator");     //Filing the claim
+        _roleCreate("subject");     //Acting Agent
+        _roleCreate("authority");   //Deciding authority
+        // _roleCreate("witness");     //Witnesses
+        // _roleCreate("affected");    //Affected Party (For reparations)
+        /* COPY
+        //Assign Roles
+        for (uint256 i = 0; i < assignRoles.length; ++i) {
+            _roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role, 1);
+        }
+        //Add Rules
+        for (uint256 i = 0; i < addRules.length; ++i) {
+            _ruleAdd(addRules[i].game, addRules[i].ruleId);
+        }
+        */
+    }
+
 
 /* COPY
 
