@@ -16,7 +16,7 @@ import "./abstract/Posts.sol";
 
 /**
  * @title Upgradable Claim Contract
- * @dev Version 2.0.0
+ * @dev Version 2.1.0
  */
 contract ClaimUpgradable is 
     IClaim, 
@@ -102,7 +102,7 @@ contract ClaimUpgradable is
         // _roleCreate("creator");     //Filing the claim
         _roleCreate("subject");        //Acting Agent
         _roleCreate("authority");      //Deciding authority
-
+        //Custom Roles
         // _roleCreate("witness");     //Witnesses
         // _roleCreate("affected");    //Affected Party (For reparations)
     }
