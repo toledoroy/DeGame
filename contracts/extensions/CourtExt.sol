@@ -81,9 +81,9 @@ contract CourtExt is ICourtExt, GameExtension {
         //File Claim
         // IClaim(claimContract).stageFile();
         //Push Forward
-        IClaim(claimContract).stageWaitForVerdict();
+        IClaim(claimContract).stageWaitForDecision();
         //Close Claim
-        IClaim(claimContract).stageVerdict(verdict, decisionURI_);
+        IClaim(claimContract).stageDecision(verdict, decisionURI_);
         //Return
         return claimContract;
     }

@@ -287,7 +287,7 @@ contract ClaimUpgradable is
     }
 
     /// Claim Wait For Verdict  --> Pending
-    function stageWaitForVerdict() public override {
+    function stageWaitForDecision() public override {
         //Validate Stage
         require(stage == DataTypes.ClaimStage.Open, "STAGE:OPEN_ONLY");
         //Validate Caller
@@ -299,7 +299,7 @@ contract ClaimUpgradable is
     }   
 
     /// Claim Stage: Place Verdict  --> Closed
-    function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
+    function stageDecision(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
         require(_msgSender() == getContainerAddr() 
             || roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
         require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");

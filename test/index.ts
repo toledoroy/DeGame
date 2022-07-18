@@ -944,7 +944,7 @@ describe("Protocol", function () {
       
       it("Should Wait for Verdict Stage", async function () {
         //File Claim
-        let tx = await this.claimContract.connect(authority).stageWaitForVerdict();
+        let tx = await this.claimContract.connect(authority).stageWaitForDecision();
         //Expect State Event
         await expect(tx).to.emit(this.claimContract, "Stage").withArgs(2);
       });
@@ -953,14 +953,14 @@ describe("Protocol", function () {
         let verdict = [{ ruleId:1, decision: true }];
         //File Claim -- Expect Failure
         await expect(
-          this.claimContract.connect(tester2).stageVerdict(verdict, test_uri)
+          this.claimContract.connect(tester2).stageDecision(verdict, test_uri)
         ).to.be.revertedWith("ROLE:AUTHORITY_ONLY");
       });
 
       it("Should Accept Verdict URI & Close Claim", async function () {
         let verdict = [{ruleId:1, decision:true}];
         //Submit Verdict & Close Claim
-        let tx = await this.claimContract.connect(authority).stageVerdict(verdict, test_uri);
+        let tx = await this.claimContract.connect(authority).stageDecision(verdict, test_uri);
         //Expect Verdict Event
         await expect(tx).to.emit(this.claimContract, 'Verdict').withArgs(test_uri, this.authorityAddr);
         //Expect State Event

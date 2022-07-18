@@ -30,11 +30,11 @@ interface IClaim {
     function stageFile() external;
 
     /// Claim Wait For Verdict  --> Pending
-    function stageWaitForVerdict() external;
+    function stageWaitForDecision() external;
 
     /// Claim Stage: Place Verdict  --> Closed
-    // function stageVerdict(string calldata uri) external;
-    function stageVerdict(DataTypes.InputDecision[] calldata verdict, string calldata uri) external;
+    // function stageDecision(string calldata uri) external;
+    function stageDecision(DataTypes.InputDecision[] calldata verdict, string calldata uri) external;
 
     /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri) external;
