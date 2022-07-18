@@ -96,6 +96,7 @@ contract ClaimUpgradable is
         _roleCreate("authority");   //Deciding authority
         _roleCreate("witness");     //Witnesses
         _roleCreate("affected");    //Affected Party (For reparations)
+        
         //Assign Roles
         for (uint256 i = 0; i < assignRoles.length; ++i) {
             _roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role, 1);
@@ -103,8 +104,9 @@ contract ClaimUpgradable is
         }
         //Add Rules
         for (uint256 i = 0; i < addRules.length; ++i) {
-            _ruleAdd(addRules[i].game, addRules[i].ruleId);
+            _ruleRefAdd(addRules[i].game, addRules[i].ruleId);
         }
+        
     }
 
     /* Maybe, When used more than once
@@ -161,7 +163,7 @@ contract ClaimUpgradable is
             require(
                 owner() == _msgSender()      //Owner
                 || roleHas(_msgSender(), "admin")    //Admin Role
-                // || msg.sender == address(_HUB)   //Through the Hub
+                || msg.sender == address(_HUB)   //Through the Hub
                 , "INVALID_PERMISSIONS");
         }
         //Add
@@ -231,7 +233,7 @@ contract ClaimUpgradable is
     //--- Rule Reference 
 
     /// Add Rule Reference
-    function ruleAdd(address game_, uint256 ruleId_) external {
+    function ruleRefAdd(address game_, uint256 ruleId_) external {
         //Validate Jurisdiciton implements IRules (ERC165)
         require(IERC165(game_).supportsInterface(type(IRules).interfaceId), "Implmementation Does Not Support Rules Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
         //Validate Sender
@@ -239,11 +241,11 @@ contract ClaimUpgradable is
             || roleHas(_msgSender(), "admin") 
             || owner() == _msgSender(), "EXPECTED HUB OR ADMIN");
         //Run
-        _ruleAdd(game_, ruleId_);
+        _ruleRefAdd(game_, ruleId_);
     }
 
     /// Add Relevant Rule Reference 
-    function _ruleAdd(address game_, uint256 ruleId_) internal {
+    function _ruleRefAdd(address game_, uint256 ruleId_) internal {
         //Assign Rule Reference ID
         _ruleIds.increment(); //Start with 1
         uint256 ruleId = _ruleIds.current();
