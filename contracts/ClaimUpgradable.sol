@@ -86,16 +86,16 @@ contract ClaimUpgradable is
         _setContractURI(uri_);
         //Identifiers
         name = name_;
+        //Auto-Set Creator Wallet as Admin
+        _roleAssign(tx.origin, "admin", 1);
+        _roleAssign(tx.origin, "creator", 1);
         //Init Default Claim Roles
-        _roleCreate("admin");
-        _roleCreate("creator");     //Filing the claim
+        // _roleCreate("admin");
+        // _roleCreate("creator");     //Filing the claim
         _roleCreate("subject");     //Acting Agent
         _roleCreate("authority");   //Deciding authority
         _roleCreate("witness");     //Witnesses
         _roleCreate("affected");    //Affected Party (For reparations)
-        //Auto-Set Creator Wallet as Admin
-        _roleAssign(tx.origin, "admin", 1);
-        _roleAssign(tx.origin, "creator", 1);
         //Assign Roles
         for (uint256 i = 0; i < assignRoles.length; ++i) {
             _roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role, 1);
