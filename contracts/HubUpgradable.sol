@@ -200,6 +200,15 @@ contract HubUpgradable is
         );
         //Event
         emit ContractCreated("claim", address(newClaimProxy));
+
+        /* Maybe...        
+        //Register as a Soul
+        try ISoul(repo().addressGet("SBT")).mintFor(address(newClaimProxy), uri_) {}   //Failure should not be fatal
+        catch Error(string memory reason) {
+            console.log("Failed to mint a soul for the new Game Contract", reason);
+        }
+        */
+
         //Remember
         _claims[address(newClaimProxy)] = _msgSender();
         //Return
