@@ -860,8 +860,8 @@ describe("Protocol", function () {
           id: 2, 
           // affected: "investor",
         };
-        // await this.claimContract.ruleAdd(ruleRef.game,  ruleRef.id, ruleRef.affected);
-        await this.claimContract.connect(admin).ruleAdd(ruleRef.game,  ruleRef.id);
+        // await this.claimContract.ruleRefAdd(ruleRef.game,  ruleRef.id, ruleRef.affected);
+        await this.claimContract.connect(admin).ruleRefAdd(ruleRef.game,  ruleRef.id);
       });
       
       it("Should Write a Post", async function () {

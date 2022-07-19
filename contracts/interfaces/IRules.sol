@@ -27,10 +27,18 @@ interface IRules {
 
 
     /// Create New Rule
-    function ruleAdd(DataTypes.Rule memory rule, DataTypes.Confirmation memory confirmation, DataTypes.Effect[] memory effects) external returns (uint256);
+    function ruleAdd(
+        DataTypes.Rule memory rule, 
+        DataTypes.Confirmation memory confirmation, 
+        DataTypes.Effect[] memory effects
+    ) external returns (uint256);
 
     /// Update Rule
-    function ruleUpdate(uint256 id, DataTypes.Rule memory rule, DataTypes.Effect[] memory effects) external;
+    function ruleUpdate(
+        uint256 id, 
+        DataTypes.Rule memory rule, 
+        DataTypes.Effect[] memory effects
+    ) external;
     
     /// Set Disable Status for Rule
     function ruleDisable(uint256 id, bool disabled) external;

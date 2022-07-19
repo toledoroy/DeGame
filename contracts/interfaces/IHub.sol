@@ -32,9 +32,7 @@ interface IHub {
     /// Make a new Claim
     function claimMake(
         string calldata name_, 
-        string calldata uri_,
-        DataTypes.RuleRef[] memory addRules,
-        DataTypes.InputRoleToken[] memory assignRoles
+        string calldata uri_
     ) external returns (address);
 
     /// Update Hub

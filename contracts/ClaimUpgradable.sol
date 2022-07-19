@@ -16,7 +16,7 @@ import "./abstract/Posts.sol";
 
 /**
  * @title Upgradable Claim Contract
- * @dev Version 2.0.0
+ * @dev Version 2.1.0
  */
 contract ClaimUpgradable is 
     IClaim, 
@@ -31,8 +31,8 @@ contract ClaimUpgradable is
     // Contract name
     string public name;
     // Contract symbol
-    // string public symbol;
-    string public constant symbol = "REACTION";
+    string public symbol;
+    // string public constant symbol = "CLAIM";
 
     //Game
     // address private _game;
@@ -48,12 +48,23 @@ contract ClaimUpgradable is
     
     //--- Modifiers
 
-    /// Check if GUID Exists
+    /// Permissions Modifier
     modifier AdminOrOwner() {
        //Validate Permissions
         require(owner() == _msgSender()      //Owner
             || roleHas(_msgSender(), "admin")    //Admin Role
             , "INVALID_PERMISSIONS");
+        _;
+    }
+
+    /// Permissions Modifier
+    modifier AdminOrOwnerOrCTX() {
+       //Validate Permissions
+        require(owner() == _msgSender()      //Owner
+            || roleHas(_msgSender(), "admin")    //Admin Role
+            || msg.sender == getContainerAddr()
+            , "INVALID_PERMISSIONS");
+
         _;
     }
 
@@ -68,42 +79,32 @@ contract ClaimUpgradable is
 
     /// Initializer
     function initialize (
-        address hub, 
+        address container,
         string memory name_, 
-        string calldata uri_, 
-        DataTypes.RuleRef[] memory addRules, 
-        DataTypes.InputRoleToken[] memory assignRoles, 
-        address container
-    ) public override initializer {
+        string calldata uri_
+    ) public virtual override initializer {
+        symbol = "CLAIM";
         //Initializers
-        __ProtocolEntity_init(hub);
+        // __ProtocolEntity_init(hub);
+        __ProtocolEntity_init(msg.sender);
         __setTargetContract(getSoulAddr());
         //Set Parent Container
         _setParentCTX(container);
-        
         //Set Contract URI
         _setContractURI(uri_);
         //Identifiers
         name = name_;
-        //Init Default Claim Roles
-        _roleCreate("admin");
-        _roleCreate("creator");     //Filing the claim
-        _roleCreate("subject");     //Acting Agent
-        _roleCreate("authority");   //Deciding authority
-        _roleCreate("witness");     //Witnesses
-        _roleCreate("affected");    //Affected Party [?]
         //Auto-Set Creator Wallet as Admin
         _roleAssign(tx.origin, "admin", 1);
         _roleAssign(tx.origin, "creator", 1);
-        //Assign Roles
-        for (uint256 i = 0; i < assignRoles.length; ++i) {
-            _roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role, 1);
-
-        }
-        //Add Rules
-        for (uint256 i = 0; i < addRules.length; ++i) {
-            _ruleAdd(addRules[i].game, addRules[i].ruleId);
-        }
+        //Init Default Claim Roles
+        // _roleCreate("admin");
+        // _roleCreate("creator");     //Filing the claim
+        _roleCreate("subject");        //Acting Agent
+        _roleCreate("authority");      //Deciding authority
+        //Custom Roles
+        // _roleCreate("witness");     //Witnesses
+        // _roleCreate("affected");    //Affected Party (For reparations)
     }
 
     /* Maybe, When used more than once
@@ -160,7 +161,7 @@ contract ClaimUpgradable is
             require(
                 owner() == _msgSender()      //Owner
                 || roleHas(_msgSender(), "admin")    //Admin Role
-                // || msg.sender == address(_HUB)   //Through the Hub
+                || msg.sender == address(_HUB)   //Through the Hub
                 , "INVALID_PERMISSIONS");
         }
         //Add
@@ -168,13 +169,18 @@ contract ClaimUpgradable is
     }
     
     /// Assign Tethered Token to a Role
-    function roleAssignToToken(uint256 ownerToken, string memory role) public override roleExists(role) AdminOrOwner {
+    function roleAssignToToken(uint256 ownerToken, string memory role) public override roleExists(role) AdminOrOwnerOrCTX {
         _roleAssignToToken(ownerToken, role, 1);
     }
     
     /// Remove Tethered Token from a Role
     function roleRemoveFromToken(uint256 ownerToken, string memory role) public override roleExists(role) AdminOrOwner {
         _roleRemoveFromToken(ownerToken, role, 1);
+    }
+
+    /// Create a new Role
+    function roleCreate(string memory role) external override AdminOrOwnerOrCTX {
+        _roleCreate(role);
     }
 
     /// Check if Reference ID exists
@@ -215,9 +221,7 @@ contract ClaimUpgradable is
     /// @param uri_     post URI
     function post(string calldata entRole, uint256 tokenId, string calldata uri_) external override {
         //Validate that User Controls The Token
-        // require(_hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
-        // require(ISoul( IAssoc(address(_HUB)).assocGet("SBT") ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
-        require(ISoul( getSoulAddr() ).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
+        require(ISoul(getSoulAddr()).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
         //Validate: Soul Assigned to the Role 
         // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
@@ -230,19 +234,14 @@ contract ClaimUpgradable is
     //--- Rule Reference 
 
     /// Add Rule Reference
-    function ruleAdd(address game_, uint256 ruleId_) external {
+    function ruleRefAdd(address game_, uint256 ruleId_) external override AdminOrOwnerOrCTX {
         //Validate Jurisdiciton implements IRules (ERC165)
         require(IERC165(game_).supportsInterface(type(IRules).interfaceId), "Implmementation Does Not Support Rules Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
-        //Validate Sender
-        require (_msgSender() == address(_HUB) 
-            || roleHas(_msgSender(), "admin") 
-            || owner() == _msgSender(), "EXPECTED HUB OR ADMIN");
-        //Run
-        _ruleAdd(game_, ruleId_);
+        _ruleRefAdd(game_, ruleId_);
     }
 
     /// Add Relevant Rule Reference 
-    function _ruleAdd(address game_, uint256 ruleId_) internal {
+    function _ruleRefAdd(address game_, uint256 ruleId_) internal {
         //Assign Rule Reference ID
         _ruleIds.increment(); //Start with 1
         uint256 ruleId = _ruleIds.current();
@@ -303,16 +302,11 @@ contract ClaimUpgradable is
         require(_msgSender() == getContainerAddr()  //Parent Contract
             || roleHas(_msgSender(), "authority")   //Authority
             , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
-
+        require(stage == DataTypes.ClaimStage.Decision, "STAGE:DECISION_ONLY");
         //Process Decision
         for (uint256 i = 0; i < verdict.length; ++i) {
             decision[verdict[i].ruleId] = verdict[i].decision;
             if(verdict[i].decision) {
-                
-                //Rule Confirmation Procedure (OLD)
-                // _ruleConfirmed(verdict[i].ruleId);
-
                 //Fetch Claim's Subject(s)
                 uint256[] memory subjects = uniqueRoleMembers("subject");
                 //Each Subject
@@ -323,7 +317,6 @@ contract ClaimUpgradable is
                     //Execute Rule
                     IGame(getContainerAddr()).effectsExecute(parentRuleId, getSoulAddr(), tokenId);
                 }
-                        
                 //Rule Confirmed Event
                 emit RuleConfirmed(verdict[i].ruleId);
             }
@@ -338,7 +331,7 @@ contract ClaimUpgradable is
     /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri_) public override {
         require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ClaimStage.Decision, "STAGE:VERDICT_ONLY");
+        require(stage == DataTypes.ClaimStage.Decision, "STAGE:DECISION_ONLY");
         //Claim is now Closed
         _setStage(DataTypes.ClaimStage.Cancelled);
         //Cancellation Event
@@ -353,7 +346,7 @@ contract ClaimUpgradable is
         emit Stage(stage);
     }
 
-    /*
+    /* OLDER VERSION
     /// Rule (Action) Confirmed (Currently Only Judging Avatars)
     function _ruleConfirmed(uint256 ruleId) internal {
 

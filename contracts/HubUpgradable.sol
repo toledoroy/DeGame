@@ -17,6 +17,7 @@ import "./interfaces/IHub.sol";
 import "./interfaces/IGameUp.sol";
 import "./interfaces/IClaim.sol";
 import "./interfaces/ISoul.sol";
+import "./interfaces/IRules.sol";
 import "./libraries/DataTypes.sol";
 import "./abstract/ContractBase.sol";
 import "./abstract/AssocExt.sol";
@@ -146,7 +147,11 @@ contract HubUpgradable is
     //--- Factory 
 
     /// Make a new Game
-    function gameMake(string calldata gameType_, string calldata name_, string calldata uri_) external override returns (address) {
+    function gameMake(
+        string calldata gameType_, 
+        string calldata name_, 
+        string calldata uri_
+    ) external override returns (address) {
         //Deploy
         BeaconProxy newGameProxy = new BeaconProxy(
             beaconGame,
@@ -179,9 +184,7 @@ contract HubUpgradable is
     /// Make a new Claim
     function claimMake(
         string calldata name_, 
-        string calldata uri_,
-        DataTypes.RuleRef[] memory addRules,
-        DataTypes.InputRoleToken[] memory assignRoles
+        string calldata uri_
     ) public override activeGame returns (address) {
         //Validate Caller Permissions (Active Game)
         // require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
@@ -190,17 +193,24 @@ contract HubUpgradable is
             beaconClaim,
             abi.encodeWithSelector(
                 IClaim( payable(address(0)) ).initialize.selector,
-                address(this),  //Hub
+                _msgSender(),   //Birth Parent (Container)
                 name_,          //Name
-                uri_,           //Contract URI
-                addRules,       //Rules
-                assignRoles,    //Roles
-                _msgSender()    //Birth Parent (Container)
+                uri_            //Contract URI
             )
         );
+
         //Event
         emit ContractCreated("claim", address(newClaimProxy));
-        //Remember
+
+        /* Maybe...        
+        //Register as a Soul
+        try ISoul(repo().addressGet("SBT")).mintFor(address(newClaimProxy), uri_) {}   //Failure should not be fatal
+        catch Error(string memory reason) {
+            console.log("Failed to mint a soul for the new Game Contract", reason);
+        }
+        */
+
+        //Remember Parent
         _claims[address(newClaimProxy)] = _msgSender();
         //Return
         return address(newClaimProxy);
@@ -209,9 +219,12 @@ contract HubUpgradable is
     //--- Reputation
 
     /// Add Reputation (Positive or Negative)       /// Opinion Updated
-    function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) public override activeGame {
-        //Validate - Known & Active Game 
-        // require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
+    function repAdd(address contractAddr, 
+        uint256 tokenId, 
+        string calldata domain, 
+        bool rating, 
+        uint8 amount
+    ) public override activeGame {
         //Update Avatar's Reputation
         address SBTAddress = repo().addressGet("SBT");
         if(SBTAddress != address(0) && SBTAddress == contractAddr) {

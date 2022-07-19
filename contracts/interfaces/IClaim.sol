@@ -9,13 +9,22 @@ interface IClaim {
     //-- Functions
 
     /// Initialize
-    function initialize(address hub, string memory name_, string calldata uri_, DataTypes.RuleRef[] memory addRules, DataTypes.InputRoleToken[] memory assignRoles, address container) external ;
+    function initialize(
+        address container, 
+        string memory name_, 
+        string calldata uri_
+        // DataTypes.RuleRef[] memory addRules, 
+        // DataTypes.InputRoleToken[] memory assignRoles
+    ) external;
 
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
 
     /// Request to Join
     function nominate(uint256 soulToken, string memory uri) external;
+
+    /// Create a new Role
+    function roleCreate(string memory role) external;
 
     /// Assign Someone to a Role
     function roleAssign(address account, string calldata role) external;
@@ -47,6 +56,11 @@ interface IClaim {
 
     //Get Contract Association
     // function assocGet(string memory key) external view returns (address);
+
+    //** Rules
+    
+    /// Add Rule Reference
+    function ruleRefAdd(address game_, uint256 ruleId_) external;
 
     //--- Events
 
