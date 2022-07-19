@@ -18,7 +18,7 @@ const publicAddr = publicAddrs[chain];
 async function main() {
 
   //Validate Foundation
-  if(!publicAddr.openRepo || publicAddr.ruleRepo) throw "Must First Deploy Foundation Contracts on Chain:'"+chain+"'";
+  if(!publicAddr.openRepo || !publicAddr.ruleRepo) throw "Must First Deploy Foundation Contracts on Chain:'"+chain+"'";
 
   console.log("Running on Chain: ", chain);
 
