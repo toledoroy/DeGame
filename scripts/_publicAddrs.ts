@@ -14,8 +14,8 @@ const publicAddr: any = {
     ruleRepo: "",
   },
   optimism_kovan:{
-    openRepo: "0x8761b3E3bCDd243A063f18d5C24528C1400FA95B",
-    ruleRepo: "",
+    openRepo: "0xFF20BA5dcD0485e2587F1a75117c0fc80941B61C",
+    ruleRepo: "0x98B28D02AF16600790aAE38d8F587eA99585BBb2",
   },
 };
 

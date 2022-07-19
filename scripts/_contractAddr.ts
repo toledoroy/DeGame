@@ -17,6 +17,11 @@ const contractAddr: any = {
   optimism:{
   },
   optimism_kovan:{
+    game: "0x086C1A95773a1ec76F5D8C7350B5D220cbcc640A",
+    claim: "0xCC32bD878C0781800A38249Cdb206A844678E5F1",
+    hub: "0x145b34E3BB516FBC47968984dbe0b463f03F32cF",
+    avatar: "0x93f5D16e5c590849CdCb4c0CC5666C4c927c92B8",
+    history: "0xce5F671e5e2C9c122e09Fe323aB0840155ab1D60",
   },
 };
 
