@@ -37,6 +37,9 @@ interface ISoul {
     /// Check if the Current Account has Control over a Token
     function hasTokenControl(uint256 tokenId) external view returns (bool);
     
+    /// Check if a Specific Account has control over a Token
+    function hasTokenControlAccount(uint256 tokenId, address account) external view returns (bool);
+
     /// Post
     function post(uint256 tokenId, string calldata uri_) external;
 

@@ -239,15 +239,29 @@ contract SoulUpgradable is
         _transfer(from, to, tokenId);
     }
 
-    /// Check if the Current Account has Control over a Token
+    /// Check if the Current Account has Control over a Token   //DEPRECATE?
     function hasTokenControl(uint256 tokenId) public view override returns (bool) {
+        /*
         address ownerAccount = ownerOf(tokenId);
         return (
-            // ownerAccount == _msgSender()    //Token Owner
+            ownerAccount == _msgSender() //Token Owner (Support for Contract as Owner)
             // solhint-disable-next-line avoid-tx-origin
-            ownerAccount == tx.origin    //Token Owner (Allows it to go therough the hub)
+            || ownerAccount == tx.origin    //Token Owner (Allows it to go therough the hub)
             // solhint-disable-next-line avoid-tx-origin
-            || (ownerAccount == address(this) && owner() == tx.origin) //Unclaimed Tokens Controlled by Contract Owner/DAO
+            // || (ownerAccount == address(this) && owner() == tx.origin) //Unclaimed Tokens Controlled by Contract Owner/DAO
+            || (ownerAccount == address(this) && owner() == _msgSender()) //Unclaimed Tokens Controlled by Contract Owner Contract (DAO)
+        );
+        */
+        // solhint-disable-next-line avoid-tx-origin
+        return hasTokenControlAccount(tokenId, _msgSender()) || hasTokenControlAccount(tokenId, tx.origin);
+    }
+
+    /// Check if a Specific Account has control over a Token
+    function hasTokenControlAccount(uint256 tokenId, address account) public view override returns (bool) {
+        address ownerAccount = ownerOf(tokenId);
+        return (
+            ownerAccount == account //Token Owner (Support for Contract as Owner)
+            || (ownerAccount == address(this) && owner() == account) //Unclaimed Tokens Controlled by Contract Owner Contract (DAO)
         );
     }
 
