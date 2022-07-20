@@ -28,13 +28,19 @@ interface ITask {
     /// Reject Delivery
     function deliveryReject(uint256 sbtId, string calldata uri_) external;
     
+    /// Withdraw -- Disburse all funds to participants
+    function disburse(address[] memory tokens) external;
+
+    /// Cancel Task
+    function cancel(address[] memory tokens) external;
+
+    /// Refund -- Send Tokens back to Task Creator
+    function refund(address[] memory tokens) external;
+
 
     //** TBD
     
-    /// Deposit
-
-    /// Withdraw
-
+    /// Deposit (Send funds to this contract)   // Anyone can send funds at any point
 
     //--- Events
 

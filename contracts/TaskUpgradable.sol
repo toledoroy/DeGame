@@ -102,55 +102,93 @@ contract TaskUpgradable is
         emit DeliveryRejected(_msgSender(), sbtId, uri_);
     }
 
-
-    /// Deposit (Send funds to this contract)
-
-
     /// Execute Reaction
     /// @param tokens address of all tokens to be disbursed
     function stageExecusion(address[] memory tokens) public {
         //Validate Stage
         require(stage == DataTypes.ClaimStage.Execution , "STAGE:EXECUSION_ONLY");
-        
-        //Disburse Native Token
-        uint256 tokenBalanceNative = contractBalance(address(0));
-        if (tokenBalanceNative > 0){
-            _disburse(address(0), tokenBalanceNative);
-        }
-
-        for (uint256 i = 0; i < tokens.length; i++) {
-            uint256 tokenBalance = contractBalance(tokens[i]);
-            //Disburse ERC20 Tokens
-            if (tokenBalance > 0){
-                _disburse(tokens[i], tokenBalance);
-            }
-        }
-
         //Push to Stage:Closed
         _setStage(DataTypes.ClaimStage.Closed);
+        //Disburse
+        disburse(tokens);
         //Emit Execusion Event
         emit Executed(_msgSender());
     }
 
-    /// Total Shares (Assume equal distribution for now)
-    // function totalShares() public override view returns (uint256) {
-    //     return uniqueRoleMembersCount("subject");
-    // }
-
-    /// Transfer funds to target account(s)
-    function _disburse(address token, uint256 amount) internal {
+    /// Withdraw -- Disburse all funds to participants
+    /// @dev May be called by anyone at the appropriate stage
+    function disburse(address[] memory tokens) public override {
         //Validate Stage
-        require(stage == DataTypes.ClaimStage.Execution || stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
-        //Validate Amount
-        require(amount > 0, "NOTHING_TO_DISBURSE");
-        //Get Subject(s)
+        // require(stage == DataTypes.ClaimStage.Execution || stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
+        require(stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
+        
+        //Send to Subject(s)
+        _splitAndSend("subject", tokens);
+        /* MOVED to _splitAndSend()
+        //Get members in roles (subjects)
         uint256[] memory sbts = uniqueRoleMembers("subject");
-        //Disburse
-        _disburse2(token, sbts, amount);
+        
+        //Disburse Native Token
+        uint256 tokenBalanceNative = contractBalance(address(0));
+        if (tokenBalanceNative > 0){
+            _disburse(address(0), sbts, tokenBalanceNative/sbts.length);
+        }
+
+        //Disburse Any Additional ERC20 Token
+        for (uint256 i = 0; i < tokens.length; i++) {
+            uint256 tokenBalance = contractBalance(tokens[i]);
+            //Disburse ERC20 Tokens
+            if (tokenBalance > 0){
+                _disburse(tokens[i], sbts, tokenBalance/sbts.length);
+            }
+        }
+        */
+    }
+
+    /// Cancel Task
+    function cancel(address[] memory tokens) public override {
+        //Validate Stage
+        require(stage <= DataTypes.ClaimStage.Decision , "STAGE:BEFORE_DECISION");
+        //Push to Stage:Cancelled
+        _setStage(DataTypes.ClaimStage.Cancelled);
+        //Return Funds to Creator
+        refund(tokens);
+        //Emit Execusion Event
+        emit Executed(_msgSender());
+    }
+
+    /// Refund -- Send Tokens back to Task Creator
+    function refund(address[] memory tokens) public override {
+        //Validate Stage
+        require(stage == DataTypes.ClaimStage.Cancelled , "STAGE:CANCELLED");
+        //Send to Creator(s)
+        _splitAndSend("creator", tokens);
+    }
+
+    /// Split funds between different recipients (TBD: by relative share)
+    // _splitAndSend(uint256[] memory sbts, uint256 amount){
+    function _splitAndSend(string memory role, address[] memory tokens) internal {
+        //Get members in roles (subjects)
+        uint256[] memory sbts = uniqueRoleMembers(role);
+        
+        //Disburse Native Token
+        uint256 tokenBalanceNative = contractBalance(address(0));
+        if (tokenBalanceNative > 0){
+            _disburse(address(0), sbts, tokenBalanceNative/sbts.length);
+        }
+
+        //Disburse Any Additional ERC20 Token
+        for (uint256 i = 0; i < tokens.length; i++) {
+            uint256 tokenBalance = contractBalance(tokens[i]);
+            //Disburse ERC20 Tokens
+            if (tokenBalance > 0){
+                _disburse(tokens[i], sbts, tokenBalance/sbts.length);
+            }
+        }
     }
 
     /// Disburse Token to SBT Holders
-    function _disburse2(address token, uint256[] memory sbts, uint256 amount) internal {
+    function _disburse(address token, uint256[] memory sbts, uint256 amount) internal {
         //Send Funds
         for (uint256 i = 0; i < sbts.length; i++) {
             if(token == address(0)){
@@ -162,69 +200,5 @@ contract TaskUpgradable is
             }
         }
     }
-
-
-    /** REDUNDANT 
-     * @dev Transfer all funds to target account(s)
-     * total shares and their previous withdrawals.
-     * /
-    function disburse() public {
-        //Validate Stage
-        require(stage == DataTypes.ClaimStage.Execution || stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
-        // require(shares(account) > 0, "PaymentSplitter: account has no shares");
-
-        //* Disburse Funds
-        //Get Subject(s)
-        uint256[] memory sbts = uniqueRoleMembers("subject");
-
-        //Get Total Shares
-        // uint256 memory _totalShares = sbts.length;
-
-        //Send Funds
-        for (uint256 i = 0; i < sbts.length; i++) {
-            _release(payable(_getAccount(sbts[i])));
-        }
-    }
-    */
-
-
-/* COPY
-
-    //-- Storage
-
-    //Contract Admin Address
-    address admin;
-    //Escrow in account
-    uint256 public funds;
-
-    //-- Functions
-
-    /// Initializer
-    function initialize (address hub, string calldata name_, string calldata uri_) public payable override initializer {
-        //Initializers
-        // __common_init(hub);
-        // __UUPSUpgradeable_init();
-
-        //Initializers
-        __ProtocolEntity_init(hub);
-        __setTargetContract(getSoulAddr());
-        //Set Parent Container
-        _setParentCTX(container);
-
-        //Set Contract URI
-        _setContractURI(uri_);
-        //Identifiers
-        name = name_;
-        //Track Funds
-        if(msg.value > 0){
-            funds += msg.value;
-        }
-    }
-    
-    /// Upgrade
-    function _authorizeUpgrade(address newImplementation) internal onlyOwner override {}
-*/
-
- 
 
 }
