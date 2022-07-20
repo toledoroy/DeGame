@@ -14,9 +14,6 @@ import "../interfaces/IRules.sol";
  */
 contract RuleExt is IRuleExt, GameExtension {
 
-
-    //**     //Maybe Offload to a GameExtension
-    
     //Get Rules Repo
     function _ruleRepo() internal view returns (IRules) {
         address ruleRepoAddr = repo().addressGetOf(hubAddress(), "RULE_REPO");
