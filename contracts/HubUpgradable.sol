@@ -16,6 +16,7 @@ import "./interfaces/IProtocolEntity.sol";
 import "./interfaces/IHub.sol";
 import "./interfaces/IGameUp.sol";
 import "./interfaces/IClaim.sol";
+// import "./interfaces/ITask.sol";
 import "./interfaces/ISoul.sol";
 import "./interfaces/IRules.sol";
 import "./libraries/DataTypes.sol";
@@ -44,8 +45,10 @@ contract HubUpgradable is
     // Arbitrary contract designation signature
     string public constant override role = "Hub";
     string public constant override symbol = "HUB";
-    address public beaconClaim;
-    address public beaconGame;  //TBD
+    // address public _beacons["game"];
+    // address public _beacons["claim"];
+    // address public beaconTask;
+    mapping(string => address) internal _beacons; // Mapping for Active Game Contracts
     mapping(address => bool) internal _games; // Mapping for Active Game Contracts
     mapping(address => address) internal _claims; // Mapping for Claim Contracts  [G] => [R]
 
@@ -82,10 +85,10 @@ contract HubUpgradable is
         // _setContractURI(uri_);
         //Init Game Contract Beacon
         UpgradeableBeacon _beaconJ = new UpgradeableBeacon(gameContract);
-        beaconGame = address(_beaconJ);
+        _beacons["game"] = address(_beaconJ);
         //Init Claim Contract Beacon
         UpgradeableBeacon _beaconC = new UpgradeableBeacon(claimContract);
-        beaconClaim = address(_beaconC);
+        _beacons["claim"] = address(_beaconC);
     }
 
     /// Upgrade Permissions
@@ -154,7 +157,7 @@ contract HubUpgradable is
     ) external override returns (address) {
         //Deploy
         BeaconProxy newGameProxy = new BeaconProxy(
-            beaconGame,
+            _beacons["game"],
             abi.encodeWithSelector(
                 IGame( payable(address(0)) ).initialize.selector,
                 // address(this),   //Hub
@@ -186,11 +189,9 @@ contract HubUpgradable is
         string calldata name_, 
         string calldata uri_
     ) public override activeGame returns (address) {
-        //Validate Caller Permissions (Active Game)
-        // require(_games[_msgSender()], "UNAUTHORIZED: Valid Game Only");
         //Deploy
         BeaconProxy newClaimProxy = new BeaconProxy(
-            beaconClaim,
+            _beacons["claim"],
             abi.encodeWithSelector(
                 IClaim( payable(address(0)) ).initialize.selector,
                 _msgSender(),   //Birth Parent (Container)
@@ -216,23 +217,55 @@ contract HubUpgradable is
         return address(newClaimProxy);
     }
 
+    /// Make a new Task
+    function taskMake(
+        string calldata name_, 
+        string calldata uri_
+    ) public override activeGame returns (address) {
+        //Deploy (Same as Claim)
+        BeaconProxy newTaskProxy = new BeaconProxy(
+            _beacons["task"],
+            abi.encodeWithSelector(
+                IClaim( payable(address(0)) ).initialize.selector,
+                _msgSender(),   //Birth Parent (Container)
+                name_,          //Name
+                uri_            //Contract URI
+            )
+        );
+
+        //Event
+        emit ContractCreated("task", address(newTaskProxy));
+
+        /* Maybe...        
+        //Register as a Soul
+        try ISoul(repo().addressGet("SBT")).mintFor(address(newTaskProxy), uri_) {}   //Failure should not be fatal
+        catch Error(string memory reason) {
+            console.log("Failed to mint a soul for the new Game Contract", reason);
+        }
+        */
+
+        //Remember Parent (Same as Claims)
+        _claims[address(newTaskProxy)] = _msgSender();
+        //Return
+        return address(newTaskProxy);
+    }
     //--- Reputation
 
-    /// Add Reputation (Positive or Negative)       /// Opinion Updated
+    /// Add Reputation (Positive or Negative)
     function repAdd(address contractAddr, 
         uint256 tokenId, 
         string calldata domain, 
         bool rating, 
         uint8 amount
     ) public override activeGame {
-        //Update Avatar's Reputation
+        //Update SBT's Reputation
         address SBTAddress = repo().addressGet("SBT");
         if(SBTAddress != address(0) && SBTAddress == contractAddr) {
             _repAddAvatar(tokenId, domain, rating, amount);
         }
     }
 
-    /// Add Repuation to Avatar
+    /// Add Repuation to SBT Token
     function _repAddAvatar(uint256 tokenId, string calldata domain, bool rating, uint8 amount) internal {
         address SBTAddress = repo().addressGet("SBT");
         try ISoul(SBTAddress).repAdd(tokenId, domain, rating, amount) {}   //Failure should not be fatal
@@ -250,27 +283,32 @@ contract HubUpgradable is
     }
 
     //--- Upgrades
-
+    /* REDUNDANT - One Function to rule them all
     /// Upgrade Claim Implementation
     function upgradeClaimImplementation(address newImplementation) public onlyOwner {
         //Validate Interface
         // require(IERC165(newImplementation).supportsInterface(type(IClaim).interfaceId), "Implmementation Does Not Support Claim Interface");  //Would Cause Problems on Interface Update. Keep disabled for now.
-
         //Upgrade Beacon
-        UpgradeableBeacon(beaconClaim).upgradeTo(newImplementation);
+        UpgradeableBeacon(_beacons["claim"]).upgradeTo(newImplementation);
         //Upgrade Event
         emit UpdatedImplementation("claim", newImplementation);
     }
 
-    /// Upgrade Game Implementation [TBD]
+    /// Upgrade Game Implementation
     function upgradeGameImplementation(address newImplementation) public onlyOwner {
         //Validate Interface
         // require(IERC165(newImplementation).supportsInterface(type(IClaim).interfaceId), "Implmementation Does Not Support Claim Interface");  //Would Cause Problems on Interface Update. Keep disabled for now.
-
         //Upgrade Beacon
-        UpgradeableBeacon(beaconGame).upgradeTo(newImplementation);
+        UpgradeableBeacon(_beacons["game"]).upgradeTo(newImplementation);
         //Upgrade Event
         emit UpdatedImplementation("game", newImplementation);
     }
-
+    */
+    /// Generic ImplementationUpgrade
+    function upgradeImplementation(string memory key, address newImplementation) public onlyOwner {
+        //Upgrade Beacon
+        UpgradeableBeacon(_beacons[key]).upgradeTo(newImplementation);
+        //Upgrade Event
+        emit UpdatedImplementation(key, newImplementation);
+    }
 }

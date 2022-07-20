@@ -648,12 +648,24 @@ describe("Protocol", function () {
    */
   describe("Claim", function () {
 
-    describe("Court Game", function () {
+
+    describe("Task Flow", function () {
+
+      before(async function () {
+        //Attach Court Functionality
+        // this.taskContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
+      });
+
+
+
+    });
+
+
+    describe("Court Game Flow", function () {
 
       before(async function () {
         //Attach Court Functionality
         this.courtContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
-
       });
       
       it("Should Set COURT Extension Contract", async function () {
@@ -851,7 +863,7 @@ describe("Protocol", function () {
         let testClaimContract = await deployContract("ClaimUpgradable", []);
         await testClaimContract.deployed();
         //Update Claim Beacon (to the same implementation)
-        hubContract.upgradeClaimImplementation(testClaimContract.address);
+        hubContract.upgradeImplementation("claim", testClaimContract.address);
       });
 
       it("Should Add Rules", async function () {

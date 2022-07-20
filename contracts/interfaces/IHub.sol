@@ -35,6 +35,12 @@ interface IHub {
         string calldata uri_
     ) external returns (address);
 
+    /// Make a new Task
+    function taskMake(
+        string calldata name_, 
+        string calldata uri_
+    ) external returns (address);
+    
     /// Update Hub
     function hubChange(address newHubAddr) external;
 
