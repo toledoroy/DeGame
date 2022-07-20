@@ -37,10 +37,7 @@ interface ITask {
     /// Refund -- Send Tokens back to Task Creator
     function refund(address[] memory tokens) external;
 
-
-    //** TBD
-    
-    /// Deposit (Send funds to this contract)   // Anyone can send funds at any point
+    /// Deposit (Anyone can send funds at any point)
 
     //--- Events
 

@@ -15,9 +15,10 @@ import "./interfaces/ITask.sol";
 
 /**
  * @title Task / Request for Product (RFP) Entity
- * @dev Version 1.0.0
+ * @dev Version 1.1.0
  * [TODO] Support for different share withing roles
  * [TODO] Distribute config for different roles
+ * [TODO] Protocol Treasury Donation
  */
 contract TaskUpgradable is 
     ITask
@@ -42,7 +43,10 @@ contract TaskUpgradable is
         string memory name_, 
         string calldata uri_ 
     ) public override initializer {
+        super.initialize(container, name_, uri_);
         symbol = "TASK";
+
+        /* on Super (ClaimUpgradable)
         //Initializers
         // __ProtocolEntity_init(hub);
         __ProtocolEntity_init(msg.sender);
@@ -62,9 +66,11 @@ contract TaskUpgradable is
         // _roleCreate("creator");     //Filing the claim
         _roleCreate("subject");     //Acting Agent
         _roleCreate("authority");   //Deciding authority
-        _roleCreate("applicant");     //Applicants (Can Deliver Results)
         // _roleCreate("winner");     //Winnters (Get Prize)
         // _roleCreate("affected");    //Affected Party (For reparations)
+        */
+
+        // _roleCreate("applicant");     //Applicants (Can Deliver Results)     //on Caller
 
         // _roleAssign(treasury, "donation", 1);    //TODO: Add Donation Config for Treasury? 
     }
