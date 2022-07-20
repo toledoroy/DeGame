@@ -47,7 +47,7 @@ contract RuleRepo is IRules {
     }
 
     /// Hub Address
-    function hubAddress() internal view returns (address) {
+    function getHubAddress() internal view returns (address) {
         return IProtocolEntity(msg.sender).getHub();
     }
 
@@ -97,7 +97,7 @@ contract RuleRepo is IRules {
         require(IERC1155RolesTracker(msg.sender).roleHas(tx.origin, "admin"), "Admin Only");
         
         //Validate rule.about -- actionGUID Exists
-        address actionRepo = repo().addressGetOf(hubAddress(), "history");
+        address actionRepo = repo().addressGetOf(getHubAddress(), "history");
 
         IActionRepo(actionRepo).actionGet(rule.about);  //Revetrs if does not exist
         //Add Rule

@@ -16,7 +16,7 @@ contract RuleExt is IRuleExt, GameExtension {
 
     //Get Rules Repo
     function _ruleRepo() internal view returns (IRules) {
-        address ruleRepoAddr = repo().addressGetOf(hubAddress(), "RULE_REPO");
+        address ruleRepoAddr = repo().addressGetOf(getHubAddress(), "RULE_REPO");
         return IRules(ruleRepoAddr);
     }
 

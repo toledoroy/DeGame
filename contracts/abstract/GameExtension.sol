@@ -40,18 +40,18 @@ abstract contract GameExtension is Context {
     }
 
     /// Hub Address
-    function hubAddress() internal view returns (address) {
+    function getHubAddress() internal view returns (address) {
         return IProtocolEntity(address(this)).getHub();
     }
       
     /// Get Hub
     function hub() internal view returns (IHub) {
-        return IHub(hubAddress());
+        return IHub(getHubAddress());
     }  
 
     /// Get Soul Contract Address
     function getSoulAddr() internal view returns (address) {
-        return repo().addressGetOf(hubAddress(), "SBT");
+        return repo().addressGetOf(getHubAddress(), "SBT");
     }
 
     /// Get Soul Contract
