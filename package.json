@@ -1,5 +1,5 @@
 {
-  "name": "yourjustice-evm",
+  "name": "excalibur-protocol",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YourJustice-Live/YourJustice-EVM.git"
+    "url": "git+https://github.com/MentorDAO/Excalibur.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/YourJustice-Live/YourJustice-EVM/issues"
+    "url": "https://github.com/MentorDAO/Excalibur/issues"
   },
-  "homepage": "https://github.com/YourJustice-Live/YourJustice-EVM#readme",
+  "homepage": "https://github.com/MentorDAO/Excalibur#readme",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
