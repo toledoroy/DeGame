@@ -144,7 +144,7 @@ contract ClaimUpgradable is
     */
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri_) external override {
+    function nominate(uint256 soulToken, string memory uri_) public override {
         emit Nominate(_msgSender(), soulToken, uri_);
     }
 
@@ -219,7 +219,7 @@ contract ClaimUpgradable is
     /// @param entRole  posting as entitiy in role (posting entity must be assigned to role)
     /// @param tokenId  Acting SBT Token ID
     /// @param uri_     post URI
-    function post(string calldata entRole, uint256 tokenId, string calldata uri_) external override {
+    function post(string calldata entRole, uint256 tokenId, string calldata uri_) public override {
         //Validate that User Controls The Token
         require(ISoul(getSoulAddr()).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
         //Validate: Soul Assigned to the Role 
