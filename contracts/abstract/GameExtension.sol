@@ -8,6 +8,7 @@ import "../interfaces/IERC1155RolesTracker.sol";
 import "../interfaces/IProtocolEntity.sol";
 import "../interfaces/IGameUp.sol";
 import "../interfaces/IHub.sol";
+import "../interfaces/ISoul.sol";
 
 /**
  * @title GameExtension
@@ -47,4 +48,15 @@ abstract contract GameExtension is Context {
     function hub() internal view returns (IHub) {
         return IHub(hubAddress());
     }  
+
+    /// Get Soul Contract Address
+    function getSoulAddr() internal view returns (address) {
+        return repo().addressGetOf(hubAddress(), "SBT");
+    }
+
+    /// Get Soul Contract
+    function soul() internal view returns (ISoul) {
+        return ISoul(getSoulAddr());
+    }  
+    
 }
