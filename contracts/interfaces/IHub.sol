@@ -17,7 +17,7 @@ interface IHub {
     function owner() external view returns (address);
 
     //Repo Address
-    function repoAddr() external view returns (address);
+    function getRepoAddr() external view returns (address);
 
     /// Mint an SBT for another account
     function mintForAccount(address account, string memory tokenURI) external returns (uint256);

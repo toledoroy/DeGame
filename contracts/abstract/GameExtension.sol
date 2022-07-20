@@ -30,13 +30,13 @@ abstract contract GameExtension is Context {
     }
 
     /// Get Data Repo Address (From Hub)
-    function repoAddr() public view returns (address) {
-        return IProtocolEntity(address(this)).repoAddr();
+    function getRepoAddr() public view returns (address) {
+        return IProtocolEntity(address(this)).getRepoAddr();
     }
 
     /// Get Assoc Repo
     function repo() internal view returns (IOpenRepo) {
-        return IOpenRepo(repoAddr());
+        return IOpenRepo(getRepoAddr());
     }
 
     /// Hub Address

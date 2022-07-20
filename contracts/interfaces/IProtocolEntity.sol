@@ -16,7 +16,7 @@ interface IProtocolEntity {
     function getHub() external view returns (address);
     
     //Repo Address
-    function repoAddr() external view returns (address);
+    function getRepoAddr() external view returns (address);
 
     /// Generic Config Get Function
     // function confGet(string memory key) external view returns (string memory);

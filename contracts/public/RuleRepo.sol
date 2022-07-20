@@ -21,7 +21,7 @@ import "../public/interfaces/IOpenRepo.sol";
  * To be used by a contract that implements IERC1155RolesTracker
  * Version 1.0
  * - Sender expected to be a protocol entity
- * - Sender expected to support getHub() & repoAddr()
+ * - Sender expected to support getHub() & getRepoAddr()
  */
 contract RuleRepo is IRules {
 
@@ -52,13 +52,13 @@ contract RuleRepo is IRules {
     }
 
     //Get Data Repo Address (From Hub)
-    function repoAddr() public view returns (address) {
-        return IProtocolEntity(msg.sender).repoAddr();
+    function getRepoAddr() public view returns (address) {
+        return IProtocolEntity(msg.sender).getRepoAddr();
     }
 
     //Get Assoc Repo
     function repo() internal view returns (IOpenRepo) {
-        return IOpenRepo(repoAddr());
+        return IOpenRepo(getRepoAddr());
     }
 
     //** Rule Management

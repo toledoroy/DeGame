@@ -147,7 +147,7 @@ contract HubUpgradable is
     }
 
     //Repo Address
-    function repoAddr() external view override returns (address) {
+    function getRepoAddr() external view override returns (address) {
         return address(repo());
     }
 
