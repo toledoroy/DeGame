@@ -665,13 +665,19 @@ describe("Protocol", function () {
     describe("Task Flow", function () {
 
       before(async function () {
-
-        // let dummyContract2 = await deployContract("Dummy2", []);
-        //Set DAO Extension Contract
-        // await hubContract.assocAdd("GAME_DAO", dummyContract1.address);
-
+        //Deploy Project Extension
+        let projectExtContract = await deployContract("ProjectExt", []);
+        //Set Project Extension Contract
+        await hubContract.assocAdd("GAME_PROJECT", projectExtContract.address);
         //Attach Court Functionality
-        // this.taskContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
+        this.projectContract = await ethers.getContractFactory("ProjectExt").then(res => res.attach(gameContract.address));
+      });
+
+      it("Should Set PROJECT Extension Contract", async function () {
+        //Change Game Type to Court
+        await gameContract.connect(admin).confSet("type", "PROJECT");
+        //Validate
+        expect(await gameContract.confGet("type")).to.equal("PROJECT");
       });
 
 
