@@ -15,7 +15,15 @@ import "../interfaces/ISoul.sol";
  */
 abstract contract GameExtension is Context {
 
-    //--- Storage
+    //--- Modifiers
+
+    
+    /// Permissions Modifier
+    modifier AdminOnly() {
+       //Validate Permissions
+        require(gameRoles().roleHas(_msgSender(), "admin"), "ADMIN_ONLY");
+        _;
+    }
     
     //--- Functions 
 
