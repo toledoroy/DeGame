@@ -71,6 +71,9 @@ interface IClaim {
     event Verdict(string uri, address account);
 
     /// Claim Cancelation Data
+    event Executed(address account);
+
+    /// Claim Cancelation Data
     event Cancelled(string uri, address account);
 
     /// Rule Reference Added
