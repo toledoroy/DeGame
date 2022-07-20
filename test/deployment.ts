@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { Contract, ContractReceipt, Signer } from "ethers";
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS } from "../utils/deployment";
+import { deployContract, deployUUPS, deployHub } from "../utils/deployment";
 const { upgrades } = require("hardhat");
 
 
@@ -41,6 +41,7 @@ describe("Deployment", function () {
     });
 
     it("Should Deploy Upgradable Hub Contract", async function () {
+        /*
         //Deploy Hub Upgradable
         const proxyHub = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
@@ -48,21 +49,24 @@ describe("Deployment", function () {
             claimContract.address
         ]);
         await proxyHub.deployed();
-        // console.log("HubUpgradable deployed to:", proxyHub.address);
         hubContract = proxyHub;
+        */
+        hubContract = await deployHub(openRepoContract.address);
+        // console.log("HubUpgradable deployed to:", proxyHub.address);
     });
 
     it("Should Change Hub", async function () {
-       //Deploy Another Hub Upgradable
+        //Deploy Another Hub Upgradable
+        /*
         const proxyHub2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             gameContract.address,
             claimContract.address
         ]);
         await proxyHub2.deployed();
-       
+        */
+        const proxyHub2 = await deployHub(openRepoContract.address);
         // console.log("Hub Address:", hubContract.address);
-    
         proxyHub2.hubChange(hubContract.address);
     });
 
@@ -86,6 +90,7 @@ describe("Deployment", function () {
         // console.log("ActionRepoTrackerUp deployed to:", proxyActionRepo.address);
     });
 
+    /* FOR DEBUGGING PURPOSES
     describe("Mock", function () {
         it("Should Deploy Mock Hub Contract", async function () {
             //--- Mock Hub
@@ -98,7 +103,7 @@ describe("Deployment", function () {
             // console.log("MockHub Deployed to:", mockHub.address);
         });
     });
-
+    */
 });
 
 

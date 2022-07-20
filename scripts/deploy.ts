@@ -49,6 +49,18 @@ async function main() {
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.claim);
   }
 
+  //--- Task Implementation
+  if(!contractAddr.task) {
+    //Deploy Task
+    let contract = await deployContract("TaskUpgradable", []);
+    await contract.deployed();
+    //Set Address
+    contractAddr.task = contract.address;
+    //Log
+    console.log("Deployed Task Contract to " + contractAddr.task);
+    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.task);
+  }
+
   //--- TEST: Upgradable Hub
   if(!contractAddr.hub) {
     //Deploy Hub Upgradable (UUPS)    
@@ -57,6 +69,7 @@ async function main() {
         publicAddr.openRepo,
         contractAddr.game,
         contractAddr.claim,
+        contractAddr.task,
       ]);
 
     await hubContract.deployed();

@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { Contract, ContractReceipt, Signer } from "ethers";
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS } from "../utils/deployment";
+import { deployContract, deployUUPS, deployHub } from "../utils/deployment";
 const { upgrades } = require("hardhat");
 
 //Test Data
@@ -38,20 +38,26 @@ describe("Hub", function () {
         this.gameUpContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
 
         //--- Deploy Hub Upgradable
+        /*
         hubContract = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             this.gameUpContract.address,
             this.claimContract.address
           ]);
         await hubContract.deployed();
+        */
+        hubContract = await deployHub(openRepoContract.address);
 
         //-- Deploy Another Hub
+        /*
         hubContract2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             this.gameUpContract.address,
             this.claimContract.address
           ]);
         await hubContract2.deployed();
+        */
+        hubContract2 = await deployHub(openRepoContract.address);
 
         //--- Deploy Avatar
         avatarContract = await deployUUPS("SoulUpgradable", [hubContract.address]);

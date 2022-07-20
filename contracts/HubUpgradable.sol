@@ -74,7 +74,8 @@ contract HubUpgradable is
     function initialize (
         address openRepo,
         address gameContract, 
-        address claimContract
+        address claimContract,
+        address taskContract
     ) public initializer {
         //Set Data Repo Address
         _setRepo(openRepo);
@@ -89,6 +90,9 @@ contract HubUpgradable is
         //Init Claim Contract Beacon
         UpgradeableBeacon _beaconC = new UpgradeableBeacon(claimContract);
         _beacons["claim"] = address(_beaconC);
+        //Init Task Contract Beacon
+        UpgradeableBeacon _beaconT = new UpgradeableBeacon(taskContract);
+        _beacons["task"] = address(_beaconT);
     }
 
     /// Upgrade Permissions

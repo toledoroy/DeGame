@@ -2,7 +2,12 @@
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS, deployGameExt } from "../utils/deployment";
+import { 
+  deployContract, 
+  deployUUPS, 
+  deployGameExt, 
+  deployHub 
+} from "../utils/deployment";
 const { upgrades } = require("hardhat");
 
 //Test Data
@@ -38,12 +43,17 @@ describe("Protocol", function () {
     //--- OpenRepo Upgradable (UUPS)
     this.openRepo = await deployUUPS("OpenRepoUpgradable", []);
 
-    //--- Claim Implementation
-    this.claimContract = await deployContract("ClaimUpgradable", []);
-    
+
+    /* MOVED TO deployHub()
     //--- Game Upgradable Implementation
     this.gameUpContract = await deployContract("GameUpgradable", []);
 
+    //--- Claim Implementation
+    this.claimContract = await deployContract("ClaimUpgradable", []);
+    
+    //--- Task Implementation
+    this.taskContract = await deployContract("TaskUpgradable", []);
+    
     //--- Hub Upgradable (UUPS)
     hubContract = await deployUUPS("HubUpgradable", [
         this.openRepo.address,
@@ -51,6 +61,9 @@ describe("Protocol", function () {
         this.claimContract.address
       ]);
     await hubContract.deployed();
+    */
+
+    hubContract = await deployHub(this.openRepo.address);
 
     //--- Game Extensions  
     //Game Extension: Court of Law
@@ -652,6 +665,11 @@ describe("Protocol", function () {
     describe("Task Flow", function () {
 
       before(async function () {
+
+        // let dummyContract2 = await deployContract("Dummy2", []);
+        //Set DAO Extension Contract
+        // await hubContract.assocAdd("GAME_DAO", dummyContract1.address);
+
         //Attach Court Functionality
         // this.taskContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
       });
@@ -719,6 +737,7 @@ describe("Protocol", function () {
         let tx = await this.courtContract.connect(admin).caseMake(claimName, test_uri, ruleRefArr, roleRefArr, posts);
         //Expect Valid Address
         expect(claimAddr).to.be.properAddress;
+
         //Init Claim Contract
         this.claimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.attach(claimAddr));
 

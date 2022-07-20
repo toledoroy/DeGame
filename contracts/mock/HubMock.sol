@@ -2,10 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-// import "../ERC1155D.sol";
-// import "../ERC1155Tracker.sol";
 import "../HubUpgradable.sol";
-
 
 /**
  * @title HubMock
@@ -15,12 +12,14 @@ contract HubMock is HubUpgradable {
     constructor(
         address openRepo,
         address gameContract, 
-        address claimContract
+        address claimContract,
+        address taskContract
         ) {
         initialize(
             openRepo,
             gameContract, 
-            claimContract
+            claimContract,
+            taskContract
         );
     }
 

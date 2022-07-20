@@ -22,7 +22,30 @@ export const deployGameExt = async (hubContract: Contract) => {
   //Game Extension: Court of Law
   let extCourt = await deployContract("CourtExt", []);
   await hubContract.assocAdd("GAME_COURT", extCourt.address);
+}
 
+/// Deploy Hub
+export const deployHub = async (openRepoAddress: String) => {
+  
+    //--- Game Upgradable Implementation
+    let gameUpContract = await deployContract("GameUpgradable", []);
+
+    //--- Claim Implementation
+    let claimContract = await deployContract("ClaimUpgradable", []);
+    
+    //--- Task Implementation
+    let taskContract = await deployContract("TaskUpgradable", []);
+    
+    //--- Hub Upgradable (UUPS)
+    let hubContract = await deployUUPS("HubUpgradable", [
+      openRepoAddress,
+        gameUpContract.address, 
+        claimContract.address,
+        taskContract.address,
+      ]);
+    await hubContract.deployed();
+    //Return
+    return hubContract;
 }
 
 /// Verify Contract on Etherscan
