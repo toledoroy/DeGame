@@ -97,15 +97,22 @@ contract TaskUpgradable is
     }
     */
 
-    /// Approve Delivery (Close Case w/Positive Verdict)
-    function deliveryApprove(uint256 sbtId) external override {
-        roleAssignToToken(sbtId, "subject");
-    }
-
-    /// Reject Delivery
+    /// Reject Delivery / Request for Changes
     function deliveryReject(uint256 sbtId, string calldata uri_) external override AdminOrOwner {
         //Rejection Event w/Details
         emit DeliveryRejected(_msgSender(), sbtId, uri_);
+    }
+
+    /// Approve Delivery (Close Case w/Positive Verdict)
+    function deliveryApprove(uint256 sbtId) external override {
+        //Validate Stage
+        require(stage < DataTypes.ClaimStage.Closed , "STAGE:TOO_LATE");
+        //Add as Subject
+        roleAssignToToken(sbtId, "subject");
+        //Push Forward to Stage:Execusion
+        if(stage < DataTypes.ClaimStage.Execution){
+            _setStage(DataTypes.ClaimStage.Execution);
+        }
     }
 
     /// Execute Reaction
@@ -113,6 +120,8 @@ contract TaskUpgradable is
     function stageExecusion(address[] memory tokens) public {
         //Validate Stage
         require(stage == DataTypes.ClaimStage.Execution , "STAGE:EXECUSION_ONLY");
+        //Validate Stage Requirements
+        require(uniqueRoleMembersCount("subject") > 0 , "NO_WINNERS_PICKED");
         //Push to Stage:Closed
         _setStage(DataTypes.ClaimStage.Closed);
         //Disburse
@@ -123,6 +132,7 @@ contract TaskUpgradable is
 
     /// Withdraw -- Disburse all funds to participants
     /// @dev May be called by anyone at the appropriate stage
+    /// @param tokens Since we don't know which contracts may hold a blance we need the consumer to request them directly
     function disburse(address[] memory tokens) public override {
         //Validate Stage
         // require(stage == DataTypes.ClaimStage.Execution || stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");

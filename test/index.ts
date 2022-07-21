@@ -683,10 +683,26 @@ describe("Protocol", function () {
 
     before(async function () {
 
+
       //-- Deploy MicroDAO Game Extension
-      let mDAOExtContract = await deployContract("MicroDAOExt", []);
+      // let mDAOExtContract = await deployContract("MicroDAOExt", []);
       //Set Project Extension Contract
-      await hubContract.assocAdd("GAME_MDAO", mDAOExtContract.address);
+      // await hubContract.assocAdd("GAME_MDAO", mDAOExtContract.address);
+        
+      // //Game Extension: mDAO
+      // await deployContract("MicroDAOExt", []).then(res => {
+      //   hubContract.assocAdd("GAME_MDAO", res.address);
+      // });
+      
+      // //Game Extension: Fund Management
+      // await deployContract("FundManExt", []).then(res => {
+      //   hubContract.assocAdd("GAME_MDAO", res.address);
+      // });
+
+      //Deploy All Game Extensions
+    // deployGameExt(hubContract);
+
+
 
       //-- Deploy a new Game:MicroDAO
       let gameMDAOData = {name: "Test mDAO", type: "MDAO"};
@@ -701,6 +717,8 @@ describe("Protocol", function () {
       this.mDAOGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameMDAOAddr));
       //Attach Project Functionality
       this.mDAOContract = await ethers.getContractFactory("MicroDAOExt").then(res => res.attach(gameMDAOAddr));
+      //Attach Project Functionality
+      this.mDAOFundsContract = await ethers.getContractFactory("FundManExt").then(res => res.attach(gameMDAOAddr));
 
       //-- Deploy Project Game Extension
       let projectExtContract = await deployContract("ProjectExt", []);
@@ -778,6 +796,9 @@ describe("Protocol", function () {
       await expect(tx).to.emit(this.task1, 'Nominate').withArgs(this.mDAOContract.address, soulTokens.mDAO1, test_uri);
     });
 
+    /// TODO: Reject Applicant (Jusdt Ignore for now / dApp Function)
+    // it("Should Reject Applicant", async function () { });
+
     /// Accept Application (Assign Role)
     it("Should Accept mDAO as Applicant", async function () {
       //Should Fail - Require Permissions
@@ -804,10 +825,13 @@ describe("Protocol", function () {
       await expect(tx).to.emit(this.task1, 'Post').withArgs(this.admin2Addr, soulTokens.mDAO1, "applicant", test_uri2);
     });
 
-    /// TODO: Reject Application (Ignore / dApp Function)
-
+    /// Reject Delivery / Request for Changes
+    it("Should Reject Delivery / Request for Changes (with a message)", async function () {
+      await this.task1.connect(admin).deliveryReject(soulTokens.mDAO1, test_uri2);
+    });
+    
     /// Approve Delivery (Close Case w/Positive Verdict)
-    it("Should Accept mDAO as Applicant", async function () {
+    it("Should Apporove Delivery", async function () {
       //Should Fail - Require Permissions
       await expect(
         this.task1.connect(tester).deliveryApprove(soulTokens.mDAO1)
@@ -818,9 +842,32 @@ describe("Protocol", function () {
       expect(await this.task1.roleHasByToken(soulTokens.mDAO1, "subject")).to.equal(true);
     });
 
-    /// Reject Delivery
-    
-    /// Withdraw -- Disburse all funds to participants
+    /// Disburse funds to participants
+    it("Should Disburse funds to winner(s)", async function () {
+      let balanceBefore:any = {};
+      balanceBefore.native = await this.task1.contractBalance(ZERO_ADDR);
+      balanceBefore.token = await this.task1.contractBalance(this.token.address);
+      // console.log("Before Token Balance", balanceBefore);
+      //Execute with Token Relevant Contract Addresses
+      await this.task1.connect(admin).stageExecusion([this.token.address]);
+      //Check mDAO Balance
+      // expect(await this.token.balanceOf(this.mDAOContract.address))
+      expect(await this.mDAOFundsContract.contractBalance(this.token.address))
+        .to.equal(balanceBefore.token);
+      expect(await this.mDAOFundsContract.contractBalance(ZERO_ADDR))
+        .to.equal(balanceBefore.native);
+    });
+
+    /// Disburse funds to participants
+    it("[TODO] Should Disburse additional late-funds to winner(s)", async function () {
+      //Send More
+
+      //Disbures
+      await this.task1.connect(admin).disburse([this.token.address]);
+
+      //Validate
+
+    });
 
     /// Cancel Task
 
