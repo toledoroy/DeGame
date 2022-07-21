@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 // import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 // import "./interfaces/IProjectExt.sol";
@@ -19,7 +19,7 @@ contract ProjectExt is GameExtension {
     function taskMake(
         string calldata name_, 
         string calldata uri_
-    ) public returns (address) {
+    ) public payable returns (address) {
         //Validate Caller Permissions (Member of Game)
         require(gameRoles().roleHas(_msgSender(), "member"), "Members Only");
         //Create new Claim
@@ -29,6 +29,14 @@ contract ProjectExt is GameExtension {
 
         //Create Custom Roles
         IClaim(claimContract).roleCreate("applicant");    //Applicants (Can Deliver Results)
+        //Fund Task
+        if(msg.value > 0){
+            // console.log("Moving ETH to New Contract", msg.value);
+            // payable(claimContract).transfer(msg.value);
+            // bool sent = payable(claimContract).send(msg.value);
+            (bool sent, ) = payable(claimContract).call{value: msg.value}("");
+            require(sent, "Failed to forward Ether to new contract");
+        }
 
         /*
         //Assign Roles
