@@ -136,13 +136,6 @@ contract ClaimUpgradable is
         return repo().addressGet("container");
     }
 
-    /* MOVED TO ProtocolEntity
-    /// Get Soul Contract Address
-    function getSoulAddr() internal view returns (address) {
-        return repo().addressGetOf(address(_HUB), "SBT");
-    }
-    */
-
     /// Request to Join
     function nominate(uint256 soulToken, string memory uri_) public override {
         emit Nominate(_msgSender(), soulToken, uri_);
@@ -221,7 +214,9 @@ contract ClaimUpgradable is
     /// @param uri_     post URI
     function post(string calldata entRole, uint256 tokenId, string calldata uri_) public override {
         //Validate that User Controls The Token
-        require(ISoul(getSoulAddr()).hasTokenControl(tokenId), "POST:SOUL_NOT_YOURS");
+        require(ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, _msgSender())
+            || ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, tx.origin)
+            , "POST:SOUL_NOT_YOURS"); //Supports Contract Permissions
         //Validate: Soul Assigned to the Role 
         // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
