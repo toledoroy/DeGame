@@ -4,10 +4,11 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS, deployGameExt } from "../utils/deployment";
+import { verify, deployContract, deployUUPS, deployGameExt } from "../utils/deployment";
 const { upgrades } = require("hardhat");
 const hre = require("hardhat");
 const chain = hre.hardhatArguments.network;
+const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 
 //Track Addresses (Fill in present addresses to prevent new deplopyment)
 import contractAddrs from "./_contractAddr";
@@ -30,11 +31,15 @@ async function main() {
     // let contract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
     let contract = await deployContract("GameUpgradable", []);
     await contract.deployed();
+    
     //Set Address
     contractAddr.game = contract.address;
     //Log
     console.log("Deployed Game Contract to " + contractAddr.game);
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.game);
+    //Verify on Etherscan
+    // await verify(contract.address, []);
+
   }
 
   //--- Claim Implementation
@@ -42,11 +47,15 @@ async function main() {
     //Deploy Claim
     let contract = await deployContract("ClaimUpgradable", []);
     await contract.deployed();
+        
     //Set Address
     contractAddr.claim = contract.address;
     //Log
     console.log("Deployed Claim Contract to " + contractAddr.claim);
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.claim);
+    //Verify on Etherscan
+    // await verify(contract.address, []);
+    
   }
 
   //--- Task Implementation
@@ -54,11 +63,14 @@ async function main() {
     //Deploy Task
     let contract = await deployContract("TaskUpgradable", []);
     await contract.deployed();
+    
     //Set Address
     contractAddr.task = contract.address;
     //Log
     console.log("Deployed Task Contract to " + contractAddr.task);
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.task);
+    //Verify on Etherscan
+    await verify(contract.address, []);
   }
 
   //--- TEST: Upgradable Hub
@@ -71,29 +83,37 @@ async function main() {
         contractAddr.claim,
         contractAddr.task,
       ]);
-
     await hubContract.deployed();
 
     //Deploy All Game Extensions & Set to Hub
     deployGameExt(hubContract);
 
     //Set RuleRepo to Hub
-    hubContract.assocSet("RULE_REPO", publicAddr.ruleRepo.address);
+    hubContract.assocSet("RULE_REPO", publicAddr.ruleRepo);
 
     //Set Address
     contractAddr.hub = hubContract.address;
+    // console.log("HubUpgradable deployed to:", hubContract.address);    
 
-    console.log("HubUpgradable deployed to:", hubContract.address);
-
+    /* LOGIC MOVED 
     try{
       //Set as Avatars
-      if(!!contractAddr.avatar) await hubContract.assocSet("SBT", contractAddr.avatar);
+      if(!!contractAddr.avatar){ 
+        console.log("Set Avatar to:", contractAddr.avatar);
+        await hubContract.assocSet("SBT", contractAddr.avatar);
+        console.log("Avatar Set to:", contractAddr.avatar);
+      }
       //Set as History
-      if(!!contractAddr.history) await hubContract.assocSet("history", contractAddr.history);
+      if(!!contractAddr.history){ 
+        console.log("Set history to:", contractAddr.history);
+        await hubContract.assocSet("history", contractAddr.history);
+        console.log("history set to:", contractAddr.history);
+      }
     }
     catch(error) {
       console.error("Failed to Set Contracts to Hub", error);
     }
+    */
 
     //Log
     console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Claim: "+ contractAddr.claim);
@@ -104,13 +124,19 @@ async function main() {
   if(!contractAddr.avatar) {
     //Deploy Soul Upgradable
     const proxyAvatar = await deployUUPS("SoulUpgradable", [contractAddr.hub]);
-
     await proxyAvatar.deployed();
-    contractAddr.avatar = proxyAvatar.address;
     
+    try{
+      //Verify on Etherscan
+      // await verify(proxyAvatar.address, []);
+    }catch(error){console.error("[CAUGHT] Verification Error", error);}
+
+    contractAddr.avatar = proxyAvatar.address;
     //Log
     console.log("Deployed Avatar Proxy Contract to " + contractAddr.avatar);
     // console.log("Run: npx hardhat verify --network "+chain+" "+contractAddr.avatar);
+
+    /* LOGIC MOVED 
     if(!!hubContract) {  //If Deployed Together
       try{
         //Set to HUB
@@ -122,6 +148,7 @@ async function main() {
         console.error("Failed to Set Avatar Contract to Hub", error);
       }
     }
+    */
   }
 
   //--- Action Repo
@@ -137,11 +164,11 @@ async function main() {
     //Log
     console.log("Deployed ActionRepo Contract to " + contractAddr.history);
 
+    /* LOGIC MOVED 
     if(!!hubContract) {  //If Deployed Together
       try{
         //Log
         console.log("Will Register History to Hub");
-
         //Set to HUB
         await hubContract.assocSet("history", contractAddr.history);
       }
@@ -149,6 +176,27 @@ async function main() {
         console.error("Failed to Set History Contract to Hub", error);
       }
     }
+    */
+
+  }
+
+  //Hub Associations & Validation
+  if(!hubContract && contractAddr.hub) hubContract = await ethers.getContractFactory("HubUpgradable").then(res => res.attach(contractAddr.hub));
+  if(hubContract){
+    console.log("Validate Hub ", hubContract.address);
+    let assoc: any = {};
+    assoc.sbt = await hubContract.assocGet("SBT");
+    assoc.history = await hubContract.assocGet("history");
+    // console.log("Hub: ", hubContract.address, " Assoc:", assoc);
+    if(assoc.sbt == ZERO_ADDR){
+      await hubContract.assocSet("sbt", contractAddr.sbt);
+      console.log("Updated SBT to: ", contractAddr.sbt);
+    }
+    if(assoc.history == ZERO_ADDR){
+      await hubContract.assocSet("history", contractAddr.history);
+      console.log("Updated History to: ", contractAddr.history);
+    }
+    // else console.log("Not the same", contractAddr.history, ZERO_ADDR, (assoc.history == ZERO_ADDR));
   }
 
 }
