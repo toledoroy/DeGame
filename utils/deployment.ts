@@ -22,6 +22,14 @@ export const deployGameExt = async (hubContract: Contract) => {
   //Game Extension: Court of Law
   let extCourt = await deployContract("CourtExt", []);
   await hubContract.assocAdd("GAME_COURT", extCourt.address);
+  //Game Extension: mDAO
+  await deployContract("MicroDAOExt", []).then(res => {
+    hubContract.assocAdd("GAME_MDAO", res.address);
+  });
+  //Game Extension: Fund Management
+  await deployContract("FundManExt", []).then(res => {
+    hubContract.assocAdd("GAME_MDAO", res.address);
+  });
 }
 
 /// Deploy Hub
