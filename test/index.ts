@@ -2,6 +2,7 @@
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
+import { task } from "hardhat/config";
 import { 
   deployContract, 
   deployUUPS, 
@@ -15,7 +16,7 @@ const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 let test_uri = "ipfs://QmQxkoWcpFgMa7bCzxaANWtSt43J1iMgksjNnT4vM1Apd7"; //"TEST_URI";
 let test_uri2 = "ipfs://TEST2";
 let actionGUID = "";
-let soulTokenId = 0;  //Try to keep track of Current Soul Token ID
+let soulTokenId = 1;  //Try to keep track of Current Soul Token ID
 const soulTokens: any = {};  //Soul Token Assignment
 
 describe("Protocol", function () {
@@ -29,6 +30,7 @@ describe("Protocol", function () {
   //Addresses
   let owner: Signer;
   let admin: Signer;
+  let admin2: Signer;
   let tester: Signer;
   let tester2: Signer;
   let tester3: Signer;
@@ -39,6 +41,28 @@ describe("Protocol", function () {
 
 
   before(async function () {
+
+    //Populate Accounts
+    [owner, admin, admin2, tester, tester2, tester3, tester4, tester5, authority, ...addrs] = await ethers.getSigners();
+
+    //Addresses
+    this.ownerAddr = await owner.getAddress();
+    this.adminAddr = await admin.getAddress();
+    this.admin2Addr = await admin2.getAddress();
+    this.testerAddr = await tester.getAddress();
+    this.tester2Addr = await tester2.getAddress();
+    this.tester3Addr = await tester3.getAddress();
+    this.tester4Addr = await tester4.getAddress();
+    this.tester5Addr = await tester5.getAddress();
+    this.authorityAddr = await authority.getAddress();
+
+
+    //--- Deploy Mock ERC20 Token
+    this.token = await deployContract("Token", []);
+    //Mint 
+    this.token.mint(this.ownerAddr, 1000);
+    this.token.mint(this.adminAddr, 1000);
+    this.token.mint(this.testerAddr, 1000);
 
     //--- OpenRepo Upgradable (UUPS)
     this.openRepo = await deployUUPS("OpenRepoUpgradable", []);
@@ -90,17 +114,6 @@ describe("Protocol", function () {
     //Set Avatar Contract to Hub
     await hubContract.assocSet("history", actionContract.address);
 
-    //Populate Accounts
-    [owner, admin, tester, tester2, tester3, tester4, tester5, authority, ...addrs] = await ethers.getSigners();
-    //Addresses
-    this.ownerAddr = await owner.getAddress();
-    this.adminAddr = await admin.getAddress();
-    this.testerAddr = await tester.getAddress();
-    this.tester2Addr = await tester2.getAddress();
-    this.tester3Addr = await tester3.getAddress();
-    this.tester4Addr = await tester4.getAddress();
-    this.tester5Addr = await tester5.getAddress();
-    this.authorityAddr = await authority.getAddress();
   });
 
 
@@ -160,25 +173,33 @@ describe("Protocol", function () {
       expect(await avatarContract.owner()).to.equal(this.ownerAddr);
     });
     
-    it("Can mint only one", async function () {
+    it("Can mint", async function () {
+      //SBT Tokens
+      
       let tx = await avatarContract.connect(tester).mint(test_uri);
-      ++soulTokenId;
       tx.wait();
-      //Another One for Testing Purposes
-      await avatarContract.connect(tester2).mint(test_uri);
-      ++soulTokenId;
-      // console.log("minting", tx);
       //Fetch Token
-      let result = await avatarContract.ownerOf(1);
+      let result = await avatarContract.ownerOf(soulTokenId);
       //Check Owner
       expect(result).to.equal(this.testerAddr);
       //Check URI
-      expect(await avatarContract.tokenURI(1)).to.equal(test_uri);
-      //Another Call Should Fail
+      expect(await avatarContract.tokenURI(soulTokenId)).to.equal(test_uri);
+      ++soulTokenId;
+      
+      await avatarContract.connect(tester2).mint(test_uri);
+      soulTokens.tester2 = await avatarContract.tokenByAddress(this.tester2Addr);
+      ++soulTokenId;
+
+      await avatarContract.connect(admin2).mint(test_uri);
+      soulTokens.admin2 = await avatarContract.tokenByAddress(this.admin2Addr);
+      ++soulTokenId;
+    });
+
+    it("Can mint only one", async function () {
+      //Another Mint Call for Same Account Should Fail
       await expect(
         avatarContract.connect(tester).mint(test_uri)
       ).to.be.revertedWith("Requesting account already has a token");
-      ++soulTokenId;
     });
 
     it("Should Index Addresses", async function () {
@@ -312,21 +333,21 @@ describe("Protocol", function () {
       };
 
       //Simulate to Get New Game Address
-      let JAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
-      // let JAddr = await hubContract.connect(admin).callStatic.gameMake(game.type, game.name, test_uri);
+      let gameAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      // let gameAddr = await hubContract.connect(admin).callStatic.gameMake(game.type, game.name, test_uri);
 
       //Create New Game
       // let tx = await hubContract.connect(admin).gameMake(game.type, game.name, test_uri);
       let tx = await hubContract.gameMake(game.type, game.name, test_uri);
       //Expect Valid Address
-      expect(JAddr).to.be.properAddress;
+      expect(gameAddr).to.be.properAddress;
       //Expect Claim Created Event
-      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("game", JAddr);
+      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("game", gameAddr);
       await expect(tx).to.emit(avatarContract, 'SoulType').withArgs(soulTokenId, "GAME");
       // console.log("Current soulTokenId", soulTokenId);
       ++soulTokenId;
       //Init Game Contract Object
-      gameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(JAddr));
+      gameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameAddr));
       this.gameContract = gameContract;
     });
 
@@ -611,7 +632,6 @@ describe("Protocol", function () {
       
       //Report Event
       let tx = await this.gameContract.connect(authority).reportEvent(eventData.ruleId, eventData.account, eventData.uri);
-      soulTokens.tester2 = await avatarContract.tokenByAddress(this.tester2Addr);
 
       // const receipt = await tx.wait();
       // console.log("Rule Added", receipt.logs);
@@ -657,33 +677,165 @@ describe("Protocol", function () {
   }); //Game
 
   /**
+   * Projects Flow
+   */
+  describe("Task (Bounty) Flow", function () {
+
+    before(async function () {
+
+      //-- Deploy MicroDAO Game Extension
+      let mDAOExtContract = await deployContract("MicroDAOExt", []);
+      //Set Project Extension Contract
+      await hubContract.assocAdd("GAME_MDAO", mDAOExtContract.address);
+
+      //-- Deploy a new Game:MicroDAO
+      let gameMDAOData = {name: "Test mDAO", type: "MDAO"};
+      //Simulate to Get New Game Address
+      let gameMDAOAddr = await hubContract.connect(admin2).callStatic.gameMake(gameMDAOData.type, gameMDAOData.name, test_uri);
+      // let gameAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      //Create New Game
+      await hubContract.connect(admin2).gameMake(gameMDAOData.type, gameMDAOData.name, test_uri);
+      // await hubContract.gameMake(game.type, game.name, test_uri);
+      ++soulTokenId;
+      //Init Game Contract Object
+      this.mDAOGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameMDAOAddr));
+      //Attach Project Functionality
+      this.mDAOContract = await ethers.getContractFactory("MicroDAOExt").then(res => res.attach(gameMDAOAddr));
+
+      //-- Deploy Project Game Extension
+      let projectExtContract = await deployContract("ProjectExt", []);
+      //Set Project Extension Contract
+      await hubContract.assocAdd("GAME_PROJECT", projectExtContract.address);
+
+      //-- Deploy a new Game:Project        
+      let game = {name: "Test Project", type: "PROJECT"};
+      //Simulate to Get New Game Address
+      let gameProjAddr = await hubContract.connect(admin).callStatic.gameMake(game.type, game.name, test_uri);
+      // let gameProjAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      //Create New Game
+      await hubContract.connect(admin).gameMake(game.type, game.name, test_uri);
+      // await hubContract.gameMake(game.type, game.name, test_uri);
+      ++soulTokenId;
+
+      //Init Game Contract Object
+      this.projectGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameProjAddr));
+      //Attach Project Functionality
+      this.projectContract = await ethers.getContractFactory("ProjectExt").then(res => res.attach(gameProjAddr));
+
+      //Soul Tokens
+      soulTokens.mDAO1 = await avatarContract.tokenByAddress(gameMDAOAddr);
+      soulTokens.proj1 = await avatarContract.tokenByAddress(gameProjAddr);
+      // console.log("[DEBUG] mDAO is:", soulTokens.mDAO1, gameMDAOAddr);
+    });
+
+    it("Game Should be of Type:PROJECT", async function () {
+      //Change Game Type to Court
+      // await this.projectContract.connect(admin).confSet("type", "PROJECT");
+      //Validate
+      expect(await this.projectGameContract.confGet("type")).to.equal("PROJECT");
+    });
+
+    it("Project Should Create a Task ", async function () {
+      let value = 100; //ethers.utils.parseEther(0.001);
+      let taskData = {name: "Test mDAO", uri: test_uri2};
+      let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.name, taskData.uri);
+      // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
+      this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri, {value}); //Fund on Creation
+      //Attach
+      this.task1 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
+    });
+
+    it("Should Fund Task (ETH)", async function () {
+      let curBalance = await this.task1.contractBalance(ZERO_ADDR);
+      let value = 100; //ethers.utils.parseEther(0.001);
+      //Sent Native Tokens
+      await admin.sendTransaction({to: this.task1.address, value});
+      //Validate Balance
+      expect(await this.task1.contractBalance(ZERO_ADDR))
+        .to.equal(Number(curBalance) + Number(value));
+    });
+
+    it("Should Fund Task (ERC20)", async function () {
+      await this.token.transfer(this.task1.address, 1);
+      //Verify Transfer
+      expect(await this.token.balanceOf(this.task1.address))
+        .to.equal(1);
+      expect(await this.task1.contractBalance(this.token.address))
+        .to.equal(1);
+    });
+
+    it("Should Apply to Project (as Individual)", async function () {
+      /// Apply (Nominte Self)
+      let tx = await this.task1.connect(tester).application(test_uri);
+      //Expect Event
+      await expect(tx).to.emit(this.task1, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
+    });
+
+    it("Should Apply to Project (as mDAO)", async function () {
+      /// Apply (Nominte Self)
+      let tx = await this.mDAOContract.connect(admin2).applyToTask(this.task1.address, test_uri);
+      //Expect Event
+      await expect(tx).to.emit(this.task1, 'Nominate').withArgs(this.mDAOContract.address, soulTokens.mDAO1, test_uri);
+    });
+
+    /// Accept Application (Assign Role)
+    it("Should Accept mDAO as Applicant", async function () {
+      //Should Fail - Require Permissions
+      await expect(
+        this.task1.connect(tester).acceptApplicant(soulTokens.mDAO1)
+      ).to.be.revertedWith("INVALID_PERMISSIONS");
+      //Accept Applicant (to Role)
+      await this.task1.connect(admin).acceptApplicant(soulTokens.mDAO1);
+      //Validate
+      expect(await this.task1.roleHasByToken(soulTokens.mDAO1, "applicant")).to.equal(true);
+    });
+
+    /// Deliver (Just use the Post function directly)
+    it("Should Post a Delivery (as mDAO)", async function () {
+      let post = {taskAddr: this.task1.address, uri: test_uri2};
+      //Validate Permissions
+      await expect(
+        this.mDAOContract.connect(tester4).deliverTask(post.taskAddr, post.uri)
+      // ).to.be.revertedWith("ADMIN_ONLY");  //Would work once the proxy returns errors
+      ).to.be.reverted;
+      /// Apply (Nominte Self)
+      let tx = await this.mDAOContract.connect(admin2).deliverTask(post.taskAddr, post.uri);
+      //Expect Event
+      await expect(tx).to.emit(this.task1, 'Post').withArgs(this.admin2Addr, soulTokens.mDAO1, "applicant", test_uri2);
+    });
+
+    /// TODO: Reject Application (Ignore / dApp Function)
+
+    /// Approve Delivery (Close Case w/Positive Verdict)
+    it("Should Accept mDAO as Applicant", async function () {
+      //Should Fail - Require Permissions
+      await expect(
+        this.task1.connect(tester).deliveryApprove(soulTokens.mDAO1)
+      ).to.be.revertedWith("INVALID_PERMISSIONS");
+      //Accept Applicant (to Role)
+      await this.task1.connect(admin).deliveryApprove(soulTokens.mDAO1);
+      //Check After
+      expect(await this.task1.roleHasByToken(soulTokens.mDAO1, "subject")).to.equal(true);
+    });
+
+    /// Reject Delivery
+    
+    /// Withdraw -- Disburse all funds to participants
+
+    /// Cancel Task
+
+    /// Refund -- Send Tokens back to Task Creator
+
+    /// Deposit (Anyone can send funds at any point)
+
+
+
+  }); //Projects Flow
+
+  /**
    * Claim Contract
    */
   describe("Claim", function () {
-
-
-    describe("Task Flow", function () {
-
-      before(async function () {
-        //Deploy Project Extension
-        let projectExtContract = await deployContract("ProjectExt", []);
-        //Set Project Extension Contract
-        await hubContract.assocAdd("GAME_PROJECT", projectExtContract.address);
-        //Attach Court Functionality
-        this.projectContract = await ethers.getContractFactory("ProjectExt").then(res => res.attach(gameContract.address));
-      });
-
-      it("Should Set PROJECT Extension Contract", async function () {
-        //Change Game Type to Court
-        await gameContract.connect(admin).confSet("type", "PROJECT");
-        //Validate
-        expect(await gameContract.confGet("type")).to.equal("PROJECT");
-      });
-
-
-
-    });
-
 
     describe("Court Game Flow", function () {
 
