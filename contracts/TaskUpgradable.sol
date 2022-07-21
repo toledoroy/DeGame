@@ -45,33 +45,6 @@ contract TaskUpgradable is
     ) public override initializer {
         super.initialize(container, name_, uri_);
         symbol = "TASK";
-
-        /* on Super (ClaimUpgradable)
-        //Initializers
-        // __ProtocolEntity_init(hub);
-        __ProtocolEntity_init(msg.sender);
-        __setTargetContract(getSoulAddr());
-        //Set Parent Container
-        _setParentCTX(container);
-        
-        //Set Contract URI
-        _setContractURI(uri_);
-        //Identifiers
-        name = name_;
-        //Auto-Set Creator Wallet as Admin
-        _roleAssign(tx.origin, "admin", 1);
-        _roleAssign(tx.origin, "creator", 1);
-        //Init Default Claim Roles
-        // _roleCreate("admin");
-        // _roleCreate("creator");     //Filing the claim
-        _roleCreate("subject");     //Acting Agent
-        _roleCreate("authority");   //Deciding authority
-        // _roleCreate("winner");     //Winnters (Get Prize)
-        // _roleCreate("affected");    //Affected Party (For reparations)
-        */
-
-        // _roleCreate("applicant");     //Applicants (Can Deliver Results)     //on Caller
-
         // _roleAssign(treasury, "donation", 1);    //TODO: Add Donation Config for Treasury? 
     }
 

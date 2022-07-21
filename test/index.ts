@@ -755,7 +755,7 @@ describe("Protocol", function () {
 
     it("Project Should Create a Task ", async function () {
       let value = 100; //ethers.utils.parseEther(0.001);
-      let taskData = {name: "Test mDAO", uri: test_uri2};
+      let taskData = {name: "Test Task", uri: test_uri2};
       let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.name, taskData.uri);
       // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
       this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri, {value}); //Fund on Creation
@@ -811,7 +811,7 @@ describe("Protocol", function () {
       expect(await this.task1.roleHasByToken(soulTokens.mDAO1, "applicant")).to.equal(true);
     });
 
-    /// Deliver (Just use the Post function directly)
+    /// Deliver a Task
     it("Should Post a Delivery (as mDAO)", async function () {
       let post = {taskAddr: this.task1.address, uri: test_uri2};
       //Validate Permissions
@@ -858,6 +858,8 @@ describe("Protocol", function () {
         .to.equal(balanceBefore.native);
     });
 
+    /// TODO: Deposit (Anyone can send funds at any point)
+
     /// Disburse funds to participants
     it("[TODO] Should Disburse additional late-funds to winner(s)", async function () {
       //Send More
@@ -870,11 +872,10 @@ describe("Protocol", function () {
     });
 
     /// Cancel Task
+    // it("[TODO] Should Cancel Task", async function () { });
 
     /// Refund -- Send Tokens back to Task Creator
-
-    /// Deposit (Anyone can send funds at any point)
-
+    // it("[TODO] Should Refund Toknes to Task Creator", async function () { });
 
 
   }); //Projects Flow
