@@ -24,18 +24,12 @@ contract TaskUpgradable is
     ITask
     , ClaimUpgradable
     , Escrow
-    // Posts, 
-    // ProtocolEntityUpgradable, 
-    // ERC1155RolesTrackerUp 
     {
 
     //-- Storage
-    
-    // string public constant override symbol = "TASK";
 
 
     //-- Functions
-
 
     /// Initializer
     function initialize (
