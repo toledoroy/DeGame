@@ -47,7 +47,7 @@ async function main() {
     publicAddr.ruleRepo = contractInstance.address;
     //Log
     console.log("Deployed RuleRepo Contract to Chain:"+chain+" Address: " + contractInstance.address);
-    // console.log("Run: npx hardhat verify --network "+chain+" " + contractInstance.address);
+    console.log("Run: npx hardhat verify --network "+chain+" " + contractInstance.address);
 
     //Verify on Etherscan
     await verify(contractInstance.address, []);
