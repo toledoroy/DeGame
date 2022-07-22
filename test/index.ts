@@ -701,8 +701,6 @@ describe("Protocol", function () {
     });
 
     it("Game Should be of Type:PROJECT", async function () {
-      //Change Game Type to Court
-      // await this.projectContract.connect(admin).confSet("type", "PROJECT");
       //Validate
       expect(await this.projectGameContract.confGet("type")).to.equal("PROJECT");
     });
