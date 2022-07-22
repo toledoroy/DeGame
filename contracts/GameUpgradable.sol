@@ -17,7 +17,8 @@ import "./interfaces/IClaim.sol";
 import "./interfaces/IActionRepo.sol";
 import "./public/interfaces/IVotesRepoTracker.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
-import "./abstract/ProtocolEntityUpgradable.sol";
+// import "./abstract/ProtocolEntityUpgradable.sol";
+import "./abstract/CTXEntityUpgradable.sol";
 import "./abstract/Opinions.sol";
 import "./abstract/Posts.sol";
 import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
@@ -47,15 +48,15 @@ import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
  * - [TODO] DAO Votes
  * - [TODO] Unique Rule IDs (GUID)
  */
-contract GameUpgradable is 
-        IGame, 
+contract GameUpgradable is IGame
         // IRules,
-        ProtocolEntityUpgradable, 
-        Opinions, 
-        Posts,
-        ProxyMulti,
+        , Opinions
+        , Posts
+        , ProxyMulti
         // VotesUpgradeable,
-        ERC1155RolesTrackerUp {
+        // ERC1155RolesTrackerUp 
+        , CTXEntityUpgradable
+        {
 
     //--- Storage
     string public constant override symbol = "GAME";
@@ -296,9 +297,9 @@ contract GameUpgradable is
     }
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri_) external override {
-        emit Nominate(_msgSender(), soulToken, uri_);
-    }
+    // function nominate(uint256 soulToken, string memory uri_) external override {
+    //     emit Nominate(_msgSender(), soulToken, uri_);
+    // }
 
     /// Assign Someone Else to a Role
     function roleAssign(address account, string memory role) public override roleExists(role) AdminOrOwner {

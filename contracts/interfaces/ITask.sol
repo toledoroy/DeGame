@@ -32,7 +32,7 @@ interface ITask {
     function disburse(address[] memory tokens) external;
 
     /// Cancel Task
-    function cancel(address[] memory tokens) external;
+    function cancel(string calldata uri_, address[] memory tokens) external;
 
     /// Refund -- Send Tokens back to Task Creator
     function refund(address[] memory tokens) external;

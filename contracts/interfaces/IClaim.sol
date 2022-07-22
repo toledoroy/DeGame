@@ -21,7 +21,7 @@ interface IClaim {
     function setContractURI(string calldata contract_uri) external;
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri) external;
+    // function nominate(uint256 soulToken, string memory uri) external;
 
     /// Create a new Role
     function roleCreate(string memory role) external;
@@ -86,6 +86,6 @@ interface IClaim {
     // event RuleDenied(uint256 ruleId);
     
     /// Nominate
-    event Nominate(address account, uint256 indexed id, string uri);
+    // event Nominate(address account, uint256 indexed id, string uri);
 
 }

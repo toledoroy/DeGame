@@ -4,14 +4,11 @@ pragma solidity 0.8.4;
 import "hardhat/console.sol";
 
 import "./ClaimUpgradable.sol";
-import "./abstract/ProtocolEntityUpgradable.sol";
+import "./abstract/CTXEntityUpgradable.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
 import "./abstract/Posts.sol";
 import "./abstract/Escrow.sol";
 import "./interfaces/ITask.sol";
-
-// import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
-
 
 /**
  * @title Task / Request for Product (RFP) Entity
@@ -20,8 +17,7 @@ import "./interfaces/ITask.sol";
  * [TODO] Distribute config for different roles
  * [TODO] Protocol Treasury Donation
  */
-contract TaskUpgradable is 
-    ITask
+contract TaskUpgradable is ITask
     , ClaimUpgradable
     , Escrow
     {
@@ -129,15 +125,11 @@ contract TaskUpgradable is
     }
 
     /// Cancel Task
-    function cancel(address[] memory tokens) public override {
-        //Validate Stage
-        require(stage <= DataTypes.ClaimStage.Decision , "STAGE:BEFORE_DECISION");
-        //Push to Stage:Cancelled
-        _setStage(DataTypes.ClaimStage.Cancelled);
+    function cancel(string calldata uri_, address[] memory tokens) public override {
+        //Cancelltaion Procedure
+        stageCancel(uri_);
         //Return Funds to Creator
         refund(tokens);
-        //Emit Execusion Event
-        emit Executed(_msgSender());
     }
 
     /// Refund -- Send Tokens back to Task Creator

@@ -39,7 +39,7 @@ interface IGame {
     function leave() external returns (uint256);
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri) external;
+    // function nominate(uint256 soulToken, string memory uri) external;
 
     /// Assign Someone to a Role
     function roleAssign(address account, string calldata role) external;
@@ -92,7 +92,7 @@ interface IGame {
     // event ClaimCreated(uint256 indexed id, address contractAddress);    
 
     /// Nominate
-    event Nominate(address account, uint256 indexed id, string uri);
+    // event Nominate(address account, uint256 indexed id, string uri);
 
     /// Effect
     event EffectsExecuted(uint256 indexed targetTokenId, uint256 indexed ruleId, bytes data);

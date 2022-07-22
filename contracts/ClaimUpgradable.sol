@@ -10,7 +10,7 @@ import "./interfaces/IRules.sol";
 import "./interfaces/ISoul.sol";
 import "./interfaces/IERC1155RolesTracker.sol";
 import "./interfaces/IGameUp.sol";
-import "./abstract/ProtocolEntityUpgradable.sol";
+import "./abstract/CTXEntityUpgradable.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
 import "./abstract/Posts.sol";
 
@@ -18,11 +18,12 @@ import "./abstract/Posts.sol";
  * @title Upgradable Claim Contract
  * @dev Version 2.1.0
  */
-contract ClaimUpgradable is 
-    IClaim, 
-    Posts, 
-    ProtocolEntityUpgradable, 
-    ERC1155RolesTrackerUp {
+contract ClaimUpgradable is IClaim
+    , Posts
+    , CTXEntityUpgradable
+    // , ProtocolEntityUpgradable
+    // , ERC1155RolesTrackerUp 
+    {
 
     //--- Storage
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -137,9 +138,9 @@ contract ClaimUpgradable is
     }
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri_) public override {
-        emit Nominate(_msgSender(), soulToken, uri_);
-    }
+    // function nominate(uint256 soulToken, string memory uri_) public override {
+    //     emit Nominate(_msgSender(), soulToken, uri_);
+    // }
 
     /// Assign to a Role
     function roleAssign(address account, string memory role) public override roleExists(role) {
