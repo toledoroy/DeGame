@@ -28,8 +28,6 @@ abstract contract Escrow is IEscrow
 
     //--- Functions
 
-
-
     /**
      * Inspiration: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/finance/PaymentSplitter.sol
      * 
