@@ -102,7 +102,10 @@ abstract contract ERC1155TrackerUpgradable is
         require(account != address(0), "ERC1155: address zero is not a valid owner");
         // return _balances[id][account];
         // return _balances[id][getExtTokenId(account)];
-        return balanceOfToken(getExtTokenId(account), id);
+        // return balanceOfToken(getExtTokenId(account), id);
+        return balanceOfToken(_getExtTokenId(account), id); //Won't Fail if Token Doesn't Exist
+        // uint256 sbtId = _getExtTokenId(account);
+        // return balanceOfToken(sbtId, id);
     }
 
     /**
