@@ -17,7 +17,7 @@ import "./abstract/Posts.sol";
 
 /**
  * @title Upgradable Claim Contract
- * @dev Version 2.1.0
+ * @dev Version 2.2.0
  */
 contract ClaimUpgradable is IClaim
     , Posts
@@ -331,43 +331,6 @@ contract ClaimUpgradable is IClaim
         emit Cancelled(uri_, _msgSender());
     }
 
-    /* OLDER VERSION
-    /// Rule (Action) Confirmed (Currently Only Judging Avatars)
-    function _ruleConfirmed(uint256 ruleId) internal {
-
-        /* REMOVED for backward compatibility while in dev mode.
-        //Validate Avatar Contract Interface
-        require(IERC165(address(avatarContract)).supportsInterface(type(ISoul).interfaceId), "Invalid Avatar Contract");
-        * /
-
-        //Fetch Claim's Subject(s)
-        uint256[] memory subjects = uniqueRoleMembers("subject");
-
-        //Each Subject
-        for (uint256 i = 0; i < subjects.length; ++i) {
-            //Get Subject's SBT ID 
-            uint256 tokenId = subjects[i];
-            if(tokenId > 0) {
-                
-                //Get Effects
-                DataTypes.Effect[] memory effects = ruleGetEffects(ruleId);
-
-                //Run Each Effect
-                for (uint256 j = 0; j < effects.length; ++j) {
-                    DataTypes.Effect memory effect = effects[j];
-                    
-                    //Register Rep in Game      //{name:'professional', value:5, direction:false}
-                    IGame(getContainerAddr()).repAdd(getSoulAddr(), tokenId, effect.name, effect.direction, effect.value);
-
-                }
-            }
-        }
-        
-        //Rule Confirmed Event
-        emit RuleConfirmed(ruleId);
-    }
-    */
-
     /// Get Token URI by Token ID
     function uri(uint256 token_id) public view returns (string memory) {
         return _tokenURIs[token_id];
@@ -382,9 +345,5 @@ contract ClaimUpgradable is IClaim
     function setContractURI(string calldata contract_uri) external override AdminOrOwner {
         _setContractURI(contract_uri);
     }
-
-    // function nextStage(string calldata uri) public {
-        // if (sha3(myEnum) == sha3("Bar")) return MyEnum.Bar;
-    // }
 
 }

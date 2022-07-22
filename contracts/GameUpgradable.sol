@@ -30,7 +30,7 @@ import "./abstract/ProxyMulti.sol";  //Adds 1.529Kb
 /**
  * @title Game Contract
  * @dev Retains Group Members in Roles
- * @dev Version 3.1
+ * @dev Version 3.2
  * V1: Using Role NFTs
  * - Mints Member NFTs
  * - One for each
