@@ -13,15 +13,10 @@ interface IClaim {
         address container, 
         string memory name_, 
         string calldata uri_
-        // DataTypes.RuleRef[] memory addRules, 
-        // DataTypes.InputRoleToken[] memory assignRoles
     ) external;
 
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
-
-    /// Request to Join
-    // function nominate(uint256 soulToken, string memory uri) external;
 
     /// Create a new Role
     function roleCreate(string memory role) external;
@@ -54,6 +49,9 @@ interface IClaim {
     /// Set Metadata URI For Role
     function setRoleURI(string memory role, string memory _tokenURI) external;
 
+    /// Request to Join
+    // function nominate(uint256 soulToken, string memory uri) external;
+
     //Get Contract Association
     // function assocGet(string memory key) external view returns (address);
 
@@ -63,20 +61,6 @@ interface IClaim {
     function ruleRefAdd(address game_, uint256 ruleId_) external;
 
     //--- Events
-
-/* MOVED to Procedure
-    /// Claim Stage Change
-    event Stage(DataTypes.ClaimStage stage);
-
-    /// Post Verdict
-    event Verdict(string uri, address account);
-
-    /// Claim Cancelation Data
-    event Executed(address account);
-
-    /// Claim Cancelation Data
-    event Cancelled(string uri, address account);
-*/
 
     /// Rule Reference Added
     event RuleAdded(address game, uint256 ruleId);

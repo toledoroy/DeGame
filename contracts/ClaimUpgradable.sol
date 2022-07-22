@@ -139,11 +139,6 @@ contract ClaimUpgradable is IClaim
         return repo().addressGet("container");
     }
 
-    /// Request to Join
-    // function nominate(uint256 soulToken, string memory uri_) public override {
-    //     emit Nominate(_msgSender(), soulToken, uri_);
-    // }
-
     /// Assign to a Role
     function roleAssign(address account, string memory role) public override roleExists(role) {
         //Special Validations for Special Roles 
@@ -335,16 +330,6 @@ contract ClaimUpgradable is IClaim
         //Cancellation Event
         emit Cancelled(uri_, _msgSender());
     }
-
-/* MOVED to Procedure
-    /// Change Claim Stage
-    function _setStage(DataTypes.ClaimStage stage_) internal {
-        //Set Stage
-        stage = stage_;
-        //Stage Change Event
-        emit Stage(stage);
-    }
-*/
 
     /* OLDER VERSION
     /// Rule (Action) Confirmed (Currently Only Judging Avatars)

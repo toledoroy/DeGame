@@ -22,13 +22,7 @@ abstract contract Procedure is
     //Stage (Claim Lifecycle)
     DataTypes.ClaimStage public stage;
 
-
     //-- Functions
-
-    /// Request to Join
-    // function nominate(uint256 soulToken, string memory uri_) public override {
-    //     emit Nominate(_msgSender(), soulToken, uri_);
-    // }
 
     /// Change Claim Stage
     function _setStage(DataTypes.ClaimStage stage_) internal {
