@@ -826,8 +826,6 @@ describe("Protocol", function () {
         .to.equal(balanceBefore.native);
     });
 
-    /// TODO: Deposit (Anyone can send funds at any point)
-
     /// Disburse funds to participants
     it("[TODO] Should Disburse additional late-funds to winner(s)", async function () {
       //Send More
@@ -883,7 +881,7 @@ describe("Protocol", function () {
           .to.equal(1);
       });
 
-      it("[TODO] Should Cancel Task", async function () { 
+      it("Should Cancel Task", async function () { 
         let balanceBefore:any = {};
         balanceBefore.native = await this.task2.contractBalance(ZERO_ADDR);
         balanceBefore.token = await this.task2.contractBalance(this.token.address);
@@ -900,8 +898,48 @@ describe("Protocol", function () {
         // expect(await admin.getBalance()).to.equal( balanceAdminBefore.native.add(balanceBefore.native) );  //...Gas?
       });
 
-      /// Refund -- Send Tokens back to Task Creator
-      // it("[TODO] Should Refund Toknes to Task Creator", async function () { });
+      /// Deposit (Anyone can send funds at any point)
+      it("Should Support Deposits at any time", async function () {
+        let curBalance = await this.task2.contractBalance(ZERO_ADDR);
+        let value = 100; //ethers.utils.parseEther(0.001);
+
+        //Sent Native Tokens
+        await admin.sendTransaction({to: this.task2.address, value});
+        //Validate Balance
+        expect(await this.task2.contractBalance(ZERO_ADDR))
+          .to.equal(Number(curBalance) + Number(value));
+
+        await this.token.connect(admin).transfer(this.task2.address, 1);
+        //Verify Transfer
+        expect(await this.token.balanceOf(this.task2.address))
+          .to.equal(1);
+        expect(await this.task2.contractBalance(this.token.address))
+          .to.equal(1);
+
+      });
+
+      it("Should Not Disburse", async function () {
+          await expect(
+            this.task2.connect(admin).disburse([this.token.address])
+          ).to.be.revertedWith("STAGE:CLOSED");
+      });
+
+      it("Should Refund Toknes to Task Creator", async function () {
+        let balanceBefore:any = {};
+        balanceBefore.native = await this.task2.contractBalance(ZERO_ADDR);
+        balanceBefore.token = await this.task2.contractBalance(this.token.address);
+        let balanceAdminBefore:any = {};
+        balanceAdminBefore.native = await admin.getBalance();
+        balanceAdminBefore.token = await this.token.balanceOf(this.adminAddr);
+        // console.log("Balance Before", balanceBefore, balanceAdminBefore);
+
+        /// Refund -- Send Tokens back to Task Creator
+        let tx = await this.task2.connect(admin).refund([this.token.address]);
+        //Expect Refund & Check Task Creator's Balance
+        expect(await this.token.balanceOf(this.adminAddr)).to.equal(Number(balanceAdminBefore.token) + Number(balanceBefore.token));
+        // expect(await admin.getBalance()).to.equal( balanceAdminBefore.native.add(balanceBefore.native) );  //...Gas?
+
+      });
 
     }); //Cancelled Task Flow
 
