@@ -15,6 +15,7 @@ import contractAddrs from "./_contractAddr";
 const contractAddr = contractAddrs[chain];
 import publicAddrs from "./_publicAddrs";
 const publicAddr = publicAddrs[chain];
+let deployed: any = [];
 
 async function main() {
 
@@ -38,8 +39,8 @@ async function main() {
     console.log("Deployed Game Contract to " + contractAddr.game);
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.game);
     //Verify on Etherscan
-    // await verify(contract.address, []);
-
+    await verify(contract.address, []);
+    // deployed.push({address:contract.address, params:[]}); //TODO: Verification at the end?
   }
 
   //--- Claim Implementation
@@ -54,7 +55,7 @@ async function main() {
     console.log("Deployed Claim Contract to " + contractAddr.claim);
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.claim);
     //Verify on Etherscan
-    // await verify(contract.address, []);
+    await verify(contract.address, []);
     
   }
 
@@ -75,14 +76,14 @@ async function main() {
 
   //--- TEST: Upgradable Hub
   if(!contractAddr.hub) {
+    const params = [
+      publicAddr.openRepo,
+      contractAddr.game,
+      contractAddr.claim,
+      contractAddr.task,
+    ];
     //Deploy Hub Upgradable (UUPS)    
-    hubContract = await deployUUPS("HubUpgradable",
-      [
-        publicAddr.openRepo,
-        contractAddr.game,
-        contractAddr.claim,
-        contractAddr.task,
-      ]);
+    hubContract = await deployUUPS("HubUpgradable", params);
     await hubContract.deployed();
 
     //Deploy All Game Extensions & Set to Hub
@@ -95,29 +96,16 @@ async function main() {
     contractAddr.hub = hubContract.address;
     // console.log("HubUpgradable deployed to:", hubContract.address);    
 
-    /* LOGIC MOVED 
-    try{
-      //Set as Avatars
-      if(!!contractAddr.avatar){ 
-        console.log("Set Avatar to:", contractAddr.avatar);
-        await hubContract.assocSet("SBT", contractAddr.avatar);
-        console.log("Avatar Set to:", contractAddr.avatar);
-      }
-      //Set as History
-      if(!!contractAddr.history){ 
-        console.log("Set history to:", contractAddr.history);
-        await hubContract.assocSet("history", contractAddr.history);
-        console.log("history set to:", contractAddr.history);
-      }
-    }
-    catch(error) {
-      console.error("Failed to Set Contracts to Hub", error);
-    }
-    */
-
     //Log
     console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Claim: "+ contractAddr.claim);
     console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub+" "+publicAddr.openRepo+" "+contractAddr.game+ " "+contractAddr.claim);
+
+    /* Fails
+    try{
+      //Verify on Etherscan
+      await verify(hubContract.address, params);
+    }catch(error){console.error("[CAUGHT] Contract Verification Error", error);}
+    */
   }
 
   //--- Soul Upgradable
@@ -125,29 +113,17 @@ async function main() {
     //Deploy Soul Upgradable
     const proxyAvatar = await deployUUPS("SoulUpgradable", [contractAddr.hub]);
     await proxyAvatar.deployed();
-    
-    try{
-      //Verify on Etherscan
-      // await verify(proxyAvatar.address, []);
-    }catch(error){console.error("[CAUGHT] Verification Error", error);}
 
     contractAddr.avatar = proxyAvatar.address;
     //Log
     console.log("Deployed Avatar Proxy Contract to " + contractAddr.avatar);
     // console.log("Run: npx hardhat verify --network "+chain+" "+contractAddr.avatar);
 
-    /* LOGIC MOVED 
-    if(!!hubContract) {  //If Deployed Together
-      try{
-        //Set to HUB
-        await hubContract.assocSet("SBT", contractAddr.avatar);
-        //Log
-        console.log("Registered Avatar Contract to Hub");
-      }
-      catch(error) {
-        console.error("Failed to Set Avatar Contract to Hub", error);
-      }
-    }
+    /* Fails on Solidity Version (0.8.2) (Proxy)
+    try{
+      //Verify on Etherscan
+      await verify(proxyAvatar.address, [contractAddr.hub]);
+    }catch(error){console.error("[CAUGHT] Verification Error", error);}
     */
   }
 
@@ -156,28 +132,15 @@ async function main() {
     //Action Repository (History)
     const proxyActionRepo = await deployUUPS("ActionRepoTrackerUp", [contractAddr.hub]);
     await proxyActionRepo.deployed();
-    
-    console.log("Deployed History Contract", proxyActionRepo.address);
-
     //Set Address
     contractAddr.history = proxyActionRepo.address;
     //Log
-    console.log("Deployed ActionRepo Contract to " + contractAddr.history);
+    console.log("Deployed History Contract to " + contractAddr.history);
 
-    /* LOGIC MOVED 
-    if(!!hubContract) {  //If Deployed Together
-      try{
-        //Log
-        console.log("Will Register History to Hub");
-        //Set to HUB
-        await hubContract.assocSet("history", contractAddr.history);
-      }
-      catch(error) {
-        console.error("Failed to Set History Contract to Hub", error);
-      }
-    }
+    /* Fails on Solidity Version (0.8.2) (Proxy)
+    //Verify on Etherscan
+    await verify(proxyActionRepo.address, [contractAddr.hub]);
     */
-
   }
 
   //Hub Associations & Validation
@@ -187,10 +150,10 @@ async function main() {
     let assoc: any = {};
     assoc.sbt = await hubContract.assocGet("SBT");
     assoc.history = await hubContract.assocGet("history");
-    // console.log("Hub: ", hubContract.address, " Assoc:", assoc);
+    // console.log("Hub: ", hubContract.address, " Assoc:", assoc, contractAddr);
     if(assoc.sbt == ZERO_ADDR){
-      await hubContract.assocSet("sbt", contractAddr.sbt);
-      console.log("Updated SBT to: ", contractAddr.sbt);
+      await hubContract.assocSet("SBT", contractAddr.avatar);
+      console.log("Updated SBT to: ", contractAddr.avatar);
     }
     if(assoc.history == ZERO_ADDR){
       await hubContract.assocSet("history", contractAddr.history);
