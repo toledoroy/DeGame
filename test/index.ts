@@ -67,35 +67,11 @@ describe("Protocol", function () {
     //--- OpenRepo Upgradable (UUPS)
     this.openRepo = await deployUUPS("OpenRepoUpgradable", []);
 
-
-    /* MOVED TO deployHub()
-    //--- Game Upgradable Implementation
-    this.gameUpContract = await deployContract("GameUpgradable", []);
-
-    //--- Claim Implementation
-    this.claimContract = await deployContract("ClaimUpgradable", []);
-    
-    //--- Task Implementation
-    this.taskContract = await deployContract("TaskUpgradable", []);
-    
-    //--- Hub Upgradable (UUPS)
-    hubContract = await deployUUPS("HubUpgradable", [
-        this.openRepo.address,
-        this.gameUpContract.address, 
-        this.claimContract.address
-      ]);
-    await hubContract.deployed();
-    */
-
+    //--- Deploy Hub (UUPS)
     hubContract = await deployHub(this.openRepo.address);
 
-    //--- Game Extensions  
-    //Game Extension: Court of Law
-    // let extCourt = await deployContract("CourtExt", []);
-    // await hubContract.assocAdd("GAME_COURT", extCourt.address);
-    //Deploy All Game Extensions
+    //--- Deploy All Game Extensions
     deployGameExt(hubContract);
-
   
     //--- Rule Repository
     this.ruleRepo = await deployContract("RuleRepo", []);
@@ -682,28 +658,6 @@ describe("Protocol", function () {
   describe("Project Game Flow", function () {
 
     before(async function () {
-
-
-      //-- Deploy MicroDAO Game Extension
-      // let mDAOExtContract = await deployContract("MicroDAOExt", []);
-      //Set Project Extension Contract
-      // await hubContract.assocAdd("GAME_MDAO", mDAOExtContract.address);
-        
-      // //Game Extension: mDAO
-      // await deployContract("MicroDAOExt", []).then(res => {
-      //   hubContract.assocAdd("GAME_MDAO", res.address);
-      // });
-      
-      // //Game Extension: Fund Management
-      // await deployContract("FundManExt", []).then(res => {
-      //   hubContract.assocAdd("GAME_MDAO", res.address);
-      // });
-
-      //Deploy All Game Extensions
-    // deployGameExt(hubContract);
-
-
-
       //-- Deploy a new Game:MicroDAO
       let gameMDAOData = {name: "Test mDAO", type: "MDAO"};
       //Simulate to Get New Game Address
