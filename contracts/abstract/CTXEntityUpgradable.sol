@@ -24,6 +24,12 @@ abstract contract CTXEntityUpgradable is
 
     //-- Functions
 
+    /// ERC165 - Supported Interfaces
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(ICTXEntityUpgradable).interfaceId 
+            || super.supportsInterface(interfaceId);
+    }
+
     /// Request to Join
     function nominate(uint256 soulToken, string memory uri_) public override {
         emit Nominate(_msgSender(), soulToken, uri_);

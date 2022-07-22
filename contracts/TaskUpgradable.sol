@@ -27,6 +27,11 @@ contract TaskUpgradable is ITask
 
     //-- Functions
 
+    /// ERC165 - Supported Interfaces
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(ITask).interfaceId || super.supportsInterface(interfaceId);
+    }
+
     /// Initializer
     function initialize (
         address container,
