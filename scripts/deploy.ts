@@ -98,7 +98,7 @@ async function main() {
 
     //Log
     console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Claim: "+ contractAddr.claim);
-    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub+" "+publicAddr.openRepo+" "+contractAddr.game+ " "+contractAddr.claim);
+    console.log("Run: npx hardhat verify --network "+chain+" " + contractAddr.hub);
 
     /* Fails
     try{
