@@ -20,15 +20,24 @@ export const deployUUPS = async (contractName: string, args: any[]) => {
 /// Deploy Game Extensions
 export const deployGameExt = async (hubContract: Contract) => {
   //Game Extension: Court of Law
-  let extCourt = await deployContract("CourtExt", []);
-  await hubContract.assocAdd("GAME_COURT", extCourt.address);
+  // let extCourt = await deployContract("CourtExt", []);
+  // await hubContract.assocAdd("GAME_COURT", extCourt.address);
+  await deployContract("CourtExt", []).then(res => {
+    hubContract.assocAdd("GAME_MDAO", res.address);
+    console.log("Deployed Game Extension ", res.address);
+    verify(res.address, []);
+  });
   //Game Extension: mDAO
   await deployContract("MicroDAOExt", []).then(res => {
     hubContract.assocAdd("GAME_MDAO", res.address);
+    console.log("Deployed Game Extension ", res.address);
+    verify(res.address, []);
   });
   //Game Extension: Fund Management
   await deployContract("FundManExt", []).then(res => {
     hubContract.assocAdd("GAME_MDAO", res.address);
+    console.log("Deployed Game Extension ", res.address);
+    verify(res.address, []);
   });
 }
 
@@ -59,17 +68,25 @@ export const deployHub = async (openRepoAddress: String) => {
 /// Verify Contract on Etherscan
 export const verify = async (contractAddress: string, args: any[]) => {
   console.log("Verifying contract...")
-  try {
+  // try {
     await run("verify:verify", {
       address: contractAddress,
       constructorArguments: args,
     })
-  } catch (e: any) {
-    if (e.message.toLowerCase().includes("already verified")) {
-      console.log("Already verified!")
-    } else {
-      console.log(e)
-    }
+    .catch(error => {
+      if (error.message.toLowerCase().includes("already verified")) {
+        console.log("Already verified!");
+      } else {
+        console.log("[CAUGHT] Verification Error: ", error);
+      }
+    });
+
+  // } catch (e: any) {
+  //   if (e.message.toLowerCase().includes("already verified")) {
+  //     console.log("Already verified!");
+  //   } else {
+  //     console.log(e);
+  //   }
   }
 }
 
