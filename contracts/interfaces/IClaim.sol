@@ -64,6 +64,7 @@ interface IClaim {
 
     //--- Events
 
+/* MOVED to Procedure
     /// Claim Stage Change
     event Stage(DataTypes.ClaimStage stage);
 
@@ -75,6 +76,7 @@ interface IClaim {
 
     /// Claim Cancelation Data
     event Cancelled(string uri, address account);
+*/
 
     /// Rule Reference Added
     event RuleAdded(address game, uint256 ruleId);

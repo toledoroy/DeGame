@@ -12,6 +12,7 @@ import "./interfaces/IERC1155RolesTracker.sol";
 import "./interfaces/IGameUp.sol";
 import "./abstract/CTXEntityUpgradable.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
+import "./abstract/Procedure.sol";
 import "./abstract/Posts.sol";
 
 /**
@@ -20,7 +21,8 @@ import "./abstract/Posts.sol";
  */
 contract ClaimUpgradable is IClaim
     , Posts
-    , CTXEntityUpgradable
+    , Procedure
+    // , CTXEntityUpgradable
     // , ProtocolEntityUpgradable
     // , ERC1155RolesTrackerUp 
     {
@@ -41,7 +43,7 @@ contract ClaimUpgradable is IClaim
     // string internal _contract_uri;
 
     //Stage (Claim Lifecycle)
-    DataTypes.ClaimStage public stage;
+    // DataTypes.ClaimStage public stage;
 
     //Rules Reference
     mapping(uint256 => DataTypes.RuleRef) internal _rules;      // Mapping for Claim Rules
@@ -334,6 +336,7 @@ contract ClaimUpgradable is IClaim
         emit Cancelled(uri_, _msgSender());
     }
 
+/* MOVED to Procedure
     /// Change Claim Stage
     function _setStage(DataTypes.ClaimStage stage_) internal {
         //Set Stage
@@ -341,6 +344,7 @@ contract ClaimUpgradable is IClaim
         //Stage Change Event
         emit Stage(stage);
     }
+*/
 
     /* OLDER VERSION
     /// Rule (Action) Confirmed (Currently Only Judging Avatars)
