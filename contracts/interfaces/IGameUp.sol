@@ -38,9 +38,11 @@ interface IGame {
     /// Leave member role in current game
     function leave() external returns (uint256);
 
+
     /// Request to Join
     // function nominate(uint256 soulToken, string memory uri) external;
 
+    /* MOVED UP
     /// Assign Someone to a Role
     function roleAssign(address account, string calldata role) external;
 
@@ -58,7 +60,8 @@ interface IGame {
 
     /// Create a new Role
     // function roleCreate(address account, string calldata role) external;
-
+    */
+    
     /// Set Metadata URI For Role
     function setRoleURI(string memory role, string memory _tokenURI) external;
 

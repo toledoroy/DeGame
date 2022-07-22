@@ -44,28 +44,6 @@ contract ClaimUpgradable is IClaim
     mapping(uint256 => DataTypes.RuleRef) internal _rules;      // Mapping for Claim Rules
     mapping(uint256 => bool) public decision;                   // Mapping for Rule Decisions
     
-    //--- Modifiers
-
-    /// Permissions Modifier
-    modifier AdminOrOwner() {
-       //Validate Permissions
-        require(owner() == _msgSender()      //Owner
-            || roleHas(_msgSender(), "admin")    //Admin Role
-            , "INVALID_PERMISSIONS");
-        _;
-    }
-
-    /// Permissions Modifier
-    modifier AdminOrOwnerOrCTX() {
-       //Validate Permissions
-        require(owner() == _msgSender()      //Owner
-            || roleHas(_msgSender(), "admin")    //Admin Role
-            || msg.sender == getContainerAddr()
-            , "INVALID_PERMISSIONS");
-
-        _;
-    }
-
     //--- Functions
     
     /// ERC165 - Supported Interfaces
@@ -105,70 +83,6 @@ contract ClaimUpgradable is IClaim
         // _roleCreate("affected");    //Affected Party (For reparations)
     }
 
-    /* Maybe, When used more than once
-    /// Set Association
-    function _assocSet(string memory key, address contractAddr) internal {
-        repo().addressSet(key, contractAddr);
-    }
-
-    /// Get Contract Association
-    function assocGet(string memory key) public view override returns (address) {
-        //Return address from the Repo
-        return repo().addressGet(key);
-    }
-    */
-    
-    /// Set Parent Container
-    function _setParentCTX(address container) internal {
-        //Validate
-        require(container != address(0), "Invalid Container Address");
-        require(IERC165(container).supportsInterface(type(IGame).interfaceId), "Implmementation Does Not Support Game Interface");  //Might Cause Problems on Interface Update. Keep disabled for now.
-        //Set to OpenRepo
-        repo().addressSet("container", container);
-        // _assocSet("container", container);
-    }
-    
-    /// Get Container Address
-    function getContainerAddr() internal view returns (address) {
-        // return _game;
-        return repo().addressGet("container");
-    }
-
-    /// Assign to a Role
-    function roleAssign(address account, string memory role) public override roleExists(role) {
-        //Special Validations for Special Roles 
-        if (Utils.stringMatch(role, "admin") || Utils.stringMatch(role, "authority")) {
-            require(getContainerAddr() != address(0), "Unknown Parent Container");
-            //Validate: Must Hold same role in Containing Game
-            require(IERC1155RolesTracker(getContainerAddr()).roleHas(account, role), "User Required to hold same role in the Game context");
-        }
-        else{
-            //Validate Permissions
-            require(
-                owner() == _msgSender()      //Owner
-                || roleHas(_msgSender(), "admin")    //Admin Role
-                || msg.sender == address(_HUB)   //Through the Hub
-                , "INVALID_PERMISSIONS");
-        }
-        //Add
-        _roleAssign(account, role, 1);
-    }
-    
-    /// Assign Tethered Token to a Role
-    function roleAssignToToken(uint256 ownerToken, string memory role) public override roleExists(role) AdminOrOwnerOrCTX {
-        _roleAssignToToken(ownerToken, role, 1);
-    }
-    
-    /// Remove Tethered Token from a Role
-    function roleRemoveFromToken(uint256 ownerToken, string memory role) public override roleExists(role) AdminOrOwner {
-        _roleRemoveFromToken(ownerToken, role, 1);
-    }
-
-    /// Create a new Role
-    function roleCreate(string memory role) external override AdminOrOwnerOrCTX {
-        _roleCreate(role);
-    }
-
     /// Check if Reference ID exists
     function ruleRefExist(uint256 ruleRefId) internal view returns (bool) {
         return (_rules[ruleRefId].game != address(0) && _rules[ruleRefId].ruleId != 0);
@@ -193,30 +107,6 @@ contract ClaimUpgradable is IClaim
         //Validate
         require (ruleRefExist(ruleRefId), "INEXISTENT_RULE_REF_ID");
         return IRules(_rules[ruleRefId].game).effectsGet(_rules[ruleRefId].ruleId);
-    }
-
-    // function post(string entRole, string uri) 
-    // - Post by account + role (in the claim, since an account may have multiple roles)
-
-    // function post(uint256 token_id, string entRole, string uri) 
-    //- Post by Entity (Token ID or a token identifier struct)
-    
-    /// Add Post 
-    /// @param entRole  posting as entitiy in role (posting entity must be assigned to role)
-    /// @param tokenId  Acting SBT Token ID
-    /// @param uri_     post URI
-    function post(string calldata entRole, uint256 tokenId, string calldata uri_) public override {
-        //Validate that User Controls The Token
-        require(ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, _msgSender())
-            || ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, tx.origin)
-            , "POST:SOUL_NOT_YOURS"); //Supports Contract Permissions
-        //Validate: Soul Assigned to the Role 
-        // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
-        require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
-        //Validate Stage
-        require(stage < DataTypes.ClaimStage.Closed, "STAGE:CLOSED");
-        //Post Event
-        _post(tx.origin, tokenId, entRole, uri_);
     }
 
     //--- Rule Reference 
@@ -309,7 +199,6 @@ contract ClaimUpgradable is IClaim
                 emit RuleConfirmed(verdict[i].ruleId);
             }
         }
-
         //Claim is now Closed
         _setStage(DataTypes.ClaimStage.Closed);
         //Emit Verdict Event
@@ -318,12 +207,12 @@ contract ClaimUpgradable is IClaim
 
     /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri_) public override {
-        require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
-        require(stage == DataTypes.ClaimStage.Decision, "STAGE:DECISION_ONLY");
-        //Claim is now Closed
-        _setStage(DataTypes.ClaimStage.Cancelled);
-        //Cancellation Event
-        emit Cancelled(uri_, _msgSender());
+        require(stage <= DataTypes.ClaimStage.Decision, "STAGE:TOO_FAR_ALONG");
+        // require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
+        require(_msgSender() == getContainerAddr() 
+            || roleHas(_msgSender(), "authority") 
+            || roleHas(_msgSender(), "admin") , "ROLE:AUTHORITY_OR_ADMIN");
+        _stageCancel(uri_);
     }
 
     /// Get Token URI by Token ID
@@ -339,6 +228,30 @@ contract ClaimUpgradable is IClaim
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external override AdminOrOwner {
         _setContractURI(contract_uri);
+    }
+
+    // function post(string entRole, string uri) 
+    // - Post by account + role (in the claim, since an account may have multiple roles)
+
+    // function post(uint256 token_id, string entRole, string uri) 
+    //- Post by Entity (Token ID or a token identifier struct)
+    
+    /// Add Post 
+    /// @param entRole  posting as entitiy in role (posting entity must be assigned to role)
+    /// @param tokenId  Acting SBT Token ID
+    /// @param uri_     post URI
+    function post(string calldata entRole, uint256 tokenId, string calldata uri_) public override {
+        //Validate that User Controls The Token
+        require(ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, _msgSender())
+            || ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, tx.origin)
+            , "POST:SOUL_NOT_YOURS"); //Supports Contract Permissions
+        //Validate: Soul Assigned to the Role 
+        // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
+        require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
+        //Validate Stage
+        require(stage < DataTypes.ClaimStage.Closed, "STAGE:CLOSED");
+        //Post Event
+        _post(tx.origin, tokenId, entRole, uri_);
     }
 
 }

@@ -15,6 +15,7 @@ import "./interfaces/IGameUp.sol";
 import "./interfaces/IRules.sol";
 import "./interfaces/IClaim.sol";
 import "./interfaces/IActionRepo.sol";
+import "./interfaces/ICTXEntityUpgradable.sol";
 import "./public/interfaces/IVotesRepoTracker.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
 // import "./abstract/ProtocolEntityUpgradable.sol";
@@ -74,14 +75,14 @@ contract GameUpgradable is IGame
     //--- Modifiers
 
     /// Check if GUID Exists
-    modifier AdminOrOwner() {
-       //Validate Permissions
-        require(owner() == _msgSender()      //Owner
-            // || roleHas(_msgSender(), "admin")    //Admin Role
-            || roleHas(tx.origin, "admin")    //Admin Role
-            , "INVALID_PERMISSIONS");
-        _;
-    }
+    // modifier AdminOrOwner() {
+    //    //Validate Permissions
+    //     require(owner() == _msgSender()      //Owner
+    //         // || roleHas(_msgSender(), "admin")    //Admin Role
+    //         || roleHas(tx.origin, "admin")    //Admin Role
+    //         , "INVALID_PERMISSIONS");
+    //     _;
+    // }
 
     //--- Functions
 
@@ -301,6 +302,7 @@ contract GameUpgradable is IGame
     //     emit Nominate(_msgSender(), soulToken, uri_);
     // }
 
+    /* MOVED UP
     /// Assign Someone Else to a Role
     function roleAssign(address account, string memory role) public override roleExists(role) AdminOrOwner {
         _roleAssign(account, role, 1);
@@ -326,6 +328,7 @@ contract GameUpgradable is IGame
         roleAssign(account, roleNew);
         roleRemove(account, roleOld);
     }
+    */
 
     /** TODO: DEPRECATE - Allow Uneven Role Distribution 
     * @dev Hook that is called before any token transfer. This includes minting and burning, as well as batched variants.

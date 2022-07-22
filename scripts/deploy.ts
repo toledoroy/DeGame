@@ -88,13 +88,11 @@ async function main() {
 
     //Deploy All Game Extensions & Set to Hub
     deployGameExt(hubContract);
-
     //Set RuleRepo to Hub
     hubContract.assocSet("RULE_REPO", publicAddr.ruleRepo);
-
+    
     //Set Address
     contractAddr.hub = hubContract.address;
-    // console.log("HubUpgradable deployed to:", hubContract.address);    
 
     //Log
     console.log("Deployed Hub Upgradable Contract to " + contractAddr.hub+ " game: "+contractAddr.game+ " Claim: "+ contractAddr.claim);

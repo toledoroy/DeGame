@@ -18,18 +18,6 @@ interface IClaim {
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
 
-    /// Create a new Role
-    function roleCreate(string memory role) external;
-
-    /// Assign Someone to a Role
-    function roleAssign(address account, string calldata role) external;
-
-    /// Assign Tethered Token to a Role
-    function roleAssignToToken(uint256 ownerToken, string memory role) external;
-        
-    /// Remove Tethered Token from a Role
-    function roleRemoveFromToken(uint256 ownerToken, string memory role) external;
-
     /// File the Claim (Validate & Open Discussion)  --> Open
     function stageFile() external;
 

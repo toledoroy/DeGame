@@ -21,6 +21,17 @@ abstract contract CTXEntityUpgradable is
     ProtocolEntityUpgradable,
     ERC1155RolesTrackerUp {
 
+    //--- Modifiers
+
+    /// Permissions Modifier
+    modifier AdminOrOwner() virtual {
+       //Validate Permissions
+        require(owner() == _msgSender()      //Owner
+            || roleHas(tx.origin, "admin")    //Admin Role
+            || roleHas(_msgSender(), "admin")    //Admin Role
+            , "INVALID_PERMISSIONS");
+        _;
+    }
 
     //-- Functions
 
@@ -34,5 +45,40 @@ abstract contract CTXEntityUpgradable is
     function nominate(uint256 soulToken, string memory uri_) public override {
         emit Nominate(_msgSender(), soulToken, uri_);
     }
+
+    //** Role Management
+    
+    /// Create a new Role
+    function roleCreate(string memory role) external virtual override AdminOrOwner {
+        _roleCreate(role);
+    }
+
+    /// Assign Someone Else to a Role
+    function roleAssign(address account, string memory role) public virtual override roleExists(role) AdminOrOwner {
+        _roleAssign(account, role, 1);
+    }
+
+    /// Assign Tethered Token to a Role
+    function roleAssignToToken(uint256 ownerToken, string memory role) public virtual override roleExists(role) AdminOrOwner {
+        _roleAssignToToken(ownerToken, role, 1);
+    }
+
+    /// Remove Someone Else from a Role
+    function roleRemove(address account, string memory role) public virtual override roleExists(role) AdminOrOwner {
+        _roleRemove(account, role, 1);
+    }
+
+    /// Remove Tethered Token from a Role
+    function roleRemoveFromToken(uint256 ownerToken, string memory role) public virtual override roleExists(role) AdminOrOwner {
+        _roleRemoveFromToken(ownerToken, role, 1);
+    }
+
+    /// Change Role Wrapper (Add & Remove)
+    function roleChange(address account, string memory roleOld, string memory roleNew) external virtual override {
+        roleAssign(account, roleNew);
+        roleRemove(account, roleOld);
+    }
+    
+
 
 }

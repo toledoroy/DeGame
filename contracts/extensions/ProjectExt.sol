@@ -7,6 +7,7 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 // import "./interfaces/IProjectExt.sol";
 import "../abstract/GameExtension.sol";
+import "../interfaces/ICTXEntityUpgradable.sol";
 import "../interfaces/IClaim.sol";
 
 /**
@@ -28,7 +29,7 @@ contract ProjectExt is GameExtension {
         _registerNewClaim(claimContract);
 
         //Create Custom Roles
-        IClaim(claimContract).roleCreate("applicant");    //Applicants (Can Deliver Results)
+        ICTXEntityUpgradable(claimContract).roleCreate("applicant");    //Applicants (Can Deliver Results)
         //Fund Task
         if(msg.value > 0){
             // console.log("Moving ETH to New Contract", msg.value);
@@ -41,7 +42,7 @@ contract ProjectExt is GameExtension {
         /*
         //Assign Roles
         for (uint256 i = 0; i < assignRoles.length; ++i) {
-            IClaim(claimContract).roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role);
+            ICTXEntityUpgradable(claimContract).roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role);
         }
         //Add Rules
         for (uint256 i = 0; i < rules.length; ++i) {

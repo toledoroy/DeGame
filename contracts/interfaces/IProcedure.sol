@@ -7,7 +7,6 @@ interface IProcedure {
 
     //-- Functions
 
-
     //--- Events
 
     /// Claim Stage Change

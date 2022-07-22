@@ -104,29 +104,9 @@ contract TaskUpgradable is ITask
     function disburse(address[] memory tokens) public override {
         //Validate Stage
         // require(stage == DataTypes.ClaimStage.Execution || stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
-        require(stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
-        
+        require(stage == DataTypes.ClaimStage.Closed , "STAGE:CLOSED");
         //Send to Subject(s)
         _splitAndSend("subject", tokens);
-        /* MOVED to _splitAndSend()
-        //Get members in roles (subjects)
-        uint256[] memory sbts = uniqueRoleMembers("subject");
-        
-        //Disburse Native Token
-        uint256 tokenBalanceNative = contractBalance(address(0));
-        if (tokenBalanceNative > 0){
-            _disburse(address(0), sbts, tokenBalanceNative/sbts.length);
-        }
-
-        //Disburse Any Additional ERC20 Token
-        for (uint256 i = 0; i < tokens.length; i++) {
-            uint256 tokenBalance = contractBalance(tokens[i]);
-            //Disburse ERC20 Tokens
-            if (tokenBalance > 0){
-                _disburse(tokens[i], sbts, tokenBalance/sbts.length);
-            }
-        }
-        */
     }
 
     /// Cancel Task

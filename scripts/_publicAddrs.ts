@@ -1,5 +1,9 @@
 //Track Addresses (Fill in present addresses to user existing deplopyment)
 const publicAddr: any = {
+  hardhat:{
+    openRepo: "",
+    ruleRepo: "",
+  },
   rinkeby:{
     openRepo: "0x7b0AA37bCf5D231C13C920E0e372027919510fF9", //D2.0 (UUPS)
     ruleRepo: "0xa14C272e1D6BE9c89933e2Ad8560e83F945Ee407", //D1.0

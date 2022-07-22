@@ -1,4 +1,4 @@
-        // DataTypes.Rule memory rule = ruleGet(ruleId);
+// DataTypes.Rule memory rule = ruleGet(ruleId);
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
@@ -107,7 +107,7 @@ describe("Protocol", function () {
   /**
    * Action Repository
    */
-   describe("Action Repository", function () {
+    describe("Action Repository", function () {
   
     it("Should store Actions", async function () {
       let action = {
@@ -162,13 +162,22 @@ describe("Protocol", function () {
       expect(await avatarContract.tokenURI(soulTokenId)).to.equal(test_uri);
       ++soulTokenId;
       
+      await avatarContract.connect(owner).mint(test_uri);
+      soulTokens.owner = await avatarContract.tokenByAddress(this.ownerAddr);
+      ++soulTokenId;
+
+      await avatarContract.connect(admin).mint(test_uri);
+      soulTokens.admin = await avatarContract.tokenByAddress(this.adminAddr);
+      ++soulTokenId;
+      
+      await avatarContract.connect(admin2).mint(test_uri);
+      soulTokens.admin2 = await avatarContract.tokenByAddress(this.admin2Addr);
+      ++soulTokenId;
+
       await avatarContract.connect(tester2).mint(test_uri);
       soulTokens.tester2 = await avatarContract.tokenByAddress(this.tester2Addr);
       ++soulTokenId;
 
-      await avatarContract.connect(admin2).mint(test_uri);
-      soulTokens.admin2 = await avatarContract.tokenByAddress(this.admin2Addr);
-      ++soulTokenId;
     });
 
     it("Can mint only one", async function () {
@@ -296,17 +305,18 @@ describe("Protocol", function () {
     
     before(async function () {
       //Mint Avatars for Participants
-      await avatarContract.connect(owner).mint(test_uri);
-      await avatarContract.connect(admin).mint(test_uri);
+      // await avatarContract.connect(owner).mint(test_uri);
+      // await avatarContract.connect(admin).mint(test_uri);
       // await avatarContract.connect(tester3).mint(test_uri);
       await avatarContract.connect(tester4).mint(test_uri);
       await avatarContract.connect(tester5).mint(test_uri);
       await avatarContract.connect(authority).mint(test_uri);
-      soulTokenId = soulTokenId + 5;
+      soulTokenId = soulTokenId + 3;
       let game = {
         name: "Test Game",
         type: "",
       };
+
 
       //Simulate to Get New Game Address
       let gameAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
@@ -365,10 +375,13 @@ describe("Protocol", function () {
       //Check Membership
       expect(await this.gameContract.roleHas(this.tester3Addr, "member")).to.equal(true);
       // expect(await this.gameContract.roleHas(this.tester5Addr, "member")).to.equal(false);
+
       //Should Fail - No Avatar For Contract
-      await expect(
-        this.gameContract.roleHas(this.tester5Addr, "member")
-      ).to.be.revertedWith("ERC1155Tracker: requested account not found on source contract");
+      // await expect(
+      //   this.gameContract.roleHas(this.tester5Addr, "member")
+      // ).to.be.revertedWith("ERC1155Tracker: requested account not found on source contract");
+      //Should Not Fail. 0/False if does not exist
+      expect(await this.gameContract.roleHas(this.tester5Addr, "member")).to.equal(false);
     });
 
     it("Users can leave", async function () {
@@ -466,7 +479,7 @@ describe("Protocol", function () {
         {name:'environmental', value:10, direction:false},
         {name:'personal', value:4, direction:true},
       ];
-     
+      
       //Add Rule
       let tx = await gameContract.connect(admin).ruleAdd(rule, confirmation, effects1);
       // const gameRules = await ethers.getContractAt("IRules", this.gameContract.address);
@@ -653,8 +666,8 @@ describe("Protocol", function () {
   }); //Game
 
   /**
-   * Projects Flow
-   */
+    * Projects Flow
+    */
   describe("Project Game Flow", function () {
 
     before(async function () {
@@ -690,9 +703,11 @@ describe("Protocol", function () {
       ++soulTokenId;
 
       //Init Game Contract Object
-      this.projectGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameProjAddr));
+      // this.projectGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameProjAddr));
+      this.projectGameContract = await ethers.getContractAt('GameUpgradable', gameProjAddr);
       //Attach Project Functionality
-      this.projectContract = await ethers.getContractFactory("ProjectExt").then(res => res.attach(gameProjAddr));
+      // this.projectContract = await ethers.getContractFactory("ProjectExt").then(res => res.attach(gameProjAddr));
+      this.projectContract = await ethers.getContractAt('ProjectExt', gameProjAddr);
 
       //Soul Tokens
       soulTokens.mDAO1 = await avatarContract.tokenByAddress(gameMDAOAddr);
@@ -712,7 +727,8 @@ describe("Protocol", function () {
       // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
       this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri, {value}); //Fund on Creation
       //Attach
-      this.task1 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
+      // this.task1 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
+      this.task1 = await ethers.getContractAt('TaskUpgradable', taskAddr, admin);
     });
 
     it("Should Fund Task (ETH)", async function () {
@@ -726,7 +742,7 @@ describe("Protocol", function () {
     });
 
     it("Should Fund Task (ERC20)", async function () {
-      await this.token.transfer(this.task1.address, 1);
+      await this.token.connect(admin).transfer(this.task1.address, 1);
       //Verify Transfer
       expect(await this.token.balanceOf(this.task1.address))
         .to.equal(1);
@@ -823,14 +839,74 @@ describe("Protocol", function () {
 
     });
 
-    /// Cancel Task
-    // it("[TODO] Should Cancel Task", async function () { });
+    /**
+      * Projects Flow
+      */
+    describe("Project Game Flow (Cancellation)", function () {
 
-    /// Refund -- Send Tokens back to Task Creator
-    // it("[TODO] Should Refund Toknes to Task Creator", async function () { });
+      before(async function () {
+
+      });
+
+      
+      it("Project Should Create a new Task ", async function () {
+        let value = 100; //ethers.utils.parseEther(0.001);
+        let taskData = {name: "Test Task", uri: test_uri2};
+        let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.name, taskData.uri);
+        // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
+        this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri, {value}); //Fund on Creation
+        //Attach
+        this.task2 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
+        // this.task2Procedure = await ethers.getContractFactory("IProcedure").then(res => res.attach(taskAddr));
+
+        this.task2Procedure = await ethers.getContractAt('Procedure', taskAddr, admin);
 
 
-  }); //Projects Game Flow
+      });
+      
+      it("Should Fund Task (ETH)", async function () {
+        let curBalance = await this.task2.contractBalance(ZERO_ADDR);
+        let value = 100; //ethers.utils.parseEther(0.001);
+        //Sent Native Tokens
+        await admin.sendTransaction({to: this.task2.address, value});
+        //Validate Balance
+        expect(await this.task2.contractBalance(ZERO_ADDR))
+          .to.equal(Number(curBalance) + Number(value));
+      });
+
+      it("Should Fund Task (ERC20)", async function () {
+        await this.token.transfer(this.task2.address, 1);
+        //Verify Transfer
+        expect(await this.token.balanceOf(this.task2.address))
+          .to.equal(1);
+        expect(await this.task2.contractBalance(this.token.address))
+          .to.equal(1);
+      });
+
+      it("[TODO] Should Cancel Task", async function () { 
+        let balanceBefore:any = {};
+        balanceBefore.native = await this.task2.contractBalance(ZERO_ADDR);
+        balanceBefore.token = await this.task2.contractBalance(this.token.address);
+        let balanceAdminBefore:any = {};
+        balanceAdminBefore.native = await admin.getBalance();
+        balanceAdminBefore.token = await this.token.balanceOf(this.adminAddr);
+        // console.log("Balance Before", balanceBefore, balanceAdminBefore);
+
+        //Cancel Task
+        let tx = await this.task2.connect(admin).cancel(test_uri, [this.token.address]);
+        await expect(tx).to.emit(this.task2Procedure, 'Cancelled').withArgs(test_uri, this.adminAddr);
+        //Expect Refund & Check Task Creator's Balance
+        expect(await this.token.balanceOf(this.adminAddr)).to.equal(Number(balanceAdminBefore.token) + Number(balanceBefore.token));
+        // expect(await admin.getBalance()).to.equal( balanceAdminBefore.native.add(balanceBefore.native) );  //...Gas?
+      });
+
+      /// Refund -- Send Tokens back to Task Creator
+      // it("[TODO] Should Refund Toknes to Task Creator", async function () { });
+
+    }); //Cancelled Task Flow
+
+
+  }); // Game Flow
 
   /**
    * Court Flow
