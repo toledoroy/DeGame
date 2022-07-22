@@ -37,11 +37,6 @@ contract ClaimUpgradable is IClaim
     string public symbol;
     // string public constant symbol = "CLAIM";
 
-    //Game
-    // address private _game;
-    //Contract URI
-    // string internal _contract_uri;
-
     //Stage (Claim Lifecycle)
     // DataTypes.ClaimStage public stage;
 
