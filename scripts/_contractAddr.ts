@@ -18,8 +18,8 @@ const contractAddr: any = {
   },
   mumbai:{
     game: "0x57d1469c53Bb259Dc876A274ADd329Eb703Ab286", // D2.91
-    claim: "0xED7621062a097f95183edC753e185B4f75d4B637", // D2.8
-    task: "",
+    claim: "", // D2.8
+    task: "0x",
     hub: "0x47307dEBB584C680E51dAFb167622ce9633c2Acf", // D4.6 (Proxy)
     avatar: "0xFe61dc25C3B8c3F990bCea5bb901704B2a8b9Bd2", // D2.8 (Proxy)
     history: "0x95BD98a656C907fC037aF87Ea740fD94188Cd65f", // D4.4 (Proxy)
@@ -33,12 +33,12 @@ const contractAddr: any = {
     history:"",
   },
   optimism_kovan:{
-    game: "0x086C1A95773a1ec76F5D8C7350B5D220cbcc640A",
-    claim: "0xCC32bD878C0781800A38249Cdb206A844678E5F1",
-    task: "",
-    hub: "0x145b34E3BB516FBC47968984dbe0b463f03F32cF",
-    avatar: "0x93f5D16e5c590849CdCb4c0CC5666C4c927c92B8",
-    history: "0xce5F671e5e2C9c122e09Fe323aB0840155ab1D60",
+    game: "0xCFeE012952A2ECf7482790aB3EAe15Bd28AE5ae8", //0.5.1
+    claim: "0xF351C1b7a86E38B59D6Bf0C054Cbf710105b4F0a", //0.5.1
+    task: "0x59fC460631864A869404F3E79149d2Ac33C24301", //0.5.1
+    hub: "0x274e54BFFDbb94442FC8Df155d47b42BEF90c76B", //0.5.1
+    avatar: "0x5d15e4713fA815D0E9c1B5186C80c689a9a6cA21", //0.5.1
+    history: "0x954b877d371F88238DD7A749BF01758e5f20C3C2", //0.5.1
   },
 };
 
