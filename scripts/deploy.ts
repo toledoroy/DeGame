@@ -158,11 +158,6 @@ async function main() {
       console.log("Updated History to: ", contractAddr.history);
     }
     // else console.log("Not the same", contractAddr.history, ZERO_ADDR, (assoc.history == ZERO_ADDR));
-
-    
-    //Deploy All Game Extensions & Set to Hub
-    deployGameExt(hubContract);
-
   }
 
 }

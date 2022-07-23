@@ -25,20 +25,20 @@ export const deployGameExt = async (hubContract: Contract) => {
   // await hubContract.assocAdd("GAME_COURT", extCourt.address);
   await deployContract("CourtExt", []).then(res => {
     hubContract.assocSet("GAME_MDAO", res.address);
-    console.log("Deployed Game Extension ", res.address);
-    verify(res.address, []);
+    console.log("Deployed Game assocAdd Extension ", res.address);
+    // verify(res.address, []);
   });
   //Game Extension: mDAO
   await deployContract("MicroDAOExt", []).then(res => {
     hubContract.assocSet("GAME_MDAO", res.address);
-    console.log("Deployed Game Extension ", res.address);
-    verify(res.address, []);
+    console.log("Deployed Game MicroDAOExt Extension ", res.address);
+    // verify(res.address, []);
   });
   //Game Extension: Fund Management
   await deployContract("FundManExt", []).then(res => {
     hubContract.assocAdd("GAME_MDAO", res.address);
-    console.log("Deployed Game Extension ", res.address);
-    verify(res.address, []);
+    console.log("Deployed Game FundManExt Extension ", res.address);
+    // verify(res.address, []);
   });
 }
 
