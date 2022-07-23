@@ -19,17 +19,18 @@ export const deployUUPS = async (contractName: string, args: any[]) => {
 
 /// Deploy Game Extensions
 export const deployGameExt = async (hubContract: Contract) => {
+  console.log("Start Deploying Game Extensions...");
   //Game Extension: Court of Law
   // let extCourt = await deployContract("CourtExt", []);
   // await hubContract.assocAdd("GAME_COURT", extCourt.address);
   await deployContract("CourtExt", []).then(res => {
-    hubContract.assocAdd("GAME_MDAO", res.address);
+    hubContract.assocSet("GAME_MDAO", res.address);
     console.log("Deployed Game Extension ", res.address);
     verify(res.address, []);
   });
   //Game Extension: mDAO
   await deployContract("MicroDAOExt", []).then(res => {
-    hubContract.assocAdd("GAME_MDAO", res.address);
+    hubContract.assocSet("GAME_MDAO", res.address);
     console.log("Deployed Game Extension ", res.address);
     verify(res.address, []);
   });
@@ -87,7 +88,7 @@ export const verify = async (contractAddress: string, args: any[]) => {
   //   } else {
   //     console.log(e);
   //   }
-  }
+  // }
 }
 
 
