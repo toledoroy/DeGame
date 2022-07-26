@@ -24,6 +24,10 @@ abstract contract Procedure is IProcedure
     //Stage (Claim Lifecycle)
     DataTypes.ClaimStage public stage;
 
+    // Contract name
+    string public name;
+    // Contract symbol
+    string public symbol;
 
     //--- Modifiers
 
@@ -73,6 +77,34 @@ abstract contract Procedure is IProcedure
     }
     */
 
+    /// Initializer
+    function initialize (
+        address container,
+        string memory name_, 
+        string calldata uri_
+    ) public virtual override initializer {
+        //Initializers
+        // __ProtocolEntity_init(hub);
+        __ProtocolEntity_init(msg.sender);
+        __setTargetContract(getSoulAddr());
+        //Set Parent Container
+        _setParentCTX(container);
+        //Set Contract URI
+        _setContractURI(uri_);
+        //Identifiers
+        name = name_;
+        //Auto-Set Creator Wallet as Admin
+        _roleAssign(tx.origin, "admin", 1);
+        _roleAssign(tx.origin, "creator", 1);
+        //Init Default Claim Roles
+        // _roleCreate("admin");
+        // _roleCreate("creator");     //Filing the claim
+        _roleCreate("subject");        //Acting Agent
+        _roleCreate("authority");      //Deciding authority
+        //Custom Roles
+        // _roleCreate("witness");     //Witnesses
+        // _roleCreate("affected");    //Affected Party (For reparations)
+    }
     /// Change Claim Stage
     function _setStage(DataTypes.ClaimStage stage_) internal {
         //Set Stage

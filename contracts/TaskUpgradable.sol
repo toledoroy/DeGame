@@ -8,6 +8,7 @@ import "./abstract/CTXEntityUpgradable.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
 // import "./abstract/Posts.sol";
 import "./abstract/Escrow.sol";
+import "./abstract/Procedure.sol";
 import "./interfaces/ITask.sol";
 
 /**
@@ -18,7 +19,7 @@ import "./interfaces/ITask.sol";
  * [TODO] Protocol Treasury Donation
  */
 contract TaskUpgradable is ITask
-    , ClaimUpgradable
+    , Procedure
     , Escrow
     {
 
@@ -114,7 +115,17 @@ contract TaskUpgradable is ITask
         _splitAndSend("subject", tokens);
     }
 
-    /// Cancel Task
+    /// Stage: Cancel
+    function stageCancel(string calldata uri_) public {
+        require(stage <= DataTypes.ClaimStage.Decision, "STAGE:TOO_FAR_ALONG");
+        // require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
+        require(_msgSender() == getContainerAddr() 
+            || roleHas(_msgSender(), "authority") 
+            || roleHas(_msgSender(), "admin") , "ROLE:AUTHORITY_OR_ADMIN");
+        _stageCancel(uri_);
+    }
+
+    /// Cancel Task + Refund
     function cancel(string calldata uri_, address[] memory tokens) public override {
         //Cancelltaion Procedure
         stageCancel(uri_);

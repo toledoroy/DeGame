@@ -7,6 +7,13 @@ interface IProcedure {
 
     //-- Functions
 
+    /// Initialize
+    function initialize(
+        address container, 
+        string memory name_, 
+        string calldata uri_
+    ) external;
+
     /// Add Post 
     function post(string calldata entRole, uint256 tokenId, string calldata uri) external;
 

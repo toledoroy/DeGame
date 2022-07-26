@@ -8,12 +8,12 @@ interface IClaim {
     
     //-- Functions
 
-    /// Initialize
-    function initialize(
-        address container, 
-        string memory name_, 
-        string calldata uri_
-    ) external;
+    // /// Initialize
+    // function initialize(
+    //     address container, 
+    //     string memory name_, 
+    //     string calldata uri_
+    // ) external;
 
     /// File the Claim (Validate & Open Discussion)  --> Open
     function stageFile() external;

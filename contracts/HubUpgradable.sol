@@ -16,6 +16,7 @@ import "./interfaces/IProtocolEntity.sol";
 import "./interfaces/IHub.sol";
 import "./interfaces/IGameUp.sol";
 import "./interfaces/IClaim.sol";
+import "./interfaces/IProcedure.sol";
 // import "./interfaces/ITask.sol";
 import "./interfaces/ISoul.sol";
 import "./interfaces/IRules.sol";
@@ -197,7 +198,7 @@ contract HubUpgradable is
         BeaconProxy newClaimProxy = new BeaconProxy(
             _beacons["claim"],
             abi.encodeWithSelector(
-                IClaim( payable(address(0)) ).initialize.selector,
+                IProcedure( payable(address(0)) ).initialize.selector,
                 _msgSender(),   //Birth Parent (Container)
                 name_,          //Name
                 uri_            //Contract URI
@@ -230,7 +231,7 @@ contract HubUpgradable is
         BeaconProxy newTaskProxy = new BeaconProxy(
             _beacons["task"],
             abi.encodeWithSelector(
-                IClaim( payable(address(0)) ).initialize.selector,
+                IProcedure( payable(address(0)) ).initialize.selector,
                 _msgSender(),   //Birth Parent (Container)
                 name_,          //Name
                 uri_            //Contract URI

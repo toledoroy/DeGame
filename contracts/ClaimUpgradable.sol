@@ -26,10 +26,10 @@ contract ClaimUpgradable is IClaim
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter internal _ruleIds;  //Track Last Rule ID
 
-    // Contract name
-    string public name;
-    // Contract symbol
-    string public symbol;
+    // // Contract name
+    // string public name;
+    // // Contract symbol
+    // string public symbol;
     // string public constant symbol = "CLAIM";
 
     //Rules Reference
@@ -51,7 +51,10 @@ contract ClaimUpgradable is IClaim
         string memory name_, 
         string calldata uri_
     ) public virtual override initializer {
+        super.initialize(container, name_, uri_);
+
         symbol = "CLAIM";
+        /* MOVED UPSTREAM
         //Initializers
         // __ProtocolEntity_init(hub);
         __ProtocolEntity_init(msg.sender);
@@ -73,6 +76,7 @@ contract ClaimUpgradable is IClaim
         //Custom Roles
         // _roleCreate("witness");     //Witnesses
         // _roleCreate("affected");    //Affected Party (For reparations)
+        */
     }
 
     /// Check if Reference ID exists
@@ -167,7 +171,7 @@ contract ClaimUpgradable is IClaim
         _setStage(DataTypes.ClaimStage.Decision);
     }   
 
-    /// Claim Stage: Place Verdict  --> Closed
+    /// Stage: Place Verdict  --> Closed
     function stageDecision(DataTypes.InputDecision[] calldata verdict, string calldata uri_) public override {
         require(_msgSender() == getContainerAddr()  //Parent Contract
             || roleHas(_msgSender(), "authority")   //Authority
@@ -197,7 +201,7 @@ contract ClaimUpgradable is IClaim
         emit Verdict(uri_, tx.origin);
     }
 
-    /// Claim Stage: Reject Claim --> Cancelled
+    /// Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri_) public override {
         require(stage <= DataTypes.ClaimStage.Decision, "STAGE:TOO_FAR_ALONG");
         // require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");

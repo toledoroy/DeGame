@@ -6,7 +6,7 @@ interface ICTXEntityUpgradable {
     //--- Functions
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri) external;
+    function nominate(uint256 sbt, string memory uri_) external;
 
     /// Create a new Role
     function roleCreate(string calldata role) external;
