@@ -22,7 +22,7 @@ interface ICTXEntityUpgradable {
     function roleRemove(address account, string calldata role) external;
 
     /// Remove Tethered Token from a Role
-    function roleRemoveFromToken(uint256 ownerToken, string memory role) external;
+    function roleRemoveFromToken(uint256 sbt, string memory role) external;
 
     /// Change Role Wrapper (Add & Remove)
     function roleChange(address account, string memory roleOld, string memory roleNew) external;

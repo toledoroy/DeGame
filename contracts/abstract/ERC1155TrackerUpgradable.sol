@@ -104,15 +104,15 @@ abstract contract ERC1155TrackerUpgradable is
         // return _balances[id][getExtTokenId(account)];
         // return balanceOfToken(getExtTokenId(account), id);
         return balanceOfToken(_getExtTokenId(account), id); //Won't Fail if Token Doesn't Exist
-        // uint256 sbtId = _getExtTokenId(account);
-        // return balanceOfToken(sbtId, id);
+        // uint256 sbt = _getExtTokenId(account);
+        // return balanceOfToken(sbt, id);
     }
 
     /**
      * Check balance by External Token ID
      */
-    function balanceOfToken(uint256 extTokenId, uint256 id) public view override returns (uint256) {
-        return _balances[id][extTokenId];
+    function balanceOfToken(uint256 sbt, uint256 id) public view override returns (uint256) {
+        return _balances[id][sbt];
     }
 
     /**
@@ -215,21 +215,21 @@ abstract contract ERC1155TrackerUpgradable is
 
         _beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
-        uint256 ownerFrom = _getExtTokenId(from);
-        uint256 ownerTo = _getExtTokenId(to);
+        uint256 sbtFrom = _getExtTokenId(from);
+        uint256 sbtTo = _getExtTokenId(to);
 
         // uint256 fromBalance = _balances[id][from];
-        uint256 fromBalance = _balances[id][ownerFrom];
+        uint256 fromBalance = _balances[id][sbtFrom];
         require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
         unchecked {
             // _balances[id][from] = fromBalance - amount;
-            _balances[id][ownerFrom] = fromBalance - amount;
+            _balances[id][sbtFrom] = fromBalance - amount;
         }
         // _balances[id][to] += amount;
-        _balances[id][ownerTo] += amount;
+        _balances[id][sbtTo] += amount;
 
         emit TransferSingle(operator, from, to, id, amount);
-        emit TransferByToken(operator, ownerFrom, ownerTo, id, amount);
+        emit TransferByToken(operator, sbtFrom, sbtTo, id, amount);
 
         _afterTokenTransfer(operator, from, to, ids, amounts, data);
 
@@ -260,26 +260,26 @@ abstract contract ERC1155TrackerUpgradable is
 
         _beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
-        uint256 ownerFrom = _getExtTokenId(from);
-        uint256 ownerTo = _getExtTokenId(to);
+        uint256 sbtFrom = _getExtTokenId(from);
+        uint256 sbtTo = _getExtTokenId(to);
 
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
             // uint256 fromBalance = _balances[id][from];
-            uint256 fromBalance = _balances[id][ownerFrom];
+            uint256 fromBalance = _balances[id][sbtFrom];
             require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
             unchecked {
                 // _balances[id][from] = fromBalance - amount;
-                _balances[id][ownerFrom] = fromBalance - amount;
+                _balances[id][sbtFrom] = fromBalance - amount;
             }
             // _balances[id][to] += amount;
-            _balances[id][ownerTo] += amount;
+            _balances[id][sbtTo] += amount;
         }
 
         emit TransferBatch(operator, from, to, ids, amounts);
-        emit TransferBatchByToken(operator, ownerFrom, ownerTo, ids, amounts);
+        emit TransferBatchByToken(operator, sbtFrom, sbtTo, ids, amounts);
 
         _afterTokenTransfer(operator, from, to, ids, amounts, data);
 
@@ -379,21 +379,21 @@ abstract contract ERC1155TrackerUpgradable is
         require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
 
         address operator = _msgSender();
-        uint256 toToken = getExtTokenId(to);
+        uint256 sbtTo = getExtTokenId(to);
 
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
-        _beforeTokenTransferTracker(operator, 0, toToken, ids, amounts, data);
+        _beforeTokenTransferTracker(operator, 0, sbtTo, ids, amounts, data);
 
         for (uint256 i = 0; i < ids.length; i++) {
             // _balances[ids[i]][to] += amounts[i];
-            _balances[ids[i]][toToken] += amounts[i];
+            _balances[ids[i]][sbtTo] += amounts[i];
         }
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
-        emit TransferBatchByToken(operator, 0, toToken, ids, amounts);
+        emit TransferBatchByToken(operator, 0, sbtTo, ids, amounts);
 
         _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
-        _afterTokenTransferTracker(operator, 0, toToken, ids, amounts, data);
+        _afterTokenTransferTracker(operator, 0, sbtTo, ids, amounts, data);
 
         // _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
     }

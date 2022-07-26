@@ -279,11 +279,11 @@ contract HubUpgradable is
     /// Mint an SBT for another account
     function mintForAccount(address account, string memory tokenURI) external override activeGame returns (uint256) {
         address SBTAddress = repo().addressGet("SBT");
-        // uint256 extToken = ISoul(SBTAddress).tokenByAddress(account);
-        uint256 extToken = ISoul(SBTAddress).mintFor(account, tokenURI);
+        // uint256 sbt = ISoul(SBTAddress).tokenByAddress(account);
+        uint256 sbt = ISoul(SBTAddress).mintFor(account, tokenURI);
         //Validate
-        require(extToken != 0, "Failed to Mint Token");
-        return extToken;
+        require(sbt != 0, "Failed to Mint Token");
+        return sbt;
     }
 
     //--- Upgrades
