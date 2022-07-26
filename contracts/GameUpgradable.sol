@@ -74,18 +74,7 @@ contract GameUpgradable is IGame
 
     //--- Modifiers
 
-    /// Check if GUID Exists
-    // modifier AdminOrOwner() {
-    //    //Validate Permissions
-    //     require(owner() == _msgSender()      //Owner
-    //         // || roleHas(_msgSender(), "admin")    //Admin Role
-    //         || roleHas(tx.origin, "admin")    //Admin Role
-    //         , "INVALID_PERMISSIONS");
-    //     _;
-    // }
-
     //--- Functions
-
 
     /** For VotesUpgradeable
      * @dev Returns the balance of `account`.
