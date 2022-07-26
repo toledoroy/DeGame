@@ -49,6 +49,12 @@ abstract contract Procedure is IProcedure
 
     //-- Functions
 
+    /// ERC165 - Supported Interfaces
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IProcedure).interfaceId 
+            || super.supportsInterface(interfaceId);
+    }
+    
     /* Maybe, When used more than once
 
     // function nextStage(string calldata uri) public {
