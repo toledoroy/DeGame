@@ -191,7 +191,6 @@ abstract contract Procedure is IProcedure
             || ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, tx.origin)
             , "POST:SOUL_NOT_YOURS"); //Supports Contract Permissions
         //Validate: Soul Assigned to the Role 
-        // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
         //Validate Stage
         require(stage < DataTypes.ClaimStage.Closed, "STAGE:CLOSED");
