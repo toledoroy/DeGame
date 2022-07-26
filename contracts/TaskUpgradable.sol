@@ -72,6 +72,7 @@ contract TaskUpgradable is ITask
     }
 
     /// Approve Delivery (Close Case w/Positive Verdict)
+    /// @dev only Authority by inheritance 
     function deliveryApprove(uint256 sbtId) external override {
         //Validate Stage
         require(stage < DataTypes.ClaimStage.Closed , "STAGE:TOO_LATE");
@@ -85,7 +86,7 @@ contract TaskUpgradable is ITask
 
     /// Execute Reaction
     /// @param tokens address of all tokens to be disbursed
-    function stageExecusion(address[] memory tokens) public {
+    function stageExecusion(address[] memory tokens) public AdminOrOwner {
         //Validate Stage
         require(stage == DataTypes.ClaimStage.Execution , "STAGE:EXECUSION_ONLY");
         //Validate Stage Requirements
@@ -102,9 +103,13 @@ contract TaskUpgradable is ITask
     /// @dev May be called by anyone at the appropriate stage
     /// @param tokens Since we don't know which contracts may hold a blance we need the consumer to request them directly
     function disburse(address[] memory tokens) public override {
+        //Validate Stage Requirements
+        require(uniqueRoleMembersCount("subject") > 0 , "NO_WINNERS_PICKED");
         //Validate Stage
-        // require(stage == DataTypes.ClaimStage.Execution || stage == DataTypes.ClaimStage.Closed , "STAGE:EXECUSION_OR_CLOSED");
-        require(stage == DataTypes.ClaimStage.Closed , "STAGE:CLOSED");
+        // require(stage == DataTypes.ClaimStage.Closed , "STAGE:CLOSED");
+        require(stage == DataTypes.ClaimStage.Closed //Everyone can if Case is closed
+            || (_isAdminOrOwner() && stage >= DataTypes.ClaimStage.Open && stage <= DataTypes.ClaimStage.Closed) //Admin can at any valid stage
+            , "STAGE:EXECUSION_OR_CLOSED");
         //Send to Subject(s)
         _splitAndSend("subject", tokens);
     }

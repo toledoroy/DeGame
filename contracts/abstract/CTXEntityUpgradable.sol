@@ -35,6 +35,14 @@ abstract contract CTXEntityUpgradable is
 
     //-- Functions
 
+    /// Check if current account is Admin or Owner
+    function _isAdminOrOwner() internal view returns (bool) {
+        return (owner() == _msgSender()      //Owner
+            || roleHas(tx.origin, "admin")    //Admin Role
+            || roleHas(_msgSender(), "admin")    //Admin Role
+        );
+    }
+
     /// ERC165 - Supported Interfaces
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(ICTXEntityUpgradable).interfaceId 

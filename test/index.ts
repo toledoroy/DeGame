@@ -918,10 +918,10 @@ describe("Protocol", function () {
 
       });
 
-      it("Should Not Disburse", async function () {
+      it("Should Not Disburse Yet", async function () {
           await expect(
             this.task2.connect(admin).disburse([this.token.address])
-          ).to.be.revertedWith("STAGE:CLOSED");
+          ).to.be.revertedWith("NO_WINNERS_PICKED");
       });
 
       it("Should Refund Toknes to Task Creator", async function () {
@@ -938,7 +938,6 @@ describe("Protocol", function () {
         //Expect Refund & Check Task Creator's Balance
         expect(await this.token.balanceOf(this.adminAddr)).to.equal(Number(balanceAdminBefore.token) + Number(balanceBefore.token));
         // expect(await admin.getBalance()).to.equal( balanceAdminBefore.native.add(balanceBefore.native) );  //...Gas?
-
       });
 
     }); //Cancelled Task Flow
