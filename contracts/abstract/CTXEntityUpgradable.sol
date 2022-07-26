@@ -53,14 +53,24 @@ abstract contract CTXEntityUpgradable is
         _roleCreate(role);
     }
 
+    /// Override Assign Tethered Token to a Role
+    function _roleAssign(address account, string memory role, uint256 amount) internal override {
+        uint256 sbt = _getExtTokenId(account);
+        if(sbt == 0){
+            //Auto-mint token for Account
+            if(sbt == 0) _HUB.mintForAccount(account, "");
+        }
+        _roleAssignToToken(sbt, role, amount);
+    }
+
     /// Assign Someone Else to a Role
     function roleAssign(address account, string memory role) public virtual override roleExists(role) AdminOrOwner {
         _roleAssign(account, role, 1);
     }
 
     /// Assign Tethered Token to a Role
-    function roleAssignToToken(uint256 ownerToken, string memory role) public virtual override roleExists(role) AdminOrOwner {
-        _roleAssignToToken(ownerToken, role, 1);
+    function roleAssignToToken(uint256 sbt, string memory role) public virtual override roleExists(role) AdminOrOwner {
+        _roleAssignToToken(sbt, role, 1);
     }
 
     /// Remove Someone Else from a Role
@@ -69,8 +79,8 @@ abstract contract CTXEntityUpgradable is
     }
 
     /// Remove Tethered Token from a Role
-    function roleRemoveFromToken(uint256 ownerToken, string memory role) public virtual override roleExists(role) AdminOrOwner {
-        _roleRemoveFromToken(ownerToken, role, 1);
+    function roleRemoveFromToken(uint256 sbt, string memory role) public virtual override roleExists(role) AdminOrOwner {
+        _roleRemoveFromToken(sbt, role, 1);
     }
 
     /// Change Role Wrapper (Add & Remove)
