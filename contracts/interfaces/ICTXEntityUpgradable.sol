@@ -35,12 +35,9 @@ interface ICTXEntityUpgradable {
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
 
-
     //--- Events
-
 
     /// Nominate
     event Nominate(address account, uint256 indexed id, string uri);
-
 
 }
