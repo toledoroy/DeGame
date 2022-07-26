@@ -1,10 +1,17 @@
-# The Excalibur Protocol 
+# The Decentralized Gaming Protocol 
 
+Using the magic of decentralized cryptography to create a higher-level game system out of composible smart contracts and NFTs.
 
-Using the magic of decentralized cryptography to create a higher-level game and reputation system out of composible smart contracts and NFT.
 
 ## Overview
 
+This platform allows you to
+
+- Mint characters
+- Create games
+- Set up roles and incentives
+- Manage reputation
+- Design an interaction flow 
 
 
 ## Technical info
