@@ -16,8 +16,8 @@ This platform allows you to
 
 ## Technical info
 
-- [Docs (Notion)](https://www.notion.so/yourjustice/Smart-Contracts-b9b89738497647b4beb3c353284f49b1)
-- [Changelog](https://github.com/YourJustice-Live/Excalibur/releases)
+- [Docs (Notion)](https://www.notion.so/virtualbrick/Contracts-4e383eb032e34cd08d5f035dee2dd9bb)
+- [Changelog](https://github.com/MentorDAO/BountyProtocol/releases)
 
 ## Getting Started
 
