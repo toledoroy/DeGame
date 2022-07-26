@@ -1,12 +1,15 @@
 # The Bounty Protocol 
 
-The Gig economy is the future of work
-
-This protocol facilitates the exchange of value in return for work
+The Gig economy is the future of work, and we make it frictionless. 
 
 ## Overview
 
+This protocol focuses on the game of exchange. Complete tasks to receive compensation.
 
+- Mint profiles
+- Create Projects & Post Bounties
+- Apply and deliver bounties to receive finecial and equaity rewards
+- Team up with other players and work together as a self-managed microDAO
 
 ## Technical info
 
