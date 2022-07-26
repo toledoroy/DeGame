@@ -537,12 +537,12 @@ abstract contract ERC1155TrackerUpgradable is
     
     /// @dev Hook that is called before any token transfer
     function _beforeTokenTransferTracker(
-        address operator,
-        uint256 fromToken,
+        address,// operator,
+        uint256,// fromToken,
         uint256 toToken,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory,// amounts,
+        bytes memory// data
     ) internal virtual {
         if(toToken != 0) {
             for (uint256 i = 0; i < ids.length; ++i) {
@@ -587,12 +587,12 @@ abstract contract ERC1155TrackerUpgradable is
 
     /// @dev Hook that is called after any token transfer
     function _afterTokenTransferTracker(
-        address operator,
+        address,// operator,
         uint256 fromToken,
-        uint256 toToken,
+        uint256,// toToken,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory,// amounts,
+        bytes memory// data
     ) internal virtual {
         if(fromToken != 0) {
             for (uint256 i = 0; i < ids.length; ++i) {
