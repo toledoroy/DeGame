@@ -18,14 +18,14 @@ interface IClaim {
     /// File the Claim (Validate & Open Discussion)  --> Open
     function stageFile() external;
 
-    /// Claim Wait For Verdict  --> Pending
+    /// Stage: Wait For Verdict  --> Pending
     function stageWaitForDecision() external;
 
-    /// Claim Stage: Place Verdict  --> Closed
+    /// Stage: Place Verdict  --> Closed
     // function stageDecision(string calldata uri) external;
     function stageDecision(DataTypes.InputDecision[] calldata verdict, string calldata uri) external;
 
-    /// Claim Stage: Reject Claim --> Cancelled
+    /// Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri) external;
 
     /// Request to Join
