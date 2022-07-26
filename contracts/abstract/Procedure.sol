@@ -30,7 +30,7 @@ abstract contract Procedure is IProcedure
     string public symbol;
 
     //--- Modifiers
-
+/* REDUNDANT
     /// Permissions Modifier
     modifier AdminOrOwner() override {
        //Validate Permissions
@@ -39,7 +39,7 @@ abstract contract Procedure is IProcedure
             , "INVALID_PERMISSIONS");
         _;
     }
-
+*/
     /// Permissions Modifier
     modifier AdminOrOwnerOrCTX() {
        //Validate Permissions

@@ -49,6 +49,9 @@ contract TaskUpgradable is ITask
 
     /// Apply (Nominte Self)
     function application(string memory uri_) external override {
+        //Validate Stage
+        require(stage > DataTypes.ClaimStage.Draft , "STAGE:TOO_EARLY");
+        require(stage < DataTypes.ClaimStage.Closed , "STAGE:TOO_LATE");
         nominate(getExtTokenId(msg.sender), uri_);
     }
     
@@ -86,7 +89,7 @@ contract TaskUpgradable is ITask
     }
 
     /// File the Task -- Open for Applications
-    function stageOpen() public override AdminOrOwner {
+    function stageOpen() public override AdminOrOwnerOrCTX {
         //Validate Lifecycle Stage
         require(stage == DataTypes.ClaimStage.Draft, "STAGE:DRAFT_ONLY");
         //Change Stage to Open
