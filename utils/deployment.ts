@@ -20,26 +20,37 @@ export const deployUUPS = async (contractName: string, args: any[]) => {
 /// Deploy Game Extensions
 export const deployGameExt = async (hubContract: Contract) => {
   console.log("Start Deploying Game Extensions...");
+  let verification:any = [];
   //Game Extension: Court of Law
-  // let extCourt = await deployContract("CourtExt", []);
-  // await hubContract.assocAdd("GAME_COURT", extCourt.address);
-  await deployContract("CourtExt", []).then(res => {
-    hubContract.assocSet("GAME_MDAO", res.address);
-    console.log("Deployed Game assocAdd Extension ", res.address);
-    // verify(res.address, []);
+  await deployContract("CourtExt", []).then(async res => {
+    await hubContract.assocSet("GAME_COURT", res.address);
+    console.log("Deployed Game CourtExt Extension ", res.address);
+    verification.push({name:"CourtExt", address:res.address, params:[]});
   });
   //Game Extension: mDAO
-  await deployContract("MicroDAOExt", []).then(res => {
-    hubContract.assocSet("GAME_MDAO", res.address);
+  await deployContract("MicroDAOExt", []).then(async res => {
+    await hubContract.assocSet("GAME_MDAO", res.address);
     console.log("Deployed Game MicroDAOExt Extension ", res.address);
-    // verify(res.address, []);
+    verification.push({name:"MicroDAOExt", address:res.address, params:[]});
   });
   //Game Extension: Fund Management
-  await deployContract("FundManExt", []).then(res => {
-    hubContract.assocAdd("GAME_MDAO", res.address);
+  await deployContract("FundManExt", []).then(async res => {
+    await hubContract.assocAdd("GAME_MDAO", res.address);
     console.log("Deployed Game FundManExt Extension ", res.address);
-    // verify(res.address, []);
+    verification.push({name:"FundManExt", address:res.address, params:[]});
   });
+  //Game Extension: Project
+  await deployContract("ProjectExt", []).then(async res => {
+    await hubContract.assocSet("GAME_PROJECT", res.address);
+    console.log("Deployed Game ProjectExt Extension ", res.address);
+    verification.push({name:"ProjectExt", address:res.address, params:[]});
+  });
+
+  //Verify Contracts
+  for(let item of verification){
+    console.log("Verify Contract:", item);
+    await verify(item.address, item.params);
+  }
 }
 
 /// Deploy Hub
