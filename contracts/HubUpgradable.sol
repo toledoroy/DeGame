@@ -288,27 +288,7 @@ contract HubUpgradable is
     }
 
     //--- Upgrades
-    /* REDUNDANT - One Function to rule them all
-    /// Upgrade Claim Implementation
-    function upgradeClaimImplementation(address newImplementation) public onlyOwner {
-        //Validate Interface
-        // require(IERC165(newImplementation).supportsInterface(type(IClaim).interfaceId), "Implmementation Does Not Support Claim Interface");  //Would Cause Problems on Interface Update. Keep disabled for now.
-        //Upgrade Beacon
-        UpgradeableBeacon(_beacons["claim"]).upgradeTo(newImplementation);
-        //Upgrade Event
-        emit UpdatedImplementation("claim", newImplementation);
-    }
-
-    /// Upgrade Game Implementation
-    function upgradeGameImplementation(address newImplementation) public onlyOwner {
-        //Validate Interface
-        // require(IERC165(newImplementation).supportsInterface(type(IClaim).interfaceId), "Implmementation Does Not Support Claim Interface");  //Would Cause Problems on Interface Update. Keep disabled for now.
-        //Upgrade Beacon
-        UpgradeableBeacon(_beacons["game"]).upgradeTo(newImplementation);
-        //Upgrade Event
-        emit UpdatedImplementation("game", newImplementation);
-    }
-    */
+    
     /// Generic ImplementationUpgrade
     function upgradeImplementation(string memory key, address newImplementation) public onlyOwner {
         //Upgrade Beacon

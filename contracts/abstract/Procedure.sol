@@ -55,8 +55,7 @@ abstract contract Procedure is IProcedure
 
     /// ERC165 - Supported Interfaces
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IProcedure).interfaceId 
-            || super.supportsInterface(interfaceId);
+        return interfaceId == type(IProcedure).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /* Maybe, When used more than once
@@ -85,7 +84,7 @@ abstract contract Procedure is IProcedure
     ) public virtual override initializer {
         //Initializers
         // __ProtocolEntity_init(hub);
-        __ProtocolEntity_init(msg.sender);
+        __ProtocolEntity_init(msg.sender);  //Sender is the Hub
         __setTargetContract(getSoulAddr());
         //Set Parent Container
         _setParentCTX(container);
@@ -165,7 +164,7 @@ abstract contract Procedure is IProcedure
     }
     
     /// Assign Tethered Token to a Role
-    function roleAssignToToken(uint256 ownerToken, string memory role) public override roleExists(role) AdminOrOwnerOrCTX {
+    function roleAssignToToken(uint256 ownerToken, string memory role) public override AdminOrOwnerOrCTX {
         _roleAssignToToken(ownerToken, role, 1);
     }
 

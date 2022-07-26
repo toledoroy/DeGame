@@ -30,7 +30,6 @@ contract ClaimUpgradable is IClaim
     // string public name;
     // // Contract symbol
     // string public symbol;
-    // string public constant symbol = "CLAIM";
 
     //Rules Reference
     mapping(uint256 => DataTypes.RuleRef) internal _rules;      // Mapping for Claim Rules
@@ -52,32 +51,10 @@ contract ClaimUpgradable is IClaim
         string calldata uri_
     ) public virtual override initializer {
         super.initialize(container, name_, uri_);
-
         symbol = "CLAIM";
-        /* MOVED UPSTREAM
-        //Initializers
-        // __ProtocolEntity_init(hub);
-        __ProtocolEntity_init(msg.sender);
-        __setTargetContract(getSoulAddr());
-        //Set Parent Container
-        _setParentCTX(container);
-        //Set Contract URI
-        _setContractURI(uri_);
-        //Identifiers
-        name = name_;
-        //Auto-Set Creator Wallet as Admin
-        _roleAssign(tx.origin, "admin", 1);
-        _roleAssign(tx.origin, "creator", 1);
-        //Init Default Claim Roles
-        // _roleCreate("admin");
-        // _roleCreate("creator");     //Filing the claim
-        _roleCreate("subject");        //Acting Agent
-        _roleCreate("authority");      //Deciding authority
-        //Custom Roles
-        // _roleCreate("witness");     //Witnesses
-        // _roleCreate("affected");    //Affected Party (For reparations)
-        */
     }
+
+    //--- Rule Reference 
 
     /// Check if Reference ID exists
     function ruleRefExist(uint256 ruleRefId) internal view returns (bool) {
@@ -104,8 +81,6 @@ contract ClaimUpgradable is IClaim
         require (ruleRefExist(ruleRefId), "INEXISTENT_RULE_REF_ID");
         return IRules(_rules[ruleRefId].game).effectsGet(_rules[ruleRefId].ruleId);
     }
-
-    //--- Rule Reference 
 
     /// Add Rule Reference
     function ruleRefAdd(address game_, uint256 ruleId_) external override AdminOrOwnerOrCTX {
