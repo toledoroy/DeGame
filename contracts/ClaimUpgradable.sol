@@ -22,9 +22,6 @@ import "./abstract/Posts.sol";
 contract ClaimUpgradable is IClaim
     , Posts
     , Procedure
-    // , CTXEntityUpgradable
-    // , ProtocolEntityUpgradable
-    // , ERC1155RolesTrackerUp 
     {
 
     //--- Storage
@@ -36,9 +33,6 @@ contract ClaimUpgradable is IClaim
     // Contract symbol
     string public symbol;
     // string public constant symbol = "CLAIM";
-
-    //Stage (Claim Lifecycle)
-    // DataTypes.ClaimStage public stage;
 
     //Rules Reference
     mapping(uint256 => DataTypes.RuleRef) internal _rules;      // Mapping for Claim Rules
