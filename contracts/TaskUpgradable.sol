@@ -85,9 +85,17 @@ contract TaskUpgradable is ITask
         }
     }
 
+    /// File the Task -- Open for Applications
+    function stageOpen() public override AdminOrOwner {
+        //Validate Lifecycle Stage
+        require(stage == DataTypes.ClaimStage.Draft, "STAGE:DRAFT_ONLY");
+        //Change Stage to Open
+        _setStage(DataTypes.ClaimStage.Open);
+    }
+
     /// Execute Reaction
     /// @param tokens address of all tokens to be disbursed
-    function stageExecusion(address[] memory tokens) public AdminOrOwner {
+    function stageExecusion(address[] memory tokens) public override AdminOrOwner {
         //Validate Stage
         require(stage == DataTypes.ClaimStage.Execution , "STAGE:EXECUSION_ONLY");
         //Validate Stage Requirements
@@ -116,7 +124,7 @@ contract TaskUpgradable is ITask
     }
 
     /// Stage: Cancel
-    function stageCancel(string calldata uri_) public {
+    function stageCancel(string calldata uri_) public override {
         require(stage <= DataTypes.ClaimStage.Decision, "STAGE:TOO_FAR_ALONG");
         // require(roleHas(_msgSender(), "authority") , "ROLE:AUTHORITY_ONLY");
         require(_msgSender() == getContainerAddr() 

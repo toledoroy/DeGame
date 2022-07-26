@@ -11,6 +11,14 @@ interface ITask {
     /// Arbitrary contract symbol
     // function symbol() external view returns (string memory);
 
+    /// Stage: Open
+    function stageOpen() external;
+
+    /// Execute Reaction
+    function stageExecusion(address[] memory tokens) external;
+
+    /// Stage: Cancelled
+    function stageCancel(string calldata uri_) external;
 
     /// Apply (Nominte Self)
     function application(string memory uri_) external;
