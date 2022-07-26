@@ -1,7 +1,8 @@
-# The Excalibur Protocol 
+# The Bounty Protocol 
 
+The Gig economy is the future of work
 
-Using the magic of decentralized cryptography to create a higher-level game and reputation system out of composible smart contracts and NFT.
+This protocol facilitates the exchange of value in return for work
 
 ## Overview
 
