@@ -7,6 +7,9 @@ interface IProcedure {
 
     //-- Functions
 
+    /// Add Post 
+    function post(string calldata entRole, uint256 tokenId, string calldata uri) external;
+
     //--- Events
 
     /// Claim Stage Change

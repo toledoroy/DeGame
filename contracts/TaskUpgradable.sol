@@ -6,7 +6,7 @@ import "hardhat/console.sol";
 import "./ClaimUpgradable.sol";
 import "./abstract/CTXEntityUpgradable.sol";
 import "./abstract/ERC1155RolesTrackerUp.sol";
-import "./abstract/Posts.sol";
+// import "./abstract/Posts.sol";
 import "./abstract/Escrow.sol";
 import "./interfaces/ITask.sol";
 

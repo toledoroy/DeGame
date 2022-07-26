@@ -8,14 +8,15 @@ import "../interfaces/IProcedure.sol";
 import "../interfaces/IGameUp.sol";
 import "../libraries/DataTypes.sol";
 import "../abstract/CTXEntityUpgradable.sol";
+import "../abstract/Posts.sol";
 
 
 /**
  * @title Procedure Basic Logic for Contracts 
  */
-abstract contract Procedure is 
-    IProcedure
+abstract contract Procedure is IProcedure
     , CTXEntityUpgradable
+    , Posts
     {
 
     //-- Storage
@@ -137,5 +138,28 @@ abstract contract Procedure is
     }
     */
 
+    // function post(string entRole, string uri) 
+    // - Post by account + role (in the claim, since an account may have multiple roles)
+
+    // function post(uint256 token_id, string entRole, string uri) 
+    //- Post by Entity (Token ID or a token identifier struct)
+ 
+    /// Add Post 
+    /// @param entRole  posting as entitiy in role (posting entity must be assigned to role)
+    /// @param tokenId  Acting SBT Token ID
+    /// @param uri_     post URI
+    function post(string calldata entRole, uint256 tokenId, string calldata uri_) public override {
+        //Validate that User Controls The Token
+        require(ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, _msgSender())
+            || ISoul(getSoulAddr()).hasTokenControlAccount(tokenId, tx.origin)
+            , "POST:SOUL_NOT_YOURS"); //Supports Contract Permissions
+        //Validate: Soul Assigned to the Role 
+        // require(roleHas(tx.origin, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
+        require(roleHasByToken(tokenId, entRole), "POST:ROLE_NOT_ASSIGNED");    //Validate the Calling Account
+        //Validate Stage
+        require(stage < DataTypes.ClaimStage.Closed, "STAGE:CLOSED");
+        //Post Event
+        _post(tx.origin, tokenId, entRole, uri_);
+    }
 }
     

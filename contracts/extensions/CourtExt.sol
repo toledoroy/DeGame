@@ -9,6 +9,7 @@ import "../abstract/GameExtension.sol";
 import "../libraries/DataTypes.sol";
 import "../interfaces/ICTXEntityUpgradable.sol";
 import "../interfaces/IClaim.sol";
+import "../interfaces/IProcedure.sol";
 
 /**
  * @title Game Extension: Court of Law 
@@ -43,7 +44,7 @@ contract CourtExt is ICourtExt, GameExtension {
         }
         //Post Posts
         for (uint256 i = 0; i < posts.length; ++i) {
-            IClaim(claimContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
+            IProcedure(claimContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
         }
         //Return new Contract Address
         return claimContract;

@@ -31,9 +31,6 @@ interface IClaim {
     /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri) external;
 
-    /// Add Post 
-    function post(string calldata entRole, uint256 tokenId, string calldata uri) external;
-
     /// Set Metadata URI For Role
     function setRoleURI(string memory role, string memory _tokenURI) external;
 
