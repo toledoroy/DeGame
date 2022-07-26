@@ -8,7 +8,6 @@ interface ICTXEntityUpgradable {
     /// Request to Join
     function nominate(uint256 soulToken, string memory uri) external;
 
-
     /// Create a new Role
     function roleCreate(string calldata role) external;
 
@@ -26,6 +25,15 @@ interface ICTXEntityUpgradable {
 
     /// Change Role Wrapper (Add & Remove)
     function roleChange(address account, string memory roleOld, string memory roleNew) external;
+
+    /// Get Token URI by Token ID
+    function uri(uint256 token_id) external returns (string memory);
+
+    /// Set Metadata URI For Role
+    function setRoleURI(string memory role, string memory _tokenURI) external;
+
+    /// Set Contract URI
+    function setContractURI(string calldata contract_uri) external;
 
 
     //--- Events

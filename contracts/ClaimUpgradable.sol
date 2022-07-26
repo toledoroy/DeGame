@@ -207,20 +207,5 @@ contract ClaimUpgradable is IClaim
         _stageCancel(uri_);
     }
 
-    /// Get Token URI by Token ID
-    function uri(uint256 token_id) public view returns (string memory) {
-        return _tokenURIs[token_id];
-    }
-    
-    /// Set Metadata URI For Role
-    function setRoleURI(string memory role, string memory _tokenURI) external override AdminOrOwner {
-        _setRoleURI(role, _tokenURI);
-    }
-   
-    /// Set Contract URI
-    function setContractURI(string calldata contract_uri) external override AdminOrOwner {
-        _setContractURI(contract_uri);
-    }
-  
 
 }

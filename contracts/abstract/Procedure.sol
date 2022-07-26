@@ -54,7 +54,7 @@ abstract contract Procedure is IProcedure
         return interfaceId == type(IProcedure).interfaceId 
             || super.supportsInterface(interfaceId);
     }
-    
+
     /* Maybe, When used more than once
 
     // function nextStage(string calldata uri) public {

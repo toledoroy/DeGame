@@ -15,9 +15,6 @@ interface IClaim {
         string calldata uri_
     ) external;
 
-    /// Set Contract URI
-    function setContractURI(string calldata contract_uri) external;
-
     /// File the Claim (Validate & Open Discussion)  --> Open
     function stageFile() external;
 
@@ -30,9 +27,6 @@ interface IClaim {
 
     /// Claim Stage: Reject Claim --> Cancelled
     function stageCancel(string calldata uri) external;
-
-    /// Set Metadata URI For Role
-    function setRoleURI(string memory role, string memory _tokenURI) external;
 
     /// Request to Join
     // function nominate(uint256 soulToken, string memory uri) external;
