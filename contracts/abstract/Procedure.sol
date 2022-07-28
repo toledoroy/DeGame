@@ -79,6 +79,7 @@ abstract contract Procedure is IProcedure
     /// Initializer
     function initialize (
         address container,
+        string calldata type_,
         string memory name_, 
         string calldata uri_
     ) public virtual override initializer {
@@ -103,6 +104,9 @@ abstract contract Procedure is IProcedure
         //Custom Roles
         // _roleCreate("witness");     //Witnesses
         // _roleCreate("affected");    //Affected Party (For reparations)
+
+        //Set Entity Type        
+        confSet("type", type_);
     }
     /// Change Claim Stage
     function _setStage(DataTypes.ClaimStage stage_) internal {

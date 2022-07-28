@@ -1064,8 +1064,7 @@ describe("Protocol", function () {
     it("Should be Created & Closed (by Game)", async function () {
       //Soul Tokens
       soulTokens.authority = await avatarContract.tokenByAddress(this.authorityAddr);
-
-      let claimName = "Test Claim #3";
+      const claim = {type:"CLAIM", name:"Test Claim #3"}
       let ruleRefArr = [
         {
           game: gameContract.address, 
@@ -1095,9 +1094,9 @@ describe("Protocol", function () {
       await gameContract.connect(admin).roleAssign(this.authorityAddr, "member");
 
       //Simulate - Get New Claim Address
-      let claimAddr = await this.courtContract.connect(authority).callStatic.caseMakeClosed(claimName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
+      let claimAddr = await this.courtContract.connect(authority).callStatic.caseMakeClosed(claim.name, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
       //Create New Claim
-      let tx = await this.courtContract.connect(authority).caseMakeClosed(claimName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
+      let tx = await this.courtContract.connect(authority).caseMakeClosed(claim.name, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
       //Expect Valid Address
       expect(claimAddr).to.be.properAddress;
       //Init Claim Contract

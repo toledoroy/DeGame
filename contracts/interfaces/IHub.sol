@@ -24,13 +24,14 @@ interface IHub {
 
     /// Make a new Game
     function gameMake(
-        string calldata gameType_,
+        string calldata type_,
         string calldata name_, 
         string calldata uri_
     ) external returns (address);
 
     /// Make a new Claim
     function claimMake(
+        string calldata type_, 
         string calldata name_, 
         string calldata uri_
     ) external returns (address);

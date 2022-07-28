@@ -10,6 +10,7 @@ interface IProcedure {
     /// Initialize
     function initialize(
         address container, 
+        string calldata type_,
         string memory name_, 
         string calldata uri_
     ) external;

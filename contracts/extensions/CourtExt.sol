@@ -16,6 +16,45 @@ import "../interfaces/IProcedure.sol";
  */
 contract CourtExt is ICourtExt, GameExtension {
 
+    function _caseMake(
+        string calldata name_, 
+        string calldata uri_
+    ) internal returns (address) {
+        //Validate Caller Permissions (Member of Game)
+        require(gameRoles().roleHas(_msgSender(), "member"), "Members Only");
+        //Create new Claim
+        address claimContract = hub().claimMake("CLAIM", name_, uri_);
+        //Register New Contract
+        _registerNewClaim(claimContract);
+        //Create Custom Roles
+        ICTXEntityUpgradable(claimContract).roleCreate("witness");     //Witnesses
+        ICTXEntityUpgradable(claimContract).roleCreate("affected");    //Affected Party (For reparations)
+        
+        //Return new Contract Address
+        return claimContract;
+    }
+
+    function _onCreation(
+        address newContract, 
+        DataTypes.RuleRef[] calldata rules, 
+        DataTypes.InputRoleToken[] calldata assignRoles, 
+        DataTypes.PostInput[] calldata posts
+    ) private {
+        //Assign Roles
+        for (uint256 i = 0; i < assignRoles.length; ++i) {
+            ICTXEntityUpgradable(newContract).roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role);
+        }
+        //Add Rules
+        for (uint256 i = 0; i < rules.length; ++i) {
+            IClaim(newContract).ruleRefAdd(rules[i].game, rules[i].ruleId);
+        }
+        //Post Posts
+        for (uint256 i = 0; i < posts.length; ++i) {
+            IProcedure(newContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
+        }
+
+    }
+
     /// Make a new Case
     /// @dev a wrapper function for creation, adding rules, assigning roles & posting
     function caseMake(
@@ -25,6 +64,7 @@ contract CourtExt is ICourtExt, GameExtension {
         DataTypes.InputRoleToken[] calldata assignRoles, 
         DataTypes.PostInput[] calldata posts
     ) public override returns (address) {
+        /* MOVED OUT
         //Validate Caller Permissions (Member of Game)
         require(gameRoles().roleHas(_msgSender(), "member"), "Members Only");
         //Create new Claim
@@ -34,18 +74,9 @@ contract CourtExt is ICourtExt, GameExtension {
         //Create Custom Roles
         ICTXEntityUpgradable(claimContract).roleCreate("witness");     //Witnesses
         ICTXEntityUpgradable(claimContract).roleCreate("affected");    //Affected Party (For reparations)
-        //Assign Roles
-        for (uint256 i = 0; i < assignRoles.length; ++i) {
-            ICTXEntityUpgradable(claimContract).roleAssignToToken(assignRoles[i].tokenId, assignRoles[i].role);
-        }
-        //Add Rules
-        for (uint256 i = 0; i < rules.length; ++i) {
-            IClaim(claimContract).ruleRefAdd(rules[i].game, rules[i].ruleId);
-        }
-        //Post Posts
-        for (uint256 i = 0; i < posts.length; ++i) {
-            IProcedure(claimContract).post(posts[i].entRole, posts[i].tokenId, posts[i].uri);
-        }
+        */
+        address claimContract =_caseMake(name_, uri_);
+        _onCreation(claimContract, rules, assignRoles, posts);
         //Return new Contract Address
         return claimContract;
     }
@@ -90,9 +121,14 @@ contract CourtExt is ICourtExt, GameExtension {
         //Create new Claim
         // address claimContract = caseMake(name_, uri_, rules, assignRoles, posts);
         //Make Claim & Open
-        address claimContract = caseMakeOpen(name_, uri_, rules, assignRoles, posts);
+        // address claimContract = caseMakeOpen(name_, uri_, rules, assignRoles, posts);
+        
+
+        address claimContract =_caseMake(name_, uri_);
+        _onCreation(claimContract, rules, assignRoles, posts);
+
         //File Claim
-        // IClaim(claimContract).stageFile();
+        IClaim(claimContract).stageFile();
         //Push Forward
         IClaim(claimContract).stageWaitForDecision();
         //Close Claim

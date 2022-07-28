@@ -94,7 +94,7 @@ contract GameUpgradable is IGame
     /// Initializer
     function initialize (
         // address hub, 
-        string calldata gameType_,
+        string calldata type_,
         string calldata name_, 
         string calldata uri_
     ) public override initializer {
@@ -117,8 +117,8 @@ contract GameUpgradable is IGame
         // _setRoleURI("admin", "");
         // _setRoleURI("member", "");
         // _setRoleURI("authority", "");
-        //Set Game Type        
-        confSet("type", gameType_);
+        //Set Entity  Type        
+        confSet("type", type_);
     }
 
     //** Claim Functions

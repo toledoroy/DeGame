@@ -47,10 +47,11 @@ contract ClaimUpgradable is IClaim
     /// Initializer
     function initialize (
         address container,
+        string calldata type_,
         string memory name_, 
         string calldata uri_
     ) public virtual override initializer {
-        super.initialize(container, name_, uri_);
+        super.initialize(container, type_, name_, uri_);
         symbol = "CLAIM";
     }
 

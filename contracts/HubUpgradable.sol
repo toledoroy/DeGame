@@ -190,6 +190,7 @@ contract HubUpgradable is
 
     /// Make a new Claim
     function claimMake(
+        string calldata type_, 
         string calldata name_, 
         string calldata uri_
     ) public override activeGame returns (address) {
@@ -199,6 +200,7 @@ contract HubUpgradable is
             abi.encodeWithSelector(
                 IProcedure( payable(address(0)) ).initialize.selector,
                 _msgSender(),   //Birth Parent (Container)
+                type_,          //Type
                 name_,          //Name
                 uri_            //Contract URI
             )
@@ -233,6 +235,7 @@ contract HubUpgradable is
             abi.encodeWithSelector(
                 IProcedure( payable(address(0)) ).initialize.selector,
                 _msgSender(),   //Birth Parent (Container)
+                type_,          //Type
                 name_,          //Name
                 uri_            //Contract URI
             )
