@@ -37,6 +37,7 @@ interface IHub {
 
     /// Make a new Task
     function taskMake(
+        string calldata type_, 
         string calldata name_, 
         string calldata uri_
     ) external returns (address);

@@ -14,12 +14,6 @@ interface IGame {
     /// Symbol As Arbitrary contract designation signature
     function symbol() external view returns (string memory);
 
-    /// Generic Config Get Function
-    function confGet(string memory key) external view returns (string memory);
-
-    /// Generic Config Set Function
-    function confSet(string memory key, string memory value) external;
-
     /// Add Post 
     function post(string calldata entRole, uint256 tokenId, string calldata uri) external;
 
@@ -34,7 +28,6 @@ interface IGame {
 
     /// Leave member role in current game
     function leave() external returns (uint256);
-
 
     /// Request to Join
     // function nominate(uint256 soulToken, string memory uri) external;

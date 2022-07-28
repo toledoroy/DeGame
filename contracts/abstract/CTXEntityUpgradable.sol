@@ -63,6 +63,18 @@ abstract contract CTXEntityUpgradable is
         emit Nominate(_msgSender(), soulToken, uri_);
     }
 
+    //** Generic Config
+    
+    /// Generic Config Get Function
+    function confGet(string memory key) public view override returns (string memory) {
+        return repo().stringGet(key);
+    }
+    
+    /// Generic Config Set Function
+    function confSet(string memory key, string memory value) public override AdminOrOwner {
+        _confSet(key, value);
+    }
+
     //** Role Management
     
     /// Create a new Role

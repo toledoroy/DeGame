@@ -190,18 +190,6 @@ contract GameUpgradable is IGame
         _post(tx.origin, tokenId, entRole, uri_);
     }
 
-    //** Generic Config
-    
-    /// Generic Config Get Function
-    function confGet(string memory key) public view override returns (string memory) {
-        return repo().stringGet(key);
-    }
-    
-    /// Generic Config Set Function
-    function confSet(string memory key, string memory value) public override AdminOrOwner {
-        _confSet(key, value);
-    }
-
     //** Multi Proxy
 
     /// Proxy Fallback Implementations

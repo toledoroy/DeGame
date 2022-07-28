@@ -156,7 +156,7 @@ contract HubUpgradable is
 
     /// Make a new Game
     function gameMake(
-        string calldata gameType_, 
+        string calldata type_, 
         string calldata name_, 
         string calldata uri_
     ) external override returns (address) {
@@ -165,8 +165,7 @@ contract HubUpgradable is
             _beacons["game"],
             abi.encodeWithSelector(
                 IGame( payable(address(0)) ).initialize.selector,
-                // address(this),   //Hub
-                gameType_,      //Game Type
+                type_,          //Game Type
                 name_,          //Name
                 uri_            //Contract URI
             )
@@ -224,8 +223,9 @@ contract HubUpgradable is
 
     /// Make a new Task
     function taskMake(
+        string calldata type_, 
         string calldata name_, 
-        string calldata uri_
+        string calldata uri_ 
     ) public override activeGame returns (address) {
         //Deploy (Same as Claim)
         BeaconProxy newTaskProxy = new BeaconProxy(

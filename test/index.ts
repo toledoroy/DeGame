@@ -658,7 +658,7 @@ describe("Protocol", function () {
         //Second Dummy
         expect(await await this.daoContract2.debugFunc2()).to.equal("Hello World Dummy 2");
         //Second Dummy Extracts Data from Main Game Contract
-        expect(await await this.daoContract2.useSelf()).to.equal("Game Type: DAO");
+        expect(await await this.daoContract2.useSelf()).to.equal("Game Symbol: GAME");
       });
 
     }); //Game Extensions
@@ -722,10 +722,10 @@ describe("Protocol", function () {
 
     it("Project Should Create a Task ", async function () {
       let value = 100; //ethers.utils.parseEther(0.001);
-      let taskData = {name: "Test Task", uri: test_uri2};
-      let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.name, taskData.uri);
+      let taskData = {type:"BOUNTY", name: "Test Task", uri: test_uri2};
+      let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.type, taskData.name, taskData.uri);
       // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
-      this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri, {value}); //Fund on Creation
+      this.projectContract.connect(admin).taskMake(taskData.type, taskData.name, taskData.uri, {value}); //Fund on Creation
       //Attach
       // this.task1 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
       this.task1 = await ethers.getContractAt('TaskUpgradable', taskAddr, admin);
@@ -849,16 +849,15 @@ describe("Protocol", function () {
       
       it("Project Should Create a new Task ", async function () {
         let value = 100; //ethers.utils.parseEther(0.001);
-        let taskData = {name: "Test Task", uri: test_uri2};
-        let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.name, taskData.uri);
-        // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
-        this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri, {value}); //Fund on Creation
+        let taskData = {type: "Bounty", name: "Test Task", uri: test_uri2};
+        let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.type, taskData.name, taskData.uri);
+        // this.projectContract.connect(admin).taskMake(taskData.type, taskData.name, taskData.uri);
+        this.projectContract.connect(admin).taskMake(taskData.type, taskData.name, taskData.uri, {value}); //Fund on Creation
         //Attach
         this.task2 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
         // this.task2Procedure = await ethers.getContractFactory("IProcedure").then(res => res.attach(taskAddr));
 
         this.task2Procedure = await ethers.getContractAt('Procedure', taskAddr, admin);
-
 
       });
       

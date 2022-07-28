@@ -35,6 +35,12 @@ interface ICTXEntityUpgradable {
     /// Set Contract URI
     function setContractURI(string calldata contract_uri) external;
 
+    /// Generic Config Get Function
+    function confGet(string memory key) external view returns (string memory);
+
+    /// Generic Config Set Function
+    function confSet(string memory key, string memory value) external;
+
     //--- Events
 
     /// Nominate
