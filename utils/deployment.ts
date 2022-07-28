@@ -33,18 +33,20 @@ export const deployGameExt = async (hubContract: Contract) => {
     console.log("(i) Deployed Game MicroDAOExt Extension ", res.address);
     verification.push({name:"MicroDAOExt", address:res.address, params:[]});
   });
-  //Game Extension: Fund Management
-  await deployContract("FundManExt", []).then(async res => {
-    await hubContract.assocAdd("GAME_MDAO", res.address);
-    console.log("(i) Deployed Game FundManExt Extension ", res.address);
-    verification.push({name:"FundManExt", address:res.address, params:[]});
-  });
   //Game Extension: Project
   await deployContract("ProjectExt", []).then(async res => {
     await hubContract.assocSet("GAME_PROJECT", res.address);
     console.log("(i) Deployed Game ProjectExt Extension ", res.address);
     verification.push({name:"ProjectExt", address:res.address, params:[]});
   });
+  //Game Extension: Fund Management
+  await deployContract("FundManExt", []).then(async res => {
+    await hubContract.assocAdd("GAME_MDAO", res.address);
+    await hubContract.assocAdd("GAME_PROJECT", res.address);
+    console.log("(i) Deployed Game FundManExt Extension ", res.address);
+    verification.push({name:"FundManExt", address:res.address, params:[]});
+  });
+  
 
   //Verify Contracts
   for(let item of verification){
