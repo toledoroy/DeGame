@@ -5,6 +5,7 @@ pragma solidity ^0.8.4;
 // import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IFundManExt.sol";
 import "../abstract/GameExtension.sol";
 import "../abstract/Escrow.sol";
@@ -30,6 +31,16 @@ contract FundManExt is IFundManExt, GameExtension, Escrow {
                 _releaseToken(token, IERC721(getSoulAddr()).ownerOf(sbts[i]), amount);
             }
         }
+    }
+
+    /// Initiate a transfer from the account
+    function sendFunds(address payable to, uint256 amount) external AdminOnly {
+        Address.sendValue(to, amount);
+    }
+
+    /// Initiate a transfer from the account
+    function sendFundsERC20(address token, address to, uint256 amount) external AdminOnly {
+        SafeERC20.safeTransfer(IERC20(token), to, amount);
     }
 
     /**
