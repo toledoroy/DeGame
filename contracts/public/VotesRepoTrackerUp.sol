@@ -46,7 +46,7 @@ contract VotesRepoUpgradable is
         EIP712Upgradeable {
 
             
-    /// Expose Target Contract
+    /// Expose Target (SBT) Contract
     function getTargetContract() public view virtual override returns (address) {
         return _targetContract;
     }
