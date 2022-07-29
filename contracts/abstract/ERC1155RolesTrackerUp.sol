@@ -149,7 +149,9 @@ abstract contract ERC1155RolesTrackerUp is
 
     /// Create a new Role
     function _roleCreate(string memory role) internal returns (uint256) {
-        return _GUIDMake(_stringToBytes32(role));
+        uint256 tokenId =  _GUIDMake(_stringToBytes32(role));
+        emit RoleCreated(tokenId, role);
+        return tokenId;
     }
 
     /// Get Metadata URI by Role
