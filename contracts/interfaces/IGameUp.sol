@@ -67,28 +67,7 @@ interface IGame {
     /// Register an Incident (happening of a valued action)
     function reportEvent(uint256 ruleId, address account, string calldata detailsURI_) external;
 
-
-    /* MOVED TO IRules
-    //-- Rule Func.
-
-    /// Create New Rule
-    function ruleAdd(DataTypes.Rule memory rule, DataTypes.Confirmation memory confirmation, DataTypes.Effect[] memory effects) external returns (uint256);
-
-    /// Update Rule
-    function ruleUpdate(uint256 id, DataTypes.Rule memory rule, DataTypes.Effect[] memory effects) external;
-    
-    /// Update Rule's Confirmation Data
-    function ruleConfirmationUpdate(uint256 id, DataTypes.Confirmation memory confirmation) external;
-
-    */
-
     //--- Events
-
-    /// New Claim Created
-    // event ClaimCreated(uint256 indexed id, address contractAddress);    
-
-    /// Nominate
-    // event Nominate(address account, uint256 indexed id, string uri);
 
     /// Effect
     event EffectsExecuted(uint256 indexed targetTokenId, uint256 indexed ruleId, bytes data);
