@@ -27,10 +27,18 @@ interface IRules {
 
 
     /// Create New Rule
-    function ruleAdd(DataTypes.Rule memory rule, DataTypes.Confirmation memory confirmation, DataTypes.Effect[] memory effects) external returns (uint256);
+    function ruleAdd(
+        DataTypes.Rule memory rule, 
+        DataTypes.Confirmation memory confirmation, 
+        DataTypes.Effect[] memory effects
+    ) external returns (uint256);
 
     /// Update Rule
-    function ruleUpdate(uint256 id, DataTypes.Rule memory rule, DataTypes.Effect[] memory effects) external;
+    function ruleUpdate(
+        uint256 id, 
+        DataTypes.Rule memory rule, 
+        DataTypes.Effect[] memory effects
+    ) external;
     
     /// Set Disable Status for Rule
     function ruleDisable(uint256 id, bool disabled) external;
@@ -60,7 +68,7 @@ interface IRules {
     /// Action Confirmation Change
     event Confirmation(uint256 indexed id, string ruling, bool evidence, uint witness);
 
-    /// Reaction Change
-    event Reaction(uint256 indexed id, bytes32 reactionId);
+    /// Claim Change
+    event Claim(uint256 indexed id, bytes32 claimId);
 
 }

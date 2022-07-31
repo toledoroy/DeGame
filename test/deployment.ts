@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { Contract, ContractReceipt, Signer } from "ethers";
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS } from "../utils/deployment";
+import { deployContract, deployUUPS, deployHub } from "../utils/deployment";
 const { upgrades } = require("hardhat");
 
 
@@ -11,7 +11,7 @@ const { upgrades } = require("hardhat");
 
 describe("Deployment", function () {
     let gameContract: Contract;
-    let reactionContract: Contract;
+    let claimContract: Contract;
     let hubContract: Contract;
     // let Contract: Contract;
     let actionRepoContract: Contract;
@@ -35,34 +35,38 @@ describe("Deployment", function () {
         gameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.deploy());
         await gameContract.deployed();
 
-        //--- Reaction Implementation
-        reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
-        await reactionContract.deployed();
+        //--- Claim Implementation
+        claimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
+        await claimContract.deployed();
     });
 
     it("Should Deploy Upgradable Hub Contract", async function () {
+        /*
         //Deploy Hub Upgradable
         const proxyHub = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             gameContract.address,
-            reactionContract.address
+            claimContract.address
         ]);
         await proxyHub.deployed();
-        // console.log("HubUpgradable deployed to:", proxyHub.address);
         hubContract = proxyHub;
+        */
+        hubContract = await deployHub(openRepoContract.address);
+        // console.log("HubUpgradable deployed to:", proxyHub.address);
     });
 
     it("Should Change Hub", async function () {
-       //Deploy Another Hub Upgradable
+        //Deploy Another Hub Upgradable
+        /*
         const proxyHub2 = await deployUUPS("HubUpgradable", [
             openRepoContract.address,
             gameContract.address,
-            reactionContract.address
+            claimContract.address
         ]);
         await proxyHub2.deployed();
-       
+        */
+        const proxyHub2 = await deployHub(openRepoContract.address);
         // console.log("Hub Address:", hubContract.address);
-    
         proxyHub2.hubChange(hubContract.address);
     });
 
@@ -86,19 +90,20 @@ describe("Deployment", function () {
         // console.log("ActionRepoTrackerUp deployed to:", proxyActionRepo.address);
     });
 
+    /* FOR DEBUGGING PURPOSES
     describe("Mock", function () {
         it("Should Deploy Mock Hub Contract", async function () {
             //--- Mock Hub
             let mockHub = await ethers.getContractFactory("HubMock").then(res => res.deploy(
                 openRepoContract.address,
                 gameContract.address,
-                reactionContract.address
+                claimContract.address
             ));
             await mockHub.deployed();
             // console.log("MockHub Deployed to:", mockHub.address);
         });
     });
-
+    */
 });
 
 

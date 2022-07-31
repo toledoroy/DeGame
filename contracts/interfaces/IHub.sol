@@ -17,25 +17,32 @@ interface IHub {
     function owner() external view returns (address);
 
     //Repo Address
-    function repoAddr() external view returns (address);
+    function getRepoAddr() external view returns (address);
 
     /// Mint an SBT for another account
     function mintForAccount(address account, string memory tokenURI) external returns (uint256);
 
     /// Make a new Game
     function gameMake(
+        string calldata type_,
         string calldata name_, 
         string calldata uri_
     ) external returns (address);
 
-    /// Make a new Reaction
-    function reactionMake(
+    /// Make a new Claim
+    function claimMake(
+        string calldata type_, 
         string calldata name_, 
-        string calldata uri_,
-        DataTypes.RuleRef[] memory addRules,
-        DataTypes.InputRoleToken[] memory assignRoles
+        string calldata uri_
     ) external returns (address);
 
+    /// Make a new Task
+    function taskMake(
+        string calldata type_, 
+        string calldata name_, 
+        string calldata uri_
+    ) external returns (address);
+    
     /// Update Hub
     function hubChange(address newHubAddr) external;
 

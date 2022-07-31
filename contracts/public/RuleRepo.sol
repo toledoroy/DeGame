@@ -21,7 +21,7 @@ import "../public/interfaces/IOpenRepo.sol";
  * To be used by a contract that implements IERC1155RolesTracker
  * Version 1.0
  * - Sender expected to be a protocol entity
- * - Sender expected to support getHub() & repoAddr()
+ * - Sender expected to support getHub() & getRepoAddr()
  */
 contract RuleRepo is IRules {
 
@@ -34,7 +34,7 @@ contract RuleRepo is IRules {
     mapping(address => mapping(uint256 => DataTypes.Rule)) internal _rules;
     mapping(address => mapping(uint256 => DataTypes.Confirmation)) internal _ruleConfirmation;  //Rule Confirmations
     mapping(address => mapping(uint256 => DataTypes.Effect[])) internal _effects;  //Rule Efects (Reputation Changes)   //effects[id][] => {direction:true, value:5, name:'personal'}  // Generic, Iterable & Extendable/Flexible
-    mapping(address => mapping(uint256 => bytes32[])) internal _reactions;  //Rule Reactions (Consequences) //action GUIDs   
+    mapping(address => mapping(uint256 => bytes32[])) internal _claims;  //Rule Claims (Consequences) //action GUIDs   
     // mapping(address => mapping(uint256 => string) internal _uri;
 
     //--- Functions
@@ -47,18 +47,18 @@ contract RuleRepo is IRules {
     }
 
     /// Hub Address
-    function hubAddress() internal view returns (address) {
+    function getHubAddress() internal view returns (address) {
         return IProtocolEntity(msg.sender).getHub();
     }
 
     //Get Data Repo Address (From Hub)
-    function repoAddr() public view returns (address) {
-        return IProtocolEntity(msg.sender).repoAddr();
+    function getRepoAddr() public view returns (address) {
+        return IProtocolEntity(msg.sender).getRepoAddr();
     }
 
     //Get Assoc Repo
     function repo() internal view returns (IOpenRepo) {
-        return IOpenRepo(repoAddr());
+        return IOpenRepo(getRepoAddr());
     }
 
     //** Rule Management
@@ -97,7 +97,7 @@ contract RuleRepo is IRules {
         require(IERC1155RolesTracker(msg.sender).roleHas(tx.origin, "admin"), "Admin Only");
         
         //Validate rule.about -- actionGUID Exists
-        address actionRepo = repo().addressGetOf(hubAddress(), "history");
+        address actionRepo = repo().addressGetOf(getHubAddress(), "history");
 
         IActionRepo(actionRepo).actionGet(rule.about);  //Revetrs if does not exist
         //Add Rule
@@ -218,12 +218,12 @@ contract RuleRepo is IRules {
         emit Confirmation(msg.sender, id, confirmation.ruling, confirmation.evidence, confirmation.witness);
     }
 
-    /// Set Action's Reaction ID
-    function _reactionSet(uint256 id, bytes32 reaction) internal {
+    /// Set Action's Claim ID
+    function _claimSet(uint256 id, bytes32 claim) internal {
         //Save
-        _reactions[msg.sender][id][0] = reaction;
+        _claims[msg.sender][id][0] = claim;
         //Event
-        emit Reaction(msg.sender, id, reaction);
+        emit Claim(msg.sender, id, claim);
     }
    
 }

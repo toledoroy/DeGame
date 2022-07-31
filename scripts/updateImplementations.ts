@@ -19,8 +19,8 @@ async function main() {
     //Hub
     let hubContract = await ethers.getContractFactory("HubUpgradable").then(res => res.attach(contractAddr.hub));
     //Update Implementations
-    // await hubContract.upgradeReactionImplementation(contractAddr.reaction);
-    // await hubContract.upgradeGameImplementation(contractAddr.game);
+    // await hubContract.upgradeImplementation("claim", contractAddr.claim);
+    // await hubContract.upgradeImplementation("game", contractAddr.game);
 
     //Set to HUB
     await hubContract.assocSet("SBT", contractAddr.avatar);

@@ -1,21 +1,28 @@
 //Track Addresses (Fill in present addresses to user existing deplopyment)
 const publicAddr: any = {
+  hardhat:{
+    openRepo: "",
+    ruleRepo: "",
+  },
   rinkeby:{
-    // assocRepo: "0xfd5592B4604c5a422c507c4b116b51EE8e80E0C3", //V1.1    //DEPRECATED
-    openRepo: "0x7b0AA37bCf5D231C13C920E0e372027919510fF9", //V2.0 (UUPS)
-    ruleRepo: "0xa14C272e1D6BE9c89933e2Ad8560e83F945Ee407", //V1.0
+    openRepo: "0x7b0AA37bCf5D231C13C920E0e372027919510fF9", //D2.0 (UUPS)
+    ruleRepo: "0xa14C272e1D6BE9c89933e2Ad8560e83F945Ee407", //D1.0
+  },
+  goerli:{
+    openRepo: "0xD1a6789c8A47a931833369E9EAAD5c42BF819473", //D2.1 (UUPS)
+    ruleRepo: "0xF8B45CB9c3A63bE93B63a382729C733cB988de69", //D1.0
   },
   mumbai:{
-    openRepo: "0x539dA825856778B593a55aC4E8A0Ec1441f18e78", // V2.0 (UUPS)
-    ruleRepo: "",
+    openRepo: "0x4fB72b6Eb2812D1aA333C168552E5B1444E02a23", //0.5.1
+    ruleRepo: "0x52C2B43aF9C85Fa181187a00B9C7B5058a81Bd09", //0.5.1
   },
   optimism:{
     openRepo: "",
     ruleRepo: "",
   },
   optimism_kovan:{
-    openRepo: "0x8761b3E3bCDd243A063f18d5C24528C1400FA95B",
-    ruleRepo: "",
+    openRepo: "0xFF20BA5dcD0485e2587F1a75117c0fc80941B61C",
+    ruleRepo: "0x98B28D02AF16600790aAE38d8F587eA99585BBb2",
   },
 };
 

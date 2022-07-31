@@ -8,29 +8,20 @@ interface IGame {
     
     //--- Functions
 
-    /// Set Contract URI
-    function setContractURI(string calldata contract_uri) external;
-
     /// Initialize
-    function initialize(address hub, string calldata name_, string calldata uri_) external;
+    function initialize(string calldata type_, string calldata name_, string calldata uri_) external;
 
     /// Symbol As Arbitrary contract designation signature
     function symbol() external view returns (string memory);
 
-    /// Generic Config Get Function
-    function confGet(string memory key) external view returns (string memory);
-
-    /// Generic Config Set Function
-    function confSet(string memory key, string memory value) external;
-
     /// Add Post 
     function post(string calldata entRole, uint256 tokenId, string calldata uri) external;
 
-    /// Disable Reaction
-    function reactionDisable(address reactionContract) external;
+    /// Disable Claim
+    function claimDisable(address claimContract) external;
 
-    /// Check if Reaction is Owned by This Contract (& Active)
-    function reactionHas(address reactionContract) external view returns (bool);
+    /// Check if Claim is Owned by This Contract (& Active)
+    function claimHas(address claimContract) external view returns (bool);
 
     /// Join game as member
     function join() external returns (uint256);
@@ -39,8 +30,9 @@ interface IGame {
     function leave() external returns (uint256);
 
     /// Request to Join
-    function nominate(uint256 soulToken, string memory uri) external;
+    // function nominate(uint256 soulToken, string memory uri) external;
 
+    /* MOVED UP
     /// Assign Someone to a Role
     function roleAssign(address account, string calldata role) external;
 
@@ -58,41 +50,24 @@ interface IGame {
 
     /// Create a new Role
     // function roleCreate(address account, string calldata role) external;
-
+    */
+    
     /// Set Metadata URI For Role
-    function setRoleURI(string memory role, string memory _tokenURI) external;
+    // function setRoleURI(string memory role, string memory _tokenURI) external;
+
+    /// Set Contract URI
+    // function setContractURI(string calldata contract_uri) external;
 
     /// Add Reputation (Positive or Negative)
     // function repAdd(address contractAddr, uint256 tokenId, string calldata domain, bool rating, uint8 amount) external;
 
-    /// Execute Rule's Effects (By Reaction Contreact)
+    /// Execute Rule's Effects (By Claim Contreact)
     function effectsExecute(uint256 ruleId, address targetContract, uint256 targetTokenId) external;
 
     /// Register an Incident (happening of a valued action)
     function reportEvent(uint256 ruleId, address account, string calldata detailsURI_) external;
 
-
-    /* MOVED TO IRules
-    //-- Rule Func.
-
-    /// Create New Rule
-    function ruleAdd(DataTypes.Rule memory rule, DataTypes.Confirmation memory confirmation, DataTypes.Effect[] memory effects) external returns (uint256);
-
-    /// Update Rule
-    function ruleUpdate(uint256 id, DataTypes.Rule memory rule, DataTypes.Effect[] memory effects) external;
-    
-    /// Update Rule's Confirmation Data
-    function ruleConfirmationUpdate(uint256 id, DataTypes.Confirmation memory confirmation) external;
-
-    */
-
     //--- Events
-
-    /// New Reaction Created
-    // event ReactionCreated(uint256 indexed id, address contractAddress);    
-
-    /// Nominate
-    event Nominate(address account, uint256 indexed id, string uri);
 
     /// Effect
     event EffectsExecuted(uint256 indexed targetTokenId, uint256 indexed ruleId, bytes data);

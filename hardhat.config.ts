@@ -98,6 +98,7 @@ const config = {
     // apiKey: process.env.ETHERSCAN_API_KEY,
     apiKey: {
       rinkeby: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
       polygonMumbai: process.env.ETHERSCAN_API_KEY_POLY,
       optimisticEthereum: process.env.ETHERSCAN_API_KEY_OP,
       optimisticKovan: process.env.ETHERSCAN_API_KEY_OP,

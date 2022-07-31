@@ -9,7 +9,7 @@ interface ICourtExt {
 
     //--- Functions
     
-    /// Make a new Reaction
+    /// Make a new Claim
     /// @dev a wrapper function for creation, adding rules, assigning roles & posting
     function caseMake(
         string calldata name_, 
@@ -19,8 +19,8 @@ interface ICourtExt {
         DataTypes.PostInput[] calldata posts
     ) external returns (address);
 
-    /// Make a new Reaction & File it
-    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a reaction
+    /// Make a new Claim & File it
+    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing a claim
     function caseMakeOpen(
         string calldata name_, 
         string calldata uri_, 
@@ -29,8 +29,8 @@ interface ICourtExt {
         DataTypes.PostInput[] calldata posts
     ) external returns (address);
 
-    /// Make a new Reaction, File it & Close it
-    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing & closing a reaction
+    /// Make a new Claim, File it & Close it
+    /// @dev a wrapper function for creation, adding rules, assigning roles, posting & filing & closing a claim
     function caseMakeClosed(
         string calldata name_, 
         string calldata uri_, 

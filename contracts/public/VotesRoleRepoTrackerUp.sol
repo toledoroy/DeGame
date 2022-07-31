@@ -37,15 +37,28 @@ import "../abstract/TrackerUpgradable.sol";
  * _Available since v4.5._
  */
 // abstract contract VotesUpgradeable is Initializable, IVotesUpgradeable, ContextUpgradeable, EIP712Upgradeable {
-contract VotesRepoUpgradable is 
+contract VotesRoleRepoTrackerUp is 
         IVotesRepoTracker, 
-        IVotesUpgradeable, 
+        // IVotesUpgradeable, 
         Initializable, 
         TrackerUpgradable,
         ContextUpgradeable, 
         EIP712Upgradeable {
 
-            
+    //--- Events (From IVotesUpgradeable)
+    
+    /**
+     * @dev Emitted when an account changes their delegate.
+     */
+    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
+
+    /**
+     * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of votes.
+     */
+    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+
+    //--- Functions
+    
     /// Expose Target (SBT) Contract
     function getTargetContract() public view virtual override returns (address) {
         return _targetContract;
@@ -56,7 +69,8 @@ contract VotesRepoUpgradable is
 
     //Track Voting Units
     // mapping(address => mapping(address => uint256)) internal _votingUnits;
-    mapping(address => mapping(uint256 => uint256)) internal _votingUnits;
+    // mapping(address => mapping(uint256 => uint256)) internal _votingUnits;  //[contract][id] => [amount]
+    mapping(address => mapping(string => mapping(uint256 => uint256))) internal _votingUnits; //[contract][role][id] => [amount]
 
 
     /// Expose Voting Power Transfer Method
@@ -74,8 +88,8 @@ contract VotesRepoUpgradable is
     // function _getVotingUnits(address account) internal view returns (uint256) {
         // return _votingUnits[msg.sender][account];
     // }
-    function _getVotingUnits(uint256 account) internal view returns (uint256) {
-        return _votingUnits[msg.sender][account];
+    function _getVotingUnits(uint256 account, string calldata role) internal view returns (uint256) {
+        return _votingUnits[msg.sender][role][account];
     }
 
 
@@ -106,7 +120,7 @@ contract VotesRepoUpgradable is
     /**
      * @dev Returns the current amount of votes that `account` has.
      */
-    function getVotes(address account) public view virtual override returns (uint256) {
+    function getVotes(address account) public view virtual returns (uint256) {
         // return _delegateCheckpoints[msg.sender][account].latest();
         return getVotesForToken(getExtTokenId(account));
     }
@@ -121,7 +135,7 @@ contract VotesRepoUpgradable is
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
         // return _delegateCheckpoints[msg.sender][account].getAtBlock(blockNumber);
         return getPastVotesForToken(getExtTokenId(account), blockNumber);
     }
@@ -140,7 +154,7 @@ contract VotesRepoUpgradable is
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view virtual returns (uint256) {
         require(blockNumber < block.number, "VotesRepo: block not yet mined");
         return _totalCheckpoints[msg.sender].getAtBlock(blockNumber);
     }
@@ -155,7 +169,7 @@ contract VotesRepoUpgradable is
     /**
      * @dev Returns the delegate that `account` has chosen.
      */
-    function delegates(address account) public view virtual override returns (address) {
+    function delegates(address account) public view virtual returns (address) {
         // return _delegation[msg.sender][account];
         return _getAccount( delegatesToken(getExtTokenId(account)) );
     }
@@ -166,23 +180,23 @@ contract VotesRepoUpgradable is
     /**
      * @dev Delegates votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual override {
+    function delegate(string calldata role, address delegatee) public virtual {
         // address account = _msgSender();
         address account = tx.origin;
-        _delegate(account, delegatee);
+        _delegate(account, role, delegatee);
     }
 
     /**
      * @dev Delegates votes from signer to `delegatee`.
      */
-    function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) public virtual override {
+    function delegateBySig(string calldata role, address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) public virtual {
         require(block.timestamp <= expiry, "VotesRepo: signature expired");
         address signer = ECDSAUpgradeable.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v, r, s
         );
         require(nonce == _useNonce(getExtTokenId(signer)), "VotesRepo: invalid nonce");
-        _delegate(signer, delegatee);
+        _delegate(signer, role, delegatee);
     }
 
     /**
@@ -190,16 +204,16 @@ contract VotesRepoUpgradable is
      *
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(address account, address delegatee) internal virtual {
-        return _delegateToken(getExtTokenId(account), getExtTokenId(delegatee));
+    function _delegate(address account, string calldata role, address delegatee) internal virtual {
+        return _delegateToken(getExtTokenId(account), role, getExtTokenId(delegatee));
     }
-    function _delegateToken(uint256 account, uint256 delegatee) internal virtual {
+    function _delegateToken(uint256 account, string calldata role, uint256 delegatee) internal virtual {
         // address oldDelegate = delegates(account);
         uint256 oldDelegate = delegatesToken(account);
         _delegation[msg.sender][account] = delegatee;
         emit DelegateChanged(_getAccount(account), _getAccount(oldDelegate), _getAccount(delegatee));   //For Backward Compatibility (Should Not be Trusted)
         emit DelegateChangedToken(account, oldDelegate, delegatee);
-        _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
+        _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account, role));
     }
 
     /**

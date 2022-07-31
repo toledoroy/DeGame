@@ -11,7 +11,7 @@ import "./ERC1155GUIDTrackerUp.sol";
 /**
  * @title Sub-Groups with Role NFTs
  * @dev ERC1155 using GUID as Role
- * To Extend Reactions & Jutisdictions
+ * To Extend Claims & Jutisdictions
  * - Create Roles
  * - Assign Roles
  * - Remove Roles
@@ -101,7 +101,7 @@ abstract contract ERC1155RolesTrackerUp is
     }
 
     /// Assign Someone Else to a Role
-    function _roleAssign(address account, string memory role, uint256 amount) internal {
+    function _roleAssign(address account, string memory role, uint256 amount) internal virtual {
         //Create Role if does not Exist
         if(!roleExist(role)) {
             _roleCreate(role);
@@ -114,7 +114,7 @@ abstract contract ERC1155RolesTrackerUp is
     }
     
     /// Assign Tethered Token to a Role
-    function _roleAssignToToken(uint256 ownerToken, string memory role, uint256 amount) internal {
+    function _roleAssignToToken(uint256 ownerToken, string memory role, uint256 amount) internal virtual {
         //Create Role if does not Exist
         if(!roleExist(role)) {
             _roleCreate(role);
@@ -149,7 +149,9 @@ abstract contract ERC1155RolesTrackerUp is
 
     /// Create a new Role
     function _roleCreate(string memory role) internal returns (uint256) {
-        return _GUIDMake(_stringToBytes32(role));
+        uint256 tokenId =  _GUIDMake(_stringToBytes32(role));
+        emit RoleCreated(tokenId, role);
+        return tokenId;
     }
 
     /// Get Metadata URI by Role

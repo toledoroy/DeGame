@@ -24,10 +24,10 @@ library DataTypes {
         Professional
     }
 
-    //--- Reactions
+    //--- Claims
 
-    //Reaction Lifecycle
-    enum ReactionStage {
+    //Claim Lifecycle
+    enum ClaimStage {
         Draft,
         Open,           // Filed -- Confirmation/Discussion (Evidence, Witnesses, etc’)
         Decision,       // Awaiting Decision (Authority, Jury, vote, etc’)
@@ -85,7 +85,7 @@ library DataTypes {
         // witness: 1,  //Minimal number of witnesses
     }
 
-    //--- Reaction Data
+    //--- Claim Data
 
     //Rule Reference
     struct RuleRef {

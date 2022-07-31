@@ -1,7 +1,14 @@
+// DataTypes.Rule memory rule = ruleGet(ruleId);
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
-import { deployContract, deployUUPS } from "../utils/deployment";
+import { task } from "hardhat/config";
+import { 
+  deployContract, 
+  deployUUPS, 
+  deployGameExt, 
+  deployHub 
+} from "../utils/deployment";
 const { upgrades } = require("hardhat");
 
 //Test Data
@@ -9,7 +16,7 @@ const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 let test_uri = "ipfs://QmQxkoWcpFgMa7bCzxaANWtSt43J1iMgksjNnT4vM1Apd7"; //"TEST_URI";
 let test_uri2 = "ipfs://TEST2";
 let actionGUID = "";
-let soulTokenId = 0;  //Try to keep track of Current Soul Token ID
+let soulTokenId = 1;  //Try to keep track of Current Soul Token ID
 const soulTokens: any = {};  //Soul Token Assignment
 
 describe("Protocol", function () {
@@ -23,6 +30,7 @@ describe("Protocol", function () {
   //Addresses
   let owner: Signer;
   let admin: Signer;
+  let admin2: Signer;
   let tester: Signer;
   let tester2: Signer;
   let tester3: Signer;
@@ -34,28 +42,37 @@ describe("Protocol", function () {
 
   before(async function () {
 
+    //Populate Accounts
+    [owner, admin, admin2, tester, tester2, tester3, tester4, tester5, authority, ...addrs] = await ethers.getSigners();
+
+    //Addresses
+    this.ownerAddr = await owner.getAddress();
+    this.adminAddr = await admin.getAddress();
+    this.admin2Addr = await admin2.getAddress();
+    this.testerAddr = await tester.getAddress();
+    this.tester2Addr = await tester2.getAddress();
+    this.tester3Addr = await tester3.getAddress();
+    this.tester4Addr = await tester4.getAddress();
+    this.tester5Addr = await tester5.getAddress();
+    this.authorityAddr = await authority.getAddress();
+
+
+    //--- Deploy Mock ERC20 Token
+    this.token = await deployContract("Token", []);
+    //Mint 
+    this.token.mint(this.ownerAddr, 1000);
+    this.token.mint(this.adminAddr, 1000);
+    this.token.mint(this.testerAddr, 1000);
+
     //--- OpenRepo Upgradable (UUPS)
     this.openRepo = await deployUUPS("OpenRepoUpgradable", []);
 
-    //--- Reaction Implementation
-    this.reactionContract = await deployContract("ReactionUpgradable", []);
-    
-    //--- Game Upgradable Implementation
-    this.gameUpContract = await deployContract("GameUpgradable", []);
+    //--- Deploy Hub (UUPS)
+    hubContract = await deployHub(this.openRepo.address);
 
-    //--- Hub Upgradable (UUPS)
-    hubContract = await deployUUPS("HubUpgradable", [
-        this.openRepo.address,
-        this.gameUpContract.address, 
-        this.reactionContract.address
-      ]);
-    await hubContract.deployed();
-
-    //--- Game Extensions
-    //Game Extension: Court of Law
-    let extCourt = await deployContract("CourtExt", []);
-    await hubContract.assocAdd("GAME_COURT", extCourt.address);
-
+    //--- Deploy All Game Extensions
+    deployGameExt(hubContract);
+  
     //--- Rule Repository
     this.ruleRepo = await deployContract("RuleRepo", []);
     //Set to Hub
@@ -73,17 +90,6 @@ describe("Protocol", function () {
     //Set Avatar Contract to Hub
     await hubContract.assocSet("history", actionContract.address);
 
-    //Populate Accounts
-    [owner, admin, tester, tester2, tester3, tester4, tester5, authority, ...addrs] = await ethers.getSigners();
-    //Addresses
-    this.ownerAddr = await owner.getAddress();
-    this.adminAddr = await admin.getAddress();
-    this.testerAddr = await tester.getAddress();
-    this.tester2Addr = await tester2.getAddress();
-    this.tester3Addr = await tester3.getAddress();
-    this.tester4Addr = await tester4.getAddress();
-    this.tester5Addr = await tester5.getAddress();
-    this.authorityAddr = await authority.getAddress();
   });
 
 
@@ -101,7 +107,7 @@ describe("Protocol", function () {
   /**
    * Action Repository
    */
-   describe("Action Repository", function () {
+    describe("Action Repository", function () {
   
     it("Should store Actions", async function () {
       let action = {
@@ -143,25 +149,42 @@ describe("Protocol", function () {
       expect(await avatarContract.owner()).to.equal(this.ownerAddr);
     });
     
-    it("Can mint only one", async function () {
+    it("Can mint", async function () {
+      //SBT Tokens
+      
       let tx = await avatarContract.connect(tester).mint(test_uri);
-      ++soulTokenId;
       tx.wait();
-      //Another One for Testing Purposes
-      await avatarContract.connect(tester2).mint(test_uri);
-      ++soulTokenId;
-      // console.log("minting", tx);
       //Fetch Token
-      let result = await avatarContract.ownerOf(1);
+      let result = await avatarContract.ownerOf(soulTokenId);
       //Check Owner
       expect(result).to.equal(this.testerAddr);
       //Check URI
-      expect(await avatarContract.tokenURI(1)).to.equal(test_uri);
-      //Another Call Should Fail
+      expect(await avatarContract.tokenURI(soulTokenId)).to.equal(test_uri);
+      ++soulTokenId;
+      
+      await avatarContract.connect(owner).mint(test_uri);
+      soulTokens.owner = await avatarContract.tokenByAddress(this.ownerAddr);
+      ++soulTokenId;
+
+      await avatarContract.connect(admin).mint(test_uri);
+      soulTokens.admin = await avatarContract.tokenByAddress(this.adminAddr);
+      ++soulTokenId;
+      
+      await avatarContract.connect(admin2).mint(test_uri);
+      soulTokens.admin2 = await avatarContract.tokenByAddress(this.admin2Addr);
+      ++soulTokenId;
+
+      await avatarContract.connect(tester2).mint(test_uri);
+      soulTokens.tester2 = await avatarContract.tokenByAddress(this.tester2Addr);
+      ++soulTokenId;
+
+    });
+
+    it("Can mint only one", async function () {
+      //Another Mint Call for Same Account Should Fail
       await expect(
         avatarContract.connect(tester).mint(test_uri)
       ).to.be.revertedWith("Requesting account already has a token");
-      ++soulTokenId;
     });
 
     it("Should Index Addresses", async function () {
@@ -282,30 +305,35 @@ describe("Protocol", function () {
     
     before(async function () {
       //Mint Avatars for Participants
-      await avatarContract.connect(owner).mint(test_uri);
-      await avatarContract.connect(admin).mint(test_uri);
+      // await avatarContract.connect(owner).mint(test_uri);
+      // await avatarContract.connect(admin).mint(test_uri);
       // await avatarContract.connect(tester3).mint(test_uri);
       await avatarContract.connect(tester4).mint(test_uri);
       await avatarContract.connect(tester5).mint(test_uri);
       await avatarContract.connect(authority).mint(test_uri);
-      soulTokenId = soulTokenId + 5;
+      soulTokenId = soulTokenId + 3;
+      let game = {
+        name: "Test Game",
+        type: "",
+      };
+
 
       //Simulate to Get New Game Address
-      let JAddr = await hubContract.callStatic.gameMake("Test Game", test_uri);
-      // let JAddr = await hubContract.connect(admin).callStatic.gameMake("Test Game", test_uri);
+      let gameAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      // let gameAddr = await hubContract.connect(admin).callStatic.gameMake(game.type, game.name, test_uri);
 
       //Create New Game
-      // let tx = await hubContract.connect(admin).gameMake("Test Game", test_uri);
-      let tx = await hubContract.gameMake("Test Game", test_uri);
+      // let tx = await hubContract.connect(admin).gameMake(game.type, game.name, test_uri);
+      let tx = await hubContract.gameMake(game.type, game.name, test_uri);
       //Expect Valid Address
-      expect(JAddr).to.be.properAddress;
-      //Expect Reaction Created Event
-      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("game", JAddr);
+      expect(gameAddr).to.be.properAddress;
+      //Expect Claim Created Event
+      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("game", gameAddr);
       await expect(tx).to.emit(avatarContract, 'SoulType').withArgs(soulTokenId, "GAME");
       // console.log("Current soulTokenId", soulTokenId);
       ++soulTokenId;
       //Init Game Contract Object
-      gameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(JAddr));
+      gameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameAddr));
       this.gameContract = gameContract;
     });
 
@@ -347,10 +375,13 @@ describe("Protocol", function () {
       //Check Membership
       expect(await this.gameContract.roleHas(this.tester3Addr, "member")).to.equal(true);
       // expect(await this.gameContract.roleHas(this.tester5Addr, "member")).to.equal(false);
+
       //Should Fail - No Avatar For Contract
-      await expect(
-        this.gameContract.roleHas(this.tester5Addr, "member")
-      ).to.be.revertedWith("ERC1155Tracker: requested account not found on source contract");
+      // await expect(
+      //   this.gameContract.roleHas(this.tester5Addr, "member")
+      // ).to.be.revertedWith("ERC1155Tracker: requested account not found on source contract");
+      //Should Not Fail. 0/False if does not exist
+      expect(await this.gameContract.roleHas(this.tester5Addr, "member")).to.equal(false);
     });
 
     it("Users can leave", async function () {
@@ -448,7 +479,7 @@ describe("Protocol", function () {
         {name:'environmental', value:10, direction:false},
         {name:'personal', value:4, direction:true},
       ];
-     
+      
       //Add Rule
       let tx = await gameContract.connect(admin).ruleAdd(rule, confirmation, effects1);
       // const gameRules = await ethers.getContractAt("IRules", this.gameContract.address);
@@ -550,7 +581,7 @@ describe("Protocol", function () {
       it("Can Close Game", async function () {
         //Change to Closed Game
         let tx = await this.gameContract.connect(admin).confSet("isClosed", "true");
-        //Expect Reaction Created Event
+        //Expect Claim Created Event
         await expect(tx).to.emit(this.openRepo, 'StringSet').withArgs(this.gameContract.address, "isClosed", "true");
         //Validate
         expect(await this.gameContract.confGet("isClosed")).to.equal("true");
@@ -590,7 +621,6 @@ describe("Protocol", function () {
       
       //Report Event
       let tx = await this.gameContract.connect(authority).reportEvent(eventData.ruleId, eventData.account, eventData.uri);
-      soulTokens.tester2 = await avatarContract.tokenByAddress(this.tester2Addr);
 
       // const receipt = await tx.wait();
       // console.log("Rule Added", receipt.logs);
@@ -628,7 +658,7 @@ describe("Protocol", function () {
         //Second Dummy
         expect(await await this.daoContract2.debugFunc2()).to.equal("Hello World Dummy 2");
         //Second Dummy Extracts Data from Main Game Contract
-        expect(await await this.daoContract2.useSelf()).to.equal("Game Type: DAO");
+        expect(await await this.daoContract2.useSelf()).to.equal("Game Symbol: GAME");
       });
 
     }); //Game Extensions
@@ -636,354 +666,630 @@ describe("Protocol", function () {
   }); //Game
 
   /**
-   * Reaction Contract
-   */
-  describe("Reaction", function () {
+    * Projects Flow
+    */
+  describe("Project Game Flow", function () {
 
-    describe("Court Game", function () {
+    before(async function () {
+      //-- Deploy a new Game:MicroDAO
+      let gameMDAOData = {name: "Test mDAO", type: "MDAO"};
+      //Simulate to Get New Game Address
+      let gameMDAOAddr = await hubContract.connect(admin2).callStatic.gameMake(gameMDAOData.type, gameMDAOData.name, test_uri);
+      // let gameAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      //Create New Game
+      await hubContract.connect(admin2).gameMake(gameMDAOData.type, gameMDAOData.name, test_uri);
+      // await hubContract.gameMake(game.type, game.name, test_uri);
+      ++soulTokenId;
+      //Init Game Contract Object
+      this.mDAOGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameMDAOAddr));
+      //Attach Project Functionality
+      this.mDAOContract = await ethers.getContractFactory("MicroDAOExt").then(res => res.attach(gameMDAOAddr));
+      //Attach Project Functionality
+      this.mDAOFundsContract = await ethers.getContractFactory("FundManExt").then(res => res.attach(gameMDAOAddr));
+
+      //-- Deploy Project Game Extension
+      let projectExtContract = await deployContract("ProjectExt", []);
+      //Set Project Extension Contract
+      await hubContract.assocAdd("GAME_PROJECT", projectExtContract.address);
+
+      //-- Deploy a new Game:Project        
+      let game = {name: "Test Project", type: "PROJECT"};
+      //Simulate to Get New Game Address
+      let gameProjAddr = await hubContract.connect(admin).callStatic.gameMake(game.type, game.name, test_uri);
+      // let gameProjAddr = await hubContract.callStatic.gameMake(game.type, game.name, test_uri);
+      //Create New Game
+      await hubContract.connect(admin).gameMake(game.type, game.name, test_uri);
+      // await hubContract.gameMake(game.type, game.name, test_uri);
+      ++soulTokenId;
+
+      //Init Game Contract Object
+      // this.projectGameContract = await ethers.getContractFactory("GameUpgradable").then(res => res.attach(gameProjAddr));
+      this.projectGameContract = await ethers.getContractAt('GameUpgradable', gameProjAddr);
+      //Attach Project Functionality
+      // this.projectContract = await ethers.getContractFactory("ProjectExt").then(res => res.attach(gameProjAddr));
+      this.projectContract = await ethers.getContractAt('ProjectExt', gameProjAddr);
+
+      //Soul Tokens
+      soulTokens.mDAO1 = await avatarContract.tokenByAddress(gameMDAOAddr);
+      soulTokens.proj1 = await avatarContract.tokenByAddress(gameProjAddr);
+      // console.log("[DEBUG] mDAO is:", soulTokens.mDAO1, gameMDAOAddr);
+    });
+
+    it("Game Should be of Type:PROJECT", async function () {
+      //Validate
+      expect(await this.projectGameContract.confGet("type")).to.equal("PROJECT");
+    });
+
+    it("Project Should Create a Task ", async function () {
+      let value = 100; //ethers.utils.parseEther(0.001);
+      let taskData = {type:"BOUNTY", name: "Test Task", uri: test_uri2};
+      let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.type, taskData.name, taskData.uri);
+      // this.projectContract.connect(admin).taskMake(taskData.name, taskData.uri);
+      this.projectContract.connect(admin).taskMake(taskData.type, taskData.name, taskData.uri, {value}); //Fund on Creation
+      //Attach
+      // this.task1 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
+      this.task1 = await ethers.getContractAt('TaskUpgradable', taskAddr, admin);
+    });
+
+    it("Should Fund Task (ETH)", async function () {
+      let curBalance = await this.task1.contractBalance(ZERO_ADDR);
+      let value = 100; //ethers.utils.parseEther(0.001);
+      //Sent Native Tokens
+      await admin.sendTransaction({to: this.task1.address, value});
+      //Validate Balance
+      expect(await this.task1.contractBalance(ZERO_ADDR))
+        .to.equal(Number(curBalance) + Number(value));
+    });
+
+    it("Should Fund Task (ERC20)", async function () {
+      await this.token.connect(admin).transfer(this.task1.address, 1);
+      //Verify Transfer
+      expect(await this.token.balanceOf(this.task1.address))
+        .to.equal(1);
+      expect(await this.task1.contractBalance(this.token.address))
+        .to.equal(1);
+    });
+
+    it("Should Apply to Project (as Individual)", async function () {
+      /// Apply (Nominte Self)
+      let tx = await this.task1.connect(tester).application(test_uri);
+      //Expect Event
+      await expect(tx).to.emit(this.task1, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
+    });
+
+    it("Should Apply to Project (as mDAO)", async function () {
+      /// Apply (Nominte Self)
+      let tx = await this.mDAOContract.connect(admin2).applyToTask(this.task1.address, test_uri);
+      //Expect Event
+      await expect(tx).to.emit(this.task1, 'Nominate').withArgs(this.mDAOContract.address, soulTokens.mDAO1, test_uri);
+    });
+
+    /// TODO: Reject Applicant (Jusdt Ignore for now / dApp Function)
+    // it("Should Reject Applicant", async function () { });
+
+    /// Accept Application (Assign Role)
+    it("Should Accept mDAO as Applicant", async function () {
+      //Should Fail - Require Permissions
+      await expect(
+        this.task1.connect(tester).acceptApplicant(soulTokens.mDAO1)
+      ).to.be.revertedWith("INVALID_PERMISSIONS");
+      //Accept Applicant (to Role)
+      await this.task1.connect(admin).acceptApplicant(soulTokens.mDAO1);
+      //Validate
+      expect(await this.task1.roleHasByToken(soulTokens.mDAO1, "applicant")).to.equal(true);
+    });
+
+    /// Deliver a Task
+    it("Should Post a Delivery (as mDAO)", async function () {
+      let post = {taskAddr: this.task1.address, uri: test_uri2};
+      //Validate Permissions
+      await expect(
+        this.mDAOContract.connect(tester4).deliverTask(post.taskAddr, post.uri)
+      // ).to.be.revertedWith("ADMIN_ONLY");  //Would work once the proxy returns errors
+      ).to.be.reverted;
+      /// Apply (Nominte Self)
+      let tx = await this.mDAOContract.connect(admin2).deliverTask(post.taskAddr, post.uri);
+      //Expect Event
+      await expect(tx).to.emit(this.task1, 'Post').withArgs(this.admin2Addr, soulTokens.mDAO1, "applicant", test_uri2);
+    });
+
+    /// Reject Delivery / Request for Changes
+    it("Should Reject Delivery / Request for Changes (with a message)", async function () {
+      await this.task1.connect(admin).deliveryReject(soulTokens.mDAO1, test_uri2);
+    });
+    
+    /// Approve Delivery (Close Case w/Positive Verdict)
+    it("Should Apporove Delivery", async function () {
+      //Should Fail - Require Permissions
+      await expect(
+        this.task1.connect(tester).deliveryApprove(soulTokens.mDAO1)
+      ).to.be.revertedWith("INVALID_PERMISSIONS");
+      //Accept Applicant (to Role)
+      await this.task1.connect(admin).deliveryApprove(soulTokens.mDAO1);
+      //Check After
+      expect(await this.task1.roleHasByToken(soulTokens.mDAO1, "subject")).to.equal(true);
+    });
+
+    /// Disburse funds to participants
+    it("Should Disburse funds to winner(s)", async function () {
+      let balanceBefore:any = {};
+      balanceBefore.native = await this.task1.contractBalance(ZERO_ADDR);
+      balanceBefore.token = await this.task1.contractBalance(this.token.address);
+      // console.log("Before Token Balance", balanceBefore);
+      //Execute with Token Relevant Contract Addresses
+      await this.task1.connect(admin).stageExecusion([this.token.address]);
+      //Check mDAO Balance
+      // expect(await this.token.balanceOf(this.mDAOContract.address))
+      expect(await this.mDAOFundsContract.contractBalance(this.token.address))
+        .to.equal(balanceBefore.token);
+      expect(await this.mDAOFundsContract.contractBalance(ZERO_ADDR))
+        .to.equal(balanceBefore.native);
+    });
+
+    /// Disburse funds to participants
+    it("[TODO] Should Disburse additional late-funds to winner(s)", async function () {
+      //Send More
+
+      //Disbures
+      await this.task1.connect(admin).disburse([this.token.address]);
+
+      //Validate
+
+    });
+
+    /**
+      * Projects Flow
+      */
+    describe("Project Game Flow (Cancellation)", function () {
 
       before(async function () {
-        //Attach Court Functionality
-        this.courtContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
+
+      });
+
+      
+      it("Project Should Create a new Task ", async function () {
+        let value = 100; //ethers.utils.parseEther(0.001);
+        let taskData = {type: "Bounty", name: "Test Task", uri: test_uri2};
+        let taskAddr = await this.projectContract.connect(admin).callStatic.taskMake(taskData.type, taskData.name, taskData.uri);
+        // this.projectContract.connect(admin).taskMake(taskData.type, taskData.name, taskData.uri);
+        this.projectContract.connect(admin).taskMake(taskData.type, taskData.name, taskData.uri, {value}); //Fund on Creation
+        //Attach
+        this.task2 = await ethers.getContractFactory("TaskUpgradable").then(res => res.attach(taskAddr));
+        // this.task2Procedure = await ethers.getContractFactory("IProcedure").then(res => res.attach(taskAddr));
+
+        this.task2Procedure = await ethers.getContractAt('Procedure', taskAddr, admin);
+
       });
       
-      it("Should Set COURT Extension Contract", async function () {
-        //Change Game Type to Court
-        await gameContract.connect(admin).confSet("type", "COURT");
-        //Validate
-        expect(await gameContract.confGet("type")).to.equal("COURT");
+      it("Should Fund Task (ETH)", async function () {
+        let curBalance = await this.task2.contractBalance(ZERO_ADDR);
+        let value = 100; //ethers.utils.parseEther(0.001);
+        //Sent Native Tokens
+        await admin.sendTransaction({to: this.task2.address, value});
+        //Validate Balance
+        expect(await this.task2.contractBalance(ZERO_ADDR))
+          .to.equal(Number(curBalance) + Number(value));
       });
 
-      it("Should be Created (by Game)", async function () {
-        //Soul Tokens
-        soulTokens.admin = await avatarContract.tokenByAddress(this.adminAddr);
-        soulTokens.tester3 = await avatarContract.tokenByAddress(this.tester3Addr);
-      
-        let reactionName = "Test Reaction #1";
-        let ruleRefArr = [
-          {
-            game: gameContract.address, 
-            ruleId: 1,
-          }
-        ];
-        let roleRefArr = [
-          {
-            role: "subject",
-            tokenId: soulTokens.tester2,
-          },
-          {
-            role: "affected",
-            // tokenId: unOwnedTokenId,
-            tokenId: soulTokens.tester3,
-          },
-        ];
-        let posts = [
-          {
-            tokenId: soulTokens.admin, 
-            entRole: "admin",
-            uri: test_uri,
-          }
-        ];
-
-        //Join Game (as member)
-        await gameContract.connect(admin).join();
-        //Assign Admin as Member
-        // await this.gameContract.roleAssign(this.adminAddr, "member");
-
-        //Simulate - Get New Reaction Address
-        let reactionAddr = await this.courtContract.connect(admin).callStatic.caseMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
-        // console.log("New Reaction Address: ", reactionAddr);
-
-        //Create New Reaction
-        let tx = await this.courtContract.connect(admin).caseMake(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
-        //Expect Valid Address
-        expect(reactionAddr).to.be.properAddress;
-        //Init Reaction Contract
-        this.reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.attach(reactionAddr));
-
-        //Expect Reaction Created Event
-        // await expect(tx).to.emit(gameContract, 'ReactionCreated').withArgs(1, reactionAddr);   //DEPRECATED
-        await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("reaction", reactionAddr);
-        
-        //Expect Post Event
-        await expect(tx).to.emit(this.reactionContract, 'Post').withArgs(this.adminAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
-      });
-      
-      it("Should be Created & Opened (by Game)", async function () {
-        let reactionName = "Test Reaction #1";
-        let ruleRefArr = [
-          {
-            game: gameContract.address, 
-            ruleId: 1,
-          }
-        ];
-        let roleRefArr = [
-          {
-            role: "subject",
-            tokenId: soulTokens.tester2,
-          },
-          {
-            role: "witness",
-            tokenId: soulTokens.tester3,
-          }
-        ];
-        let posts = [
-          {
-            tokenId: soulTokens.admin, 
-            entRole: "admin",
-            uri: test_uri,
-          }
-        ];
-        //Simulate - Get New Reaction Address
-        let reactionAddr = await this.courtContract.connect(admin).callStatic.caseMakeOpen(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
-        //Create New Reaction
-        let tx = await this.courtContract.connect(admin).caseMakeOpen(reactionName, test_uri, ruleRefArr, roleRefArr, posts);
-        //Expect Valid Address
-        expect(reactionAddr).to.be.properAddress;
-        //Init Reaction Contract
-        let reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.attach(reactionAddr));
-        
-        //Expect Reaction Created Event
-        // await expect(tx).to.emit(gameContract, 'ReactionCreated').withArgs(2, reactionAddr); //DEPRECATED
-        await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("reaction", reactionAddr);
-
-        //Expect Post Event
-        // await expect(tx).to.emit(reactionContract, 'Post').withArgs(this.adminAddr, posts[0].tokenId, posts[0].entRole, posts[0].postRole, posts[0].uri);
-        await expect(tx).to.emit(reactionContract, 'Post').withArgs(this.adminAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
+      it("Should Fund Task (ERC20)", async function () {
+        await this.token.transfer(this.task2.address, 1);
+        //Verify Transfer
+        expect(await this.token.balanceOf(this.task2.address))
+          .to.equal(1);
+        expect(await this.task2.contractBalance(this.token.address))
+          .to.equal(1);
       });
 
+      it("Should Cancel Task", async function () { 
+        let balanceBefore:any = {};
+        balanceBefore.native = await this.task2.contractBalance(ZERO_ADDR);
+        balanceBefore.token = await this.task2.contractBalance(this.token.address);
+        let balanceAdminBefore:any = {};
+        balanceAdminBefore.native = await admin.getBalance();
+        balanceAdminBefore.token = await this.token.balanceOf(this.adminAddr);
+        // console.log("Balance Before", balanceBefore, balanceAdminBefore);
 
-      it("Should be Created & Closed (by Game)", async function () {
-        //Soul Tokens
-        soulTokens.authority = await avatarContract.tokenByAddress(this.authorityAddr);
-
-        let reactionName = "Test Reaction #3";
-        let ruleRefArr = [
-          {
-            game: gameContract.address, 
-            ruleId: 1,
-          }
-        ];
-        let roleRefArr = [
-          {
-            role: "subject",
-            tokenId: soulTokens.tester2,
-          },
-          {
-            role: "witness",
-            tokenId: soulTokens.tester3,
-          },
-        ];
-        let posts: any = [
-          // {
-          //   tokenId: soulTokens.authority, 
-          //   entRole: "authority",
-          //   uri: test_uri,
-          // }
-        ];
-
-        //Assign as a Member (Needs to be both a member and an authority)
-        // await gameContract.connect(authority).join();
-        await gameContract.connect(admin).roleAssign(this.authorityAddr, "member");
-
-        //Simulate - Get New Reaction Address
-        let reactionAddr = await this.courtContract.connect(authority).callStatic.caseMakeClosed(reactionName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
-        //Create New Reaction
-        let tx = await this.courtContract.connect(authority).caseMakeClosed(reactionName, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
-        //Expect Valid Address
-        expect(reactionAddr).to.be.properAddress;
-        //Init Reaction Contract
-        let reactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.attach(reactionAddr));
-        
-        //Expect Reaction Created Event
-        // await expect(tx).to.emit(gameContract, 'ReactionCreated').withArgs(3, reactionAddr);  //DEPRECATED
-        await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("reaction", reactionAddr);
-
-        //Expect Post Event
-        // await expect(tx).to.emit(reactionContract, 'Post').withArgs(this.authorityAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
-
-        //Expect State Change Events
-        await expect(tx).to.emit(reactionContract, "Stage").withArgs(1); //Open
-        await expect(tx).to.emit(reactionContract, "Stage").withArgs(2);  //Verdict
-        await expect(tx).to.emit(reactionContract, "Stage").withArgs(6);  //Closed
-      });
-      
-      it("Should Update Reaction Contract URI", async function () {
-        //Before
-        expect(await this.reactionContract.contractURI()).to.equal(test_uri);
-        //Change
-        await this.reactionContract.setContractURI(test_uri2);
-        //After
-        expect(await this.reactionContract.contractURI()).to.equal(test_uri2);
+        //Cancel Task
+        let tx = await this.task2.connect(admin).cancel(test_uri, [this.token.address]);
+        await expect(tx).to.emit(this.task2Procedure, 'Cancelled').withArgs(test_uri, this.adminAddr);
+        //Expect Refund & Check Task Creator's Balance
+        expect(await this.token.balanceOf(this.adminAddr)).to.equal(Number(balanceAdminBefore.token) + Number(balanceBefore.token));
+        // expect(await admin.getBalance()).to.equal( balanceAdminBefore.native.add(balanceBefore.native) );  //...Gas?
       });
 
-      it("Should Auto-Appoint creator as Admin", async function () {
-        expect(
-          await this.reactionContract.roleHas(this.adminAddr, "admin")
-        ).to.equal(true);
+      /// Deposit (Anyone can send funds at any point)
+      it("Should Support Deposits at any time", async function () {
+        let curBalance = await this.task2.contractBalance(ZERO_ADDR);
+        let value = 100; //ethers.utils.parseEther(0.001);
+
+        //Sent Native Tokens
+        await admin.sendTransaction({to: this.task2.address, value});
+        //Validate Balance
+        expect(await this.task2.contractBalance(ZERO_ADDR))
+          .to.equal(Number(curBalance) + Number(value));
+
+        await this.token.connect(admin).transfer(this.task2.address, 1);
+        //Verify Transfer
+        expect(await this.token.balanceOf(this.task2.address))
+          .to.equal(1);
+        expect(await this.task2.contractBalance(this.token.address))
+          .to.equal(1);
+
       });
 
-      it("Tester expected to be in the subject role", async function () {
-        expect(
-          await this.reactionContract.roleHas(this.tester2Addr, "subject")
-        ).to.equal(true);
+      it("Should Not Disburse Yet", async function () {
+          await expect(
+            this.task2.connect(admin).disburse([this.token.address])
+          ).to.be.revertedWith("NO_WINNERS_PICKED");
       });
 
-      it("Users Can Apply to Join", async function () {
-        //Apply to Join Game
-        let tx = await this.reactionContract.connect(tester).nominate(soulTokens.tester, test_uri);
-        await tx.wait();
-        //Expect Event
-        await expect(tx).to.emit(this.reactionContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
+      it("Should Refund Toknes to Task Creator", async function () {
+        let balanceBefore:any = {};
+        balanceBefore.native = await this.task2.contractBalance(ZERO_ADDR);
+        balanceBefore.token = await this.task2.contractBalance(this.token.address);
+        let balanceAdminBefore:any = {};
+        balanceAdminBefore.native = await admin.getBalance();
+        balanceAdminBefore.token = await this.token.balanceOf(this.adminAddr);
+        // console.log("Balance Before", balanceBefore, balanceAdminBefore);
+
+        /// Refund -- Send Tokens back to Task Creator
+        let tx = await this.task2.connect(admin).refund([this.token.address]);
+        //Expect Refund & Check Task Creator's Balance
+        expect(await this.token.balanceOf(this.adminAddr)).to.equal(Number(balanceAdminBefore.token) + Number(balanceBefore.token));
+        // expect(await admin.getBalance()).to.equal( balanceAdminBefore.native.add(balanceBefore.native) );  //...Gas?
       });
 
-      it("Should Update", async function () {
-        let testReactionContract = await ethers.getContractFactory("ReactionUpgradable").then(res => res.deploy());
-        await testReactionContract.deployed();
-        //Update Reaction Beacon (to the same implementation)
-        hubContract.upgradeReactionImplementation(testReactionContract.address);
-      });
+    }); //Cancelled Task Flow
 
-      it("Should Add Rules", async function () {
-        let ruleRef = {
+
+  }); // Game Flow
+
+  /**
+   * Court Flow
+   */
+  describe("Court Game Flow", function () {
+
+    before(async function () {
+      //Attach Court Functionality
+      this.courtContract = await ethers.getContractFactory("CourtExt").then(res => res.attach(gameContract.address));
+    });
+    
+    it("Should Set COURT Extension Contract", async function () {
+      //Change Game Type to Court
+      await gameContract.connect(admin).confSet("type", "COURT");
+      //Validate
+      expect(await gameContract.confGet("type")).to.equal("COURT");
+    });
+
+    it("Should be Created (by Game)", async function () {
+      //Soul Tokens
+      soulTokens.admin = await avatarContract.tokenByAddress(this.adminAddr);
+      soulTokens.tester3 = await avatarContract.tokenByAddress(this.tester3Addr);
+    
+      let claimName = "Test Claim #1";
+      let ruleRefArr = [
+        {
           game: gameContract.address, 
-          id: 2, 
-          // affected: "investor",
-        };
-        // await this.reactionContract.ruleAdd(ruleRef.game,  ruleRef.id, ruleRef.affected);
-        await this.reactionContract.connect(admin).ruleAdd(ruleRef.game,  ruleRef.id);
-      });
-      
-      it("Should Write a Post", async function () {
-        let post = {
+          ruleId: 1,
+        }
+      ];
+      let roleRefArr = [
+        {
+          role: "subject",
           tokenId: soulTokens.tester2,
-          entRole:"subject",
-          uri:test_uri,
-        };
+        },
+        {
+          role: "affected",
+          // tokenId: unOwnedTokenId,
+          tokenId: soulTokens.tester3,
+        },
+      ];
+      let posts = [
+        {
+          tokenId: soulTokens.admin, 
+          entRole: "admin",
+          uri: test_uri,
+        }
+      ];
 
-        //Validate Permissions
-        await expect(
-          //Failed Post
-          this.reactionContract.connect(tester).post(post.entRole, post.tokenId, post.uri)
-        ).to.be.revertedWith("POST:SOUL_NOT_YOURS");
+      //Join Game (as member)
+      await gameContract.connect(admin).join();
+      //Assign Admin as Member
+      // await this.gameContract.roleAssign(this.adminAddr, "member");
 
-        //Successful Post
-        let tx = await this.reactionContract.connect(tester2).post(post.entRole, post.tokenId, post.uri);
-        // wait until the transaction is mined
-        await tx.wait();
-        //Expect Event
-        await expect(tx).to.emit(this.reactionContract, 'Post').withArgs(this.tester2Addr, post.tokenId, post.entRole, post.uri);
-      });
+      //Simulate - Get New Claim Address
+      let claimAddr = await this.courtContract.connect(admin).callStatic.caseMake(claimName, test_uri, ruleRefArr, roleRefArr, posts);
+      // console.log("New Claim Address: ", claimAddr);
 
-      it("Should Update Token URI", async function () {
-        //Protected
-        await expect(
-          this.reactionContract.connect(tester3).setRoleURI("admin", test_uri)
-        ).to.be.revertedWith("INVALID_PERMISSIONS");
-        //Set Admin Token URI
-        await this.reactionContract.connect(admin).setRoleURI("admin", test_uri);
-        //Validate
-        expect(await this.reactionContract.roleURI("admin")).to.equal(test_uri);
-      });
+      //Create New Claim
+      let tx = await this.courtContract.connect(admin).caseMake(claimName, test_uri, ruleRefArr, roleRefArr, posts);
+      //Expect Valid Address
+      expect(claimAddr).to.be.properAddress;
 
-      it("Should Assign Witness", async function () {
-        //Assign Admin
-        await this.reactionContract.connect(admin).roleAssign(this.tester3Addr, "witness");
-        //Validate
-        expect(await this.reactionContract.roleHas(this.tester3Addr, "witness")).to.equal(true);
-      });
+      //Init Claim Contract
+      this.claimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.attach(claimAddr));
 
-      it("Game Authoritys Can Assign Themselves to Reaction", async function () {
-        //Assign as Game Authority
-        gameContract.connect(admin).roleAssign(this.tester4Addr, "authority")
-        //Assign Reaction Authority
-        await this.reactionContract.connect(tester4).roleAssign(this.tester4Addr, "authority");
-        //Validate
-        expect(await this.reactionContract.roleHas(this.tester4Addr, "authority")).to.equal(true);
-      });
-
-      it("User Can Open Reaction", async function () {
-        //Validate
-        await expect(
-          this.reactionContract.connect(tester2).stageFile()
-        ).to.be.revertedWith("ROLE:CREATOR_OR_ADMIN");
-        //File Reaction
-        let tx = await this.reactionContract.connect(admin).stageFile();
-        //Expect State Event
-        await expect(tx).to.emit(this.reactionContract, "Stage").withArgs(1);
-      });
-
-      it("Should Validate Authority with parent game", async function () {
-        //Validate
-        await expect(
-          this.reactionContract.connect(admin).roleAssign(this.tester3Addr, "authority")
-        ).to.be.revertedWith("User Required to hold same role in the Game context");
-      });
-
-      it("Anyone Can Apply to Join", async function () {
-        //Apply to Join Game
-        let tx = await this.reactionContract.connect(tester).nominate(soulTokens.tester, test_uri);
-        await tx.wait();
-        //Expect Event
-        await expect(tx).to.emit(this.reactionContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
-      });
-
-      it("Should Accept a Authority From the parent game", async function () {
-        //Check Before
-        // expect(await this.gameContract.roleHas(this.testerAddr, "authority")).to.equal(true);
-        //Assign Authority
-        await this.reactionContract.connect(admin).roleAssign(this.authorityAddr, "authority");
-        //Check After
-        expect(await this.reactionContract.roleHas(this.authorityAddr, "authority")).to.equal(true);
-      });
+      //Expect Claim Created Event
+      // await expect(tx).to.emit(gameContract, 'ClaimCreated').withArgs(1, claimAddr);   //DEPRECATED
+      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("claim", claimAddr);
       
-      it("Should Wait for Verdict Stage", async function () {
-        //File Reaction
-        let tx = await this.reactionContract.connect(authority).stageWaitForVerdict();
-        //Expect State Event
-        await expect(tx).to.emit(this.reactionContract, "Stage").withArgs(2);
-      });
+      //Expect Post Event
+      await expect(tx).to.emit(this.claimContract, 'Post').withArgs(this.adminAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
+    });
+    
+    it("Should be Created & Opened (by Game)", async function () {
+      let claimName = "Test Claim #1";
+      let ruleRefArr = [
+        {
+          game: gameContract.address, 
+          ruleId: 1,
+        }
+      ];
+      let roleRefArr = [
+        {
+          role: "subject",
+          tokenId: soulTokens.tester2,
+        },
+        {
+          role: "witness",
+          tokenId: soulTokens.tester3,
+        }
+      ];
+      let posts = [
+        {
+          tokenId: soulTokens.admin, 
+          entRole: "admin",
+          uri: test_uri,
+        }
+      ];
+      //Simulate - Get New Claim Address
+      let claimAddr = await this.courtContract.connect(admin).callStatic.caseMakeOpen(claimName, test_uri, ruleRefArr, roleRefArr, posts);
+      //Create New Claim
+      let tx = await this.courtContract.connect(admin).caseMakeOpen(claimName, test_uri, ruleRefArr, roleRefArr, posts);
+      //Expect Valid Address
+      expect(claimAddr).to.be.properAddress;
+      //Init Claim Contract
+      let claimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.attach(claimAddr));
+      
+      //Expect Claim Created Event
+      // await expect(tx).to.emit(gameContract, 'ClaimCreated').withArgs(2, claimAddr); //DEPRECATED
+      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("claim", claimAddr);
 
-      it("Should Wait for authority", async function () {
-        let verdict = [{ ruleId:1, decision: true }];
-        //File Reaction -- Expect Failure
-        await expect(
-          this.reactionContract.connect(tester2).stageVerdict(verdict, test_uri)
-        ).to.be.revertedWith("ROLE:AUTHORITY_ONLY");
-      });
+      //Expect Post Event
+      // await expect(tx).to.emit(claimContract, 'Post').withArgs(this.adminAddr, posts[0].tokenId, posts[0].entRole, posts[0].postRole, posts[0].uri);
+      await expect(tx).to.emit(claimContract, 'Post').withArgs(this.adminAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
+    });
 
-      it("Should Accept Verdict URI & Close Reaction", async function () {
-        let verdict = [{ruleId:1, decision:true}];
-        //Submit Verdict & Close Reaction
-        let tx = await this.reactionContract.connect(authority).stageVerdict(verdict, test_uri);
-        //Expect Verdict Event
-        await expect(tx).to.emit(this.reactionContract, 'Verdict').withArgs(test_uri, this.authorityAddr);
-        //Expect State Event
-        await expect(tx).to.emit(this.reactionContract, "Stage").withArgs(6);
-      });
 
-      // it("[TODO] Can Change Rating", async function () {
+    it("Should be Created & Closed (by Game)", async function () {
+      //Soul Tokens
+      soulTokens.authority = await avatarContract.tokenByAddress(this.authorityAddr);
+      const claim = {type:"CLAIM", name:"Test Claim #3"}
+      let ruleRefArr = [
+        {
+          game: gameContract.address, 
+          ruleId: 1,
+        }
+      ];
+      let roleRefArr = [
+        {
+          role: "subject",
+          tokenId: soulTokens.tester2,
+        },
+        {
+          role: "witness",
+          tokenId: soulTokens.tester3,
+        },
+      ];
+      let posts: any = [
+        // {
+        //   tokenId: soulTokens.authority, 
+        //   entRole: "authority",
+        //   uri: test_uri,
+        // }
+      ];
 
-        //TODO: Tests for Collect Rating
-        // let repCall = { tokenId:?, domain:?, rating:?};
-        // let result = this.gameContract.getRepForDomain(avatarContract.address,repCall. tokenId, repCall.domain, repCall.rating);
+      //Assign as a Member (Needs to be both a member and an authority)
+      // await gameContract.connect(authority).join();
+      await gameContract.connect(admin).roleAssign(this.authorityAddr, "member");
 
-        // //Expect Event
-        // await expect(tx).to.emit(avatarContract, 'ReputationChange').withArgs(repCall.tokenId, repCall.domain, repCall.rating, repCall.amount);
+      //Simulate - Get New Claim Address
+      let claimAddr = await this.courtContract.connect(authority).callStatic.caseMakeClosed(claim.name, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
+      //Create New Claim
+      let tx = await this.courtContract.connect(authority).caseMakeClosed(claim.name, test_uri, ruleRefArr, roleRefArr, posts, test_uri2);
+      //Expect Valid Address
+      expect(claimAddr).to.be.properAddress;
+      //Init Claim Contract
+      let claimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.attach(claimAddr));
+      
+      //Expect Claim Created Event
+      // await expect(tx).to.emit(gameContract, 'ClaimCreated').withArgs(3, claimAddr);  //DEPRECATED
+      await expect(tx).to.emit(hubContract, 'ContractCreated').withArgs("claim", claimAddr);
 
-        //Validate State
-        // getRepForDomain(address contractAddr, uint256 tokenId, string domain, bool rating) public view override returns (uint256) {
+      //Expect Post Event
+      // await expect(tx).to.emit(claimContract, 'Post').withArgs(this.authorityAddr, posts[0].tokenId, posts[0].entRole, posts[0].uri);
 
-        // let rep = await avatarContract.getRepForDomain(repCall.tokenId, repCall.domain, repCall.rating);
-        // expect(rep).to.equal(repCall.amount);
+      //Expect State Change Events
+      await expect(tx).to.emit(claimContract, "Stage").withArgs(1); //Open
+      await expect(tx).to.emit(claimContract, "Stage").withArgs(2);  //Verdict
+      await expect(tx).to.emit(claimContract, "Stage").withArgs(6);  //Closed
+    });
+    
+    it("Should Update Claim Contract URI", async function () {
+      //Before
+      expect(await this.claimContract.contractURI()).to.equal(test_uri);
+      //Change
+      await this.claimContract.setContractURI(test_uri2);
+      //After
+      expect(await this.claimContract.contractURI()).to.equal(test_uri2);
+    });
 
-        // //Other Domain Rep - Should be 0
-        // expect(await avatarContract.getRepForDomain(repCall.tokenId, repCall.domain + 1, repCall.rating)).to.equal(0);
+    it("Should Auto-Appoint creator as Admin", async function () {
+      expect(
+        await this.claimContract.roleHas(this.adminAddr, "admin")
+      ).to.equal(true);
+    });
 
-      // });
+    it("Tester expected to be in the subject role", async function () {
+      expect(
+        await this.claimContract.roleHas(this.tester2Addr, "subject")
+      ).to.equal(true);
+    });
 
-    }); //Court Game
+    it("Users Can Apply to Join", async function () {
+      //Apply to Join Game
+      let tx = await this.claimContract.connect(tester).nominate(soulTokens.tester, test_uri);
+      await tx.wait();
+      //Expect Event
+      await expect(tx).to.emit(this.claimContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
+    });
 
-  }); //Reaction
+    it("Should Update", async function () {
+      // let testClaimContract = await ethers.getContractFactory("ClaimUpgradable").then(res => res.deploy());
+      let testClaimContract = await deployContract("ClaimUpgradable", []);
+      await testClaimContract.deployed();
+      //Update Claim Beacon (to the same implementation)
+      hubContract.upgradeImplementation("claim", testClaimContract.address);
+    });
+
+    it("Should Add Rules", async function () {
+      let ruleRef = {
+        game: gameContract.address, 
+        id: 2, 
+        // affected: "investor",
+      };
+      // await this.claimContract.ruleRefAdd(ruleRef.game,  ruleRef.id, ruleRef.affected);
+      await this.claimContract.connect(admin).ruleRefAdd(ruleRef.game,  ruleRef.id);
+    });
+    
+    it("Should Write a Post", async function () {
+      let post = {
+        tokenId: soulTokens.tester2,
+        entRole:"subject",
+        uri:test_uri,
+      };
+
+      //Validate Permissions
+      await expect(
+        //Failed Post
+        this.claimContract.connect(tester).post(post.entRole, post.tokenId, post.uri)
+      ).to.be.revertedWith("POST:SOUL_NOT_YOURS");
+
+      //Successful Post
+      let tx = await this.claimContract.connect(tester2).post(post.entRole, post.tokenId, post.uri);
+      // wait until the transaction is mined
+      await tx.wait();
+      //Expect Event
+      await expect(tx).to.emit(this.claimContract, 'Post').withArgs(this.tester2Addr, post.tokenId, post.entRole, post.uri);
+    });
+
+    it("Should Update Token URI", async function () {
+      //Protected
+      await expect(
+        this.claimContract.connect(tester3).setRoleURI("admin", test_uri)
+      ).to.be.revertedWith("INVALID_PERMISSIONS");
+      //Set Admin Token URI
+      await this.claimContract.connect(admin).setRoleURI("admin", test_uri);
+      //Validate
+      expect(await this.claimContract.roleURI("admin")).to.equal(test_uri);
+    });
+
+    it("Should Assign Witness", async function () {
+      //Assign Admin
+      await this.claimContract.connect(admin).roleAssign(this.tester3Addr, "witness");
+      //Validate
+      expect(await this.claimContract.roleHas(this.tester3Addr, "witness")).to.equal(true);
+    });
+
+    it("Game Authoritys Can Assign Themselves to Claim", async function () {
+      //Assign as Game Authority
+      gameContract.connect(admin).roleAssign(this.tester4Addr, "authority")
+      //Assign Claim Authority
+      await this.claimContract.connect(tester4).roleAssign(this.tester4Addr, "authority");
+      //Validate
+      expect(await this.claimContract.roleHas(this.tester4Addr, "authority")).to.equal(true);
+    });
+
+    it("User Can Open Claim", async function () {
+      //Validate
+      await expect(
+        this.claimContract.connect(tester2).stageFile()
+      ).to.be.revertedWith("ROLE:CREATOR_OR_ADMIN");
+      //File Claim
+      let tx = await this.claimContract.connect(admin).stageFile();
+      //Expect State Event
+      await expect(tx).to.emit(this.claimContract, "Stage").withArgs(1);
+    });
+
+    it("Should Validate Authority with parent game", async function () {
+      //Validate
+      await expect(
+        this.claimContract.connect(admin).roleAssign(this.tester3Addr, "authority")
+      ).to.be.revertedWith("User Required to hold same role in the Game context");
+    });
+
+    it("Anyone Can Apply to Join", async function () {
+      //Apply to Join Game
+      let tx = await this.claimContract.connect(tester).nominate(soulTokens.tester, test_uri);
+      await tx.wait();
+      //Expect Event
+      await expect(tx).to.emit(this.claimContract, 'Nominate').withArgs(this.testerAddr, soulTokens.tester, test_uri);
+    });
+
+    it("Should Accept a Authority From the parent game", async function () {
+      //Check Before
+      // expect(await this.gameContract.roleHas(this.testerAddr, "authority")).to.equal(true);
+      //Assign Authority
+      await this.claimContract.connect(admin).roleAssign(this.authorityAddr, "authority");
+      //Check After
+      expect(await this.claimContract.roleHas(this.authorityAddr, "authority")).to.equal(true);
+    });
+    
+    it("Should Wait for Verdict Stage", async function () {
+      //File Claim
+      let tx = await this.claimContract.connect(authority).stageWaitForDecision();
+      //Expect State Event
+      await expect(tx).to.emit(this.claimContract, "Stage").withArgs(2);
+    });
+
+    it("Should Wait for authority", async function () {
+      let verdict = [{ ruleId:1, decision: true }];
+      //File Claim -- Expect Failure
+      await expect(
+        this.claimContract.connect(tester2).stageDecision(verdict, test_uri)
+      ).to.be.revertedWith("ROLE:AUTHORITY_ONLY");
+    });
+
+    it("Should Accept Verdict URI & Close Claim", async function () {
+      let verdict = [{ruleId:1, decision:true}];
+      //Submit Verdict & Close Claim
+      let tx = await this.claimContract.connect(authority).stageDecision(verdict, test_uri);
+      //Expect Verdict Event
+      await expect(tx).to.emit(this.claimContract, 'Verdict').withArgs(test_uri, this.authorityAddr);
+      //Expect State Event
+      await expect(tx).to.emit(this.claimContract, "Stage").withArgs(6);
+    });
+
+    // it("[TODO] Can Change Rating", async function () {
+
+      //TODO: Tests for Collect Rating
+      // let repCall = { tokenId:?, domain:?, rating:?};
+      // let result = this.gameContract.getRepForDomain(avatarContract.address,repCall. tokenId, repCall.domain, repCall.rating);
+
+      // //Expect Event
+      // await expect(tx).to.emit(avatarContract, 'ReputationChange').withArgs(repCall.tokenId, repCall.domain, repCall.rating, repCall.amount);
+
+      //Validate State
+      // getRepForDomain(address contractAddr, uint256 tokenId, string domain, bool rating) public view override returns (uint256) {
+
+      // let rep = await avatarContract.getRepForDomain(repCall.tokenId, repCall.domain, repCall.rating);
+      // expect(rep).to.equal(repCall.amount);
+
+      // //Other Domain Rep - Should be 0
+      // expect(await avatarContract.getRepForDomain(repCall.tokenId, repCall.domain + 1, repCall.rating)).to.equal(0);
+
+    // });
+
+  }); //Court Game Flow
     
 });

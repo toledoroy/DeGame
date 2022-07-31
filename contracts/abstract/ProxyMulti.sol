@@ -44,6 +44,7 @@ abstract contract ProxyMulti {
                 // delegatecall returns 0 on error.
                 case 0 {
                     // revert(0, returndatasize())
+                    //TODO: Return Error only if Function Found on Target Contract
                 }
                 default {
                     return(0, returndatasize())
@@ -53,7 +54,7 @@ abstract contract ProxyMulti {
         //If Nothing Found
         revert("NO_SUCH_FUNCTION");
     }
-    
+
     /**
      * @dev This is a virtual function that should be overridden so it returns the address to which the fallback function
      * and {_fallback} should delegate.

@@ -8,13 +8,22 @@ import "../interfaces/IERC1155RolesTracker.sol";
 import "../interfaces/IProtocolEntity.sol";
 import "../interfaces/IGameUp.sol";
 import "../interfaces/IHub.sol";
+import "../interfaces/ISoul.sol";
 
 /**
  * @title GameExtension
  */
 abstract contract GameExtension is Context {
 
-    //--- Storage
+    //--- Modifiers
+
+    
+    /// Permissions Modifier
+    modifier AdminOnly() {
+       //Validate Permissions
+        require(gameRoles().roleHas(_msgSender(), "admin"), "ADMIN_ONLY");
+        _;
+    }
     
     //--- Functions 
 
@@ -29,22 +38,33 @@ abstract contract GameExtension is Context {
     }
 
     /// Get Data Repo Address (From Hub)
-    function repoAddr() public view returns (address) {
-        return IProtocolEntity(address(this)).repoAddr();
+    function getRepoAddr() public view returns (address) {
+        return IProtocolEntity(address(this)).getRepoAddr();
     }
 
     /// Get Assoc Repo
     function repo() internal view returns (IOpenRepo) {
-        return IOpenRepo(repoAddr());
+        return IOpenRepo(getRepoAddr());
     }
 
     /// Hub Address
-    function hubAddress() internal view returns (address) {
+    function getHubAddress() internal view returns (address) {
         return IProtocolEntity(address(this)).getHub();
     }
       
     /// Get Hub
     function hub() internal view returns (IHub) {
-        return IHub(hubAddress());
+        return IHub(getHubAddress());
     }  
+
+    /// Get Soul Contract Address
+    function getSoulAddr() internal view returns (address) {
+        return repo().addressGetOf(getHubAddress(), "SBT");
+    }
+
+    /// Get Soul Contract
+    function soul() internal view returns (ISoul) {
+        return ISoul(getSoulAddr());
+    }  
+    
 }

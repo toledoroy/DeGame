@@ -66,13 +66,13 @@ abstract contract ProtocolEntityUpgradable is
     //** Data Repository 
     
     //Get Data Repo Address (From Hub)
-    function repoAddr() public view override returns (address) {
-        return _HUB.repoAddr();
+    function getRepoAddr() public view override returns (address) {
+        return _HUB.getRepoAddr();
     }
 
     //Get Assoc Repo
     function repo() internal view returns (IOpenRepo) {
-        return IOpenRepo(repoAddr());
+        return IOpenRepo(getRepoAddr());
     }
 
     /// Get Soul Contract Address
