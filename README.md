@@ -1,7 +1,6 @@
-# The Decentralized Gaming Protocol 
+# The Society Kit 
 
-Using the magic of decentralized cryptography to create a higher-level game system out of composible smart contracts and NFTs.
-
+Using the magic of decentralized cryptography to create a highe-level DeSoc building blocks out of composible smart contracts and NFTs.
 
 ## Overview
 
