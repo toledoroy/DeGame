@@ -7,7 +7,7 @@ Using the magic of decentralized cryptography to create a highe-level DeSoc buil
 This platform allows you to
 
 - Mint characters
-- Create games
+- Deploy games
 - Set up roles and incentives
 - Manage reputation
 - Design an interaction flow 
